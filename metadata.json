@@ -1,0 +1,6 @@
+{
+  "name": "JD LernPlayground",
+  "description": "Interaktive wöchentliche Lernwörter-Plattform für Grundschüler: Rechtschreibung, Grammatik, Satzbau und Bildgeschichten mit kindgerechten Avataren.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

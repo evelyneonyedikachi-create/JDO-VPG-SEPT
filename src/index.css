@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    font-size: 17.333px; /* 13pt base font size */
+    font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  body {
+    background-color: #F0F4F8;
+    color: #0F172A;
+    font-size: 17.333px; /* 13pt minimum */
+    line-height: 1.55;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  /* Enforce minimum 13pt across all inputs, buttons and typography */
+  input, button, select, textarea {
+    font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 17.333px; /* 13pt */
+  }
+  /* Ensure small text tags also maintain high legibility (min 13pt) */
+  small, .text-xs, .text-\[10px\], .text-\[11px\], .text-sm {
+    font-size: 17.333px !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtleBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-bounce-subtle {
+  animation: subtleBounce 2s ease-in-out infinite;
+}
+
+/* Print optimizations */
+@media print {
+  @page {
+    size: A4;
+    margin: 1.2cm;
+  }
+  body {
+    background-color: #ffffff !important;
+    font-size: 14pt !important;
+  }
+}
+
+
