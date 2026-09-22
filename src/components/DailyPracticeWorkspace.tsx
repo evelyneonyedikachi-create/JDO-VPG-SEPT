@@ -579,14 +579,14 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                   </div>
                 </div>
 
-                {/* PROMINENT IMAGE / VISUAL PRESENTATION (TWICE AS BIG ON SCREEN) */}
+                {/* PROMINENT IMAGE / VISUAL PRESENTATION (MUCH BIGGER ON SCREEN) */}
                 {currentEx.word && (
                   <div className="flex justify-center">
-                    <div className="w-48 h-48 sm:w-64 sm:h-64 rounded-3xl bg-gradient-to-tr from-indigo-50 via-slate-50 to-amber-50 border-2 border-indigo-100 shadow-md flex flex-col items-center justify-center relative overflow-hidden group">
-                      <div className="text-7xl sm:text-8xl animate-bounce-subtle select-none">
+                    <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-3xl bg-gradient-to-tr from-indigo-50 via-slate-50 to-amber-50 border-3 border-indigo-200 shadow-xl flex flex-col items-center justify-center relative overflow-hidden group">
+                      <div className="text-8xl sm:text-9xl animate-bounce-subtle select-none">
                         {currentEx.word.emoji || '📝'}
                       </div>
-                      <div className="absolute bottom-3 px-4 py-1 rounded-xl bg-white/95 backdrop-blur-xs border border-indigo-100 text-xs sm:text-sm font-black text-indigo-900 shadow-xs">
+                      <div className="absolute bottom-4 px-6 py-2 rounded-2xl bg-white/95 backdrop-blur-xs border-2 border-indigo-200 text-base sm:text-lg font-black text-indigo-950 shadow-md">
                         {currentEx.word.cleanWord}
                       </div>
                     </div>

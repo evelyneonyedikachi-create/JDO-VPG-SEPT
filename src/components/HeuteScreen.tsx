@@ -182,29 +182,29 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
       </div>
 
       {/* Week Overview Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Meine Lernwörter */}
         <div
           onClick={() => {
             playChime('click');
             onGoToWords();
           }}
-          className="bg-white rounded-3xl p-6 shadow-md border border-slate-200 hover:border-indigo-300 hover:shadow-lg transition-all cursor-pointer flex items-center justify-between group"
+          className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-slate-200 hover:border-indigo-400 hover:shadow-xl transition-all cursor-pointer flex items-center justify-between group"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          <div className="flex items-center gap-5">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-3xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center text-4xl sm:text-5xl group-hover:scale-110 transition-transform shrink-0 shadow-xs">
               📚
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-lg">
+              <h3 className="font-black text-slate-900 text-xl sm:text-2xl">
                 Meine Lernwörter
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              <p className="text-base text-slate-600 font-medium mt-1">
                 Lernwörter 1 & 2 erkunden, Sätze laut lesen und Karteikarten üben.
               </p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-6 h-6 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1.5 transition-all shrink-0 ml-3" />
         </div>
 
         {/* Card 2: Bildgeschichte */}
@@ -213,22 +213,22 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
             playChime('click');
             onGoToBildgeschichte();
           }}
-          className="bg-white rounded-3xl p-6 shadow-md border border-slate-200 hover:border-amber-300 hover:shadow-lg transition-all cursor-pointer flex items-center justify-between group"
+          className="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-slate-200 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer flex items-center justify-between group"
         >
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
+          <div className="flex items-center gap-5">
+            <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-3xl bg-amber-50 border-2 border-amber-100 flex items-center justify-center text-4xl sm:text-5xl group-hover:scale-110 transition-transform shrink-0 shadow-xs">
               📖
             </div>
             <div>
-              <h3 className="font-black text-slate-900 text-lg">
+              <h3 className="font-black text-slate-900 text-xl sm:text-2xl">
                 Bild-Geschichte
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              <p className="text-base text-slate-600 font-medium mt-1">
                 Eine spannende Woche: 9 Bilder mit allen Lernwörtern erzählen!
               </p>
             </div>
           </div>
-          <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-6 h-6 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-1.5 transition-all shrink-0 ml-3" />
         </div>
       </div>
     </div>

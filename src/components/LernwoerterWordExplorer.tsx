@@ -273,24 +273,24 @@ export const LernwoerterWordExplorer: React.FC<LernwoerterWordExplorerProps> = (
                           <span>Alle 6 Pronomen-Sätze zum lauten Üben:</span>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {item.sentences.map((s, sIdx) => (
                             <div
                               key={sIdx}
-                              className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-indigo-50/60 border border-slate-200/70 transition-colors"
+                              className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 hover:bg-indigo-50/70 border-2 border-slate-200/80 transition-colors"
                             >
-                              <div className="flex items-center gap-2.5">
-                                <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-800 text-xs font-black flex items-center justify-center">
+                              <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-900 text-sm font-black flex items-center justify-center shrink-0">
                                   {sIdx + 1}
                                 </span>
-                                <span className="text-sm font-bold text-slate-800">{s.text}</span>
+                                <span className="text-base sm:text-lg font-bold text-slate-900">{s.text}</span>
                               </div>
                               <button
                                 onClick={() => handleSpeak(s.text)}
-                                className="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-lg transition-colors"
+                                className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-xl transition-colors shrink-0 ml-2"
                                 title="Satz vorlesen"
                               >
-                                <Volume2 className="w-4 h-4" />
+                                <Volume2 className="w-5 h-5" />
                               </button>
                             </div>
                           ))}

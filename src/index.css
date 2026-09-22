@@ -2,24 +2,33 @@
 
 @layer base {
   html {
-    font-size: 17.333px; /* 13pt base font size */
+    font-size: 20px; /* 15pt base font size (15 * 1.3333 = 20px) */
     font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     background-color: #F0F4F8;
     color: #0F172A;
-    font-size: 17.333px; /* 13pt minimum */
-    line-height: 1.55;
+    font-size: 20px; /* 15pt minimum */
+    line-height: 1.6;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  /* Enforce minimum 13pt across all inputs, buttons and typography */
+  /* Enforce minimum 15pt across all inputs, buttons, selects, and textareas */
   input, button, select, textarea {
     font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 17.333px; /* 13pt */
+    font-size: 20px !important; /* 15pt minimum */
   }
-  /* Ensure small text tags also maintain high legibility (min 13pt) */
-  small, .text-xs, .text-\[10px\], .text-\[11px\], .text-sm {
-    font-size: 17.333px !important;
+  /* Ensure small text tags also maintain high legibility (minimum 15pt / 20px) */
+  small,
+  .text-xs,
+  .text-\[10px\],
+  .text-\[11px\],
+  .text-\[12px\],
+  .text-\[13px\],
+  .text-\[14px\],
+  .text-sm {
+    font-size: 20px !important; /* 15pt minimum */
+    line-height: 1.5;
   }
 }
 
@@ -51,16 +60,30 @@
   animation: subtleBounce 2s ease-in-out infinite;
 }
 
-/* Print optimizations */
+/* Print optimizations (15pt minimum for printed worksheets) */
 @media print {
   @page {
     size: A4;
-    margin: 1.2cm;
+    margin: 1cm;
   }
   body {
     background-color: #ffffff !important;
-    font-size: 14pt !important;
+    font-size: 15pt !important;
+    line-height: 1.5;
+  }
+  input, textarea, select, button, div, span, p, label {
+    font-size: 15pt !important;
+  }
+  h1 {
+    font-size: 22pt !important;
+  }
+  h2 {
+    font-size: 19pt !important;
+  }
+  h3 {
+    font-size: 17pt !important;
   }
 }
+
 
 

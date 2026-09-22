@@ -352,6 +352,39 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
         userHint2: 'Das Spiel beginnt!',
         grammarCategory: 'Grammatik',
       });
+    } else if (v.cleanWord === 'brennen') {
+      exercises.push({
+        id: `tue_conj_${v.id}_1`,
+        day: 'tuesday',
+        level: 'starter',
+        type: 'verb_conjugation',
+        title: 'Verbform anpassen',
+        prompt: 'Das Holz ___ hell im Kamin.',
+        avatarId: 'ben',
+        word: v,
+        options: ['brennt', 'brenne', 'brennst'],
+        correctAnswer: 'brennt',
+        solutionExplanation: 'Das Holz (es) brennt hell im Kamin.',
+        userHint1: 'Achte auf die Einzahl: Das Holz brennt.',
+        userHint2: 'Das Holz brennt!',
+        grammarCategory: 'Grammatik',
+      });
+      exercises.push({
+        id: `tue_conj_${v.id}_2`,
+        day: 'tuesday',
+        level: 'meister',
+        type: 'verb_conjugation',
+        title: 'Verbform anpassen',
+        prompt: 'Wir ___ vor Begeisterung beim Spiel.',
+        avatarId: 'ben',
+        word: v,
+        options: ['brennen', 'brennt', 'brennst'],
+        correctAnswer: 'brennen',
+        solutionExplanation: 'Bei "Wir" heißt es: Wir brennen.',
+        userHint1: 'Bei "Wir" bleibt das Verb in der Grundform (-en).',
+        userHint2: 'Wir brennen!',
+        grammarCategory: 'Grammatik',
+      });
     }
   });
 
