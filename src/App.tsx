@@ -239,13 +239,13 @@ export default function App() {
           </div>
 
           {/* Child Primary Navigation Tabs */}
-          <nav className="hidden lg:flex items-center gap-2">
+          <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
             <button
               onClick={() => {
                 playChime('click');
                 setCurrentView('heute');
               }}
-              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
+              className={`px-3.5 lg:px-4 py-2 lg:py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
                 currentView === 'heute'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -259,7 +259,7 @@ export default function App() {
                 playChime('click');
                 setCurrentView('woerter');
               }}
-              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
+              className={`px-3.5 lg:px-4 py-2 lg:py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
                 currentView === 'woerter'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -273,7 +273,7 @@ export default function App() {
                 playChime('click');
                 setCurrentView('ueben');
               }}
-              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
+              className={`px-3.5 lg:px-4 py-2 lg:py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
                 currentView === 'ueben'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -287,7 +287,7 @@ export default function App() {
                 playChime('click');
                 setCurrentView('bildgeschichte');
               }}
-              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
+              className={`px-3.5 lg:px-4 py-2 lg:py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
                 currentView === 'bildgeschichte'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -301,7 +301,7 @@ export default function App() {
                 playChime('click');
                 setCurrentView('sterne');
               }}
-              className={`px-4 py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
+              className={`px-3.5 lg:px-4 py-2 lg:py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
                 currentView === 'sterne'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'

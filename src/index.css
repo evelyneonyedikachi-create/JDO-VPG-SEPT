@@ -2,33 +2,20 @@
 
 @layer base {
   html {
-    font-size: 20px; /* 15pt base font size (15 * 1.3333 = 20px) */
+    font-size: 18px; /* Clean, comfortable base */
     font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-text-size-adjust: 100%;
   }
   body {
     background-color: #F0F4F8;
     color: #0F172A;
-    font-size: 20px; /* 15pt minimum */
+    font-size: 18px;
     line-height: 1.6;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  /* Enforce minimum 15pt across all inputs, buttons, selects, and textareas */
-  input, button, select, textarea {
+  /* Primary inputs, buttons, and textareas comfortable and clear */
+  input, select, textarea {
     font-family: 'Quicksand', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 20px !important; /* 15pt minimum */
-  }
-  /* Ensure small text tags also maintain high legibility (minimum 15pt / 20px) */
-  small,
-  .text-xs,
-  .text-\[10px\],
-  .text-\[11px\],
-  .text-\[12px\],
-  .text-\[13px\],
-  .text-\[14px\],
-  .text-sm {
-    font-size: 20px !important; /* 15pt minimum */
-    line-height: 1.5;
   }
 }
 
@@ -60,7 +47,7 @@
   animation: subtleBounce 2s ease-in-out infinite;
 }
 
-/* Print optimizations (15pt minimum for printed worksheets) */
+/* Print optimizations for A4 worksheets */
 @media print {
   @page {
     size: A4;
@@ -68,20 +55,11 @@
   }
   body {
     background-color: #ffffff !important;
-    font-size: 15pt !important;
-    line-height: 1.5;
+    font-size: 12pt;
+    line-height: 1.4;
   }
-  input, textarea, select, button, div, span, p, label {
-    font-size: 15pt !important;
-  }
-  h1 {
-    font-size: 22pt !important;
-  }
-  h2 {
-    font-size: 19pt !important;
-  }
-  h3 {
-    font-size: 17pt !important;
+  .print-page-break {
+    page-break-after: always;
   }
 }
 
