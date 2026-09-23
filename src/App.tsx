@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { DayOfWeek, DifficultyLevel, LernwortItem, PracticeMistake, WeeklyCurriculum } from './types/lernwoerter';
+import {
+  DayOfWeek,
+  DifficultyLevel,
+  LernwortItem,
+  MiniExamResult,
+  PausedSessionState,
+  PracticeMistake,
+  SkippedExerciseItem,
+  WeeklyCurriculum,
+} from './types/lernwoerter';
 import { INITIAL_CURRICULUM } from './data/defaultWeeklyCurriculum';
 import { HeuteScreen } from './components/HeuteScreen';
 import { LernwoerterWordExplorer } from './components/LernwoerterWordExplorer';
@@ -8,6 +17,7 @@ import { BildgeschichteWorkshop } from './components/BildgeschichteWorkshop';
 import { SterneRewardsScreen } from './components/SterneRewardsScreen';
 import { ParentLernwoerterBackend } from './components/ParentLernwoerterBackend';
 import { PrintWorksheetModal } from './components/PrintWorksheetModal';
+import { MiniExamModal } from './components/MiniExamModal';
 import { VoiceGamesHub } from './components/VoiceGames/VoiceGamesHub';
 import { PLAYMATES } from './data/characters';
 import { playChime } from './utils/soundEffects';
@@ -22,7 +32,15 @@ import {
   Printer,
   Flame,
   Gamepad2,
+  Cloud,
+  Check,
 } from 'lucide-react';
+import {
+  fetchRemoteProgress,
+  queueProgressSync,
+  subscribeSyncStatus,
+  SyncState,
+} from './services/progressSyncService';
 
 type MainView = 'heute' | 'woerter' | 'ueben' | 'bildgeschichte' | 'sterne' | 'games';
 
@@ -80,30 +98,35 @@ export default function App() {
     }
   });
 
-  // Points tracking (per day and per week)
+  // Points tracking (per day, capped per week at 100 max, and cumulative for long-term reward ladder)
   const todayKey = new Date().toISOString().slice(0, 10);
   const [pointsState, setPointsState] = useState<{
     pointsToday: number;
-    pointsWeek: number;
+    pointsWeek: number; // strictly capped at 100 max
+    cumulativePoints: number; // separate cumulative counter for reward ladder (1000 Pkt = Pizza + Fanta)
     lastDate: string;
   }>(() => {
     try {
-      const saved = localStorage.getItem('jd_points_state');
+      const saved = localStorage.getItem('jd_points_state_v3');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.lastDate !== todayKey) {
-          // If new day, reset today's points, keep week points
           return {
             pointsToday: 0,
-            pointsWeek: parsed.pointsWeek || 0,
+            pointsWeek: Math.min(100, parsed.pointsWeek || 0),
+            cumulativePoints: parsed.cumulativePoints || 420,
             lastDate: todayKey,
           };
         }
-        return parsed;
+        return {
+          ...parsed,
+          pointsWeek: Math.min(100, parsed.pointsWeek || 0),
+          cumulativePoints: parsed.cumulativePoints || 420,
+        };
       }
-      return { pointsToday: 40, pointsWeek: 160, lastDate: todayKey };
+      return { pointsToday: 24, pointsWeek: 65, cumulativePoints: 420, lastDate: todayKey };
     } catch {
-      return { pointsToday: 40, pointsWeek: 160, lastDate: todayKey };
+      return { pointsToday: 24, pointsWeek: 65, cumulativePoints: 420, lastDate: todayKey };
     }
   });
 
@@ -111,14 +134,89 @@ export default function App() {
     setPointsState((prev) => {
       const updated = {
         pointsToday: prev.pointsToday + points,
-        pointsWeek: prev.pointsWeek + points,
+        pointsWeek: Math.min(100, prev.pointsWeek + points), // STRICT 100 PTS WEEKLY CAP
+        cumulativePoints: (prev.cumulativePoints || 0) + points, // ACCUMULATES FOR LONG-TERM REWARDS
         lastDate: todayKey,
       };
       try {
-        localStorage.setItem('jd_points_state', JSON.stringify(updated));
+        localStorage.setItem('jd_points_state_v3', JSON.stringify(updated));
       } catch {}
       return updated;
     });
+  };
+
+  // Skipped exercises weekly queue
+  const [skippedExercises, setSkippedExercises] = useState<SkippedExerciseItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('jd_skipped_queue');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleSkipExercise = (item: SkippedExerciseItem) => {
+    setSkippedExercises((prev) => {
+      const updated = [...prev.filter((i) => i.exerciseId !== item.exerciseId), item];
+      try {
+        localStorage.setItem('jd_skipped_queue', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  const handleCompleteSkipped = (skippedId: string) => {
+    setSkippedExercises((prev) => {
+      const updated = prev.filter((i) => i.id !== skippedId);
+      try {
+        localStorage.setItem('jd_skipped_queue', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  // Paused session state (for returning later)
+  const [pausedSession, setPausedSession] = useState<PausedSessionState | null>(() => {
+    try {
+      const saved = localStorage.getItem('jd_paused_session');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const handleSavePauseSession = (state: PausedSessionState | null) => {
+    setPausedSession(state);
+    try {
+      if (state) {
+        localStorage.setItem('jd_paused_session', JSON.stringify(state));
+      } else {
+        localStorage.removeItem('jd_paused_session');
+      }
+    } catch {}
+  };
+
+  // 4-Week Cycle Mini Exam
+  const [showMiniExam, setShowMiniExam] = useState<boolean>(false);
+  const [miniExamHistory, setMiniExamHistory] = useState<MiniExamResult[]>(() => {
+    try {
+      const saved = localStorage.getItem('jd_mini_exam_results');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleFinishExam = (result: MiniExamResult) => {
+    setMiniExamHistory((prev) => {
+      const updated = [result, ...prev];
+      try {
+        localStorage.setItem('jd_mini_exam_results', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    handleAwardPoints(20, '4-Wochen Mini-Prüfung abgeschlossen!');
+    handleRewardStars(10, 'Mini-Prüfung Urkunde!');
   };
 
   // Mistakes for spaced repetition ("Noch üben")
@@ -160,6 +258,66 @@ export default function App() {
       return [];
     }
   });
+
+  // Calculate weak words from mistakes
+  const mistakeCounts = mistakes.reduce((acc, m) => {
+    const clean = m.word.replace(/^(der|die|das)\s+/i, '').trim();
+    acc[clean] = (acc[clean] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const calculatedWeakWords = Object.keys(mistakeCounts);
+  const activeWeakWords = calculatedWeakWords.length > 0 ? calculatedWeakWords : ['schwimmen', 'Zimmer'];
+
+  // Backend persistence & cross-device sync
+  const [syncStatus, setSyncStatus] = useState<SyncState>('idle');
+  const isInitialRemoteLoadDone = React.useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeSyncStatus(setSyncStatus);
+
+    fetchRemoteProgress('jedidiah').then((remote) => {
+      if (remote) {
+        if (remote.curriculum) setCurriculum(remote.curriculum);
+        if (typeof remote.starsCount === 'number') setStarsCount(remote.starsCount);
+        if (typeof remote.streakDays === 'number') setStreakDays(remote.streakDays);
+        if (remote.pointsState) setPointsState(remote.pointsState);
+        if (Array.isArray(remote.skippedExercises)) setSkippedExercises(remote.skippedExercises);
+        if (remote.pausedSession !== undefined) setPausedSession(remote.pausedSession);
+        if (Array.isArray(remote.miniExamHistory)) setMiniExamHistory(remote.miniExamHistory);
+        if (Array.isArray(remote.mistakes)) setMistakes(remote.mistakes);
+      }
+      isInitialRemoteLoadDone.current = true;
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Queue backend sync whenever progress state updates
+  useEffect(() => {
+    if (!isInitialRemoteLoadDone.current) return;
+    queueProgressSync(
+      {
+        curriculum,
+        starsCount,
+        streakDays,
+        pointsState,
+        skippedExercises,
+        pausedSession,
+        miniExamHistory,
+        mistakes,
+      },
+      'jedidiah'
+    );
+  }, [
+    curriculum,
+    starsCount,
+    streakDays,
+    pointsState,
+    skippedExercises,
+    pausedSession,
+    miniExamHistory,
+    mistakes,
+  ]);
 
   // Modals
   const [showParentBackend, setShowParentBackend] = useState<boolean>(false);
@@ -339,6 +497,34 @@ export default function App() {
               <span className="hidden sm:inline">Drucken</span>
             </button>
 
+            {/* Cloud Sync Status */}
+            <div
+              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-2 rounded-2xl border text-xs font-bold transition-all ${
+                syncStatus === 'syncing'
+                  ? 'bg-amber-50 border-amber-200 text-amber-800 animate-pulse'
+                  : syncStatus === 'offline'
+                  ? 'bg-slate-100 border-slate-200 text-slate-500'
+                  : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              }`}
+              title={
+                syncStatus === 'syncing'
+                  ? 'Synchronisiere mit der Datenbank...'
+                  : syncStatus === 'offline'
+                  ? 'Offline-Modus: Daten sicher im Browser gespeichert'
+                  : 'Fortschritt sicher mit Datenbank & allen Geräten synchronisiert'
+              }
+            >
+              <Cloud className="w-4 h-4 shrink-0" />
+              <span>
+                {syncStatus === 'syncing'
+                  ? 'Sichert...'
+                  : syncStatus === 'offline'
+                  ? 'Lokal'
+                  : 'Gesichert'}
+              </span>
+              {syncStatus === 'synced' && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+            </div>
+
             {/* Parent Area (PIN 1234) */}
             <button
               id="btn-parent-dashboard"
@@ -400,10 +586,22 @@ export default function App() {
             streakDays={streakDays}
             pointsToday={pointsState.pointsToday}
             pointsWeek={pointsState.pointsWeek}
+            cumulativePoints={pointsState.cumulativePoints}
+            pausedSession={pausedSession}
+            onResumePaused={() => {
+              if (pausedSession) {
+                setActiveDay(pausedSession.day);
+                setCurrentView('ueben');
+              }
+            }}
+            skippedCount={skippedExercises.length}
+            weakWords={activeWeakWords}
             onStartToday={() => setCurrentView('ueben')}
             onGoToWords={() => setCurrentView('woerter')}
             onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
             onOpenWorksheet={() => openPrintForDay(activeDay)}
+            onOpenRewards={() => setCurrentView('sterne')}
+            onOpenMiniExam={() => setShowMiniExam(true)}
           />
         )}
 
@@ -423,11 +621,18 @@ export default function App() {
             words={curriculum.words}
             pointsToday={pointsState.pointsToday}
             pointsWeek={pointsState.pointsWeek}
+            cumulativePoints={pointsState.cumulativePoints}
             onRewardStars={handleRewardStars}
             onAwardPoints={handleAwardPoints}
             onRecordMistake={handleRecordMistake}
             onOpenWorksheet={openPrintForDay}
             onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
+            skippedExercises={skippedExercises}
+            onSkipExercise={handleSkipExercise}
+            onCompleteSkipped={handleCompleteSkipped}
+            pausedSession={pausedSession}
+            onSavePauseSession={handleSavePauseSession}
+            weakWords={activeWeakWords}
           />
         )}
 
@@ -451,6 +656,7 @@ export default function App() {
             streakDays={streakDays}
             pointsToday={pointsState.pointsToday}
             pointsWeek={pointsState.pointsWeek}
+            cumulativePoints={pointsState.cumulativePoints}
             onBackToHome={() => setCurrentView('heute')}
           />
         )}
@@ -488,6 +694,12 @@ export default function App() {
           mistakes={mistakes}
           onClearResolvedMistakes={handleClearResolvedMistakes}
           onClose={() => setShowParentBackend(false)}
+          pointsWeek={pointsState.pointsWeek}
+          cumulativePoints={pointsState.cumulativePoints}
+          skippedCount={skippedExercises.length}
+          weakWords={activeWeakWords}
+          strongWords={['Zimmer', 'Messer', 'Kuss', 'Schloss', 'passen', 'dünn']}
+          miniExamHistory={miniExamHistory}
         />
       )}
 
@@ -498,6 +710,15 @@ export default function App() {
           words={curriculum.words}
           scenes={curriculum.scenes}
           onClose={() => setShowPrintModal(false)}
+        />
+      )}
+
+      {/* MODAL 3: 4-WEEK CYCLE MINI EXAM MODAL */}
+      {showMiniExam && (
+        <MiniExamModal
+          words={curriculum.words}
+          onClose={() => setShowMiniExam(false)}
+          onFinishExam={handleFinishExam}
         />
       )}
     </div>

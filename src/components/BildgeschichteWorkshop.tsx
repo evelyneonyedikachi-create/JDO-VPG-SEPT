@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { BildgeschichteScene, LernwortItem } from '../types/lernwoerter';
-import { Volume2, Sparkles, BookOpen, CheckCircle2, AlertCircle, Printer, Trophy, Wand2, RotateCcw } from 'lucide-react';
+import { Volume2, Sparkles, BookOpen, CheckCircle2, AlertCircle, Printer, Trophy, Wand2, RotateCcw, Lock } from 'lucide-react';
 import { speakGerman } from '../services/speechSynthesisService';
 import { playChime } from '../utils/soundEffects';
+import { getModelSolutionUnlockStatus } from '../utils/textValidation';
 
 interface BildgeschichteWorkshopProps {
   scenes: BildgeschichteScene[];
@@ -60,7 +61,27 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
     }
   });
 
+  const [revealedWordHelp, setRevealedWordHelp] = useState<Record<number, boolean>>({});
+  const [revealedSolution, setRevealedSolution] = useState<Record<number, boolean>>({});
+  const [sceneLevel, setSceneLevel] = useState<1 | 2 | 3 | 4>(4);
   const [completedSaved, setCompletedSaved] = useState<boolean>(false);
+
+  const toggleWordHelp = (sceneId: number) => {
+    playChime('click');
+    setRevealedWordHelp((prev) => ({ ...prev, [sceneId]: !prev[sceneId] }));
+  };
+
+  const toggleSolution = (sceneId: number) => {
+    playChime('click');
+    setRevealedSolution((prev) => ({ ...prev, [sceneId]: !prev[sceneId] }));
+  };
+
+  const visibleScenes = useMemo(() => {
+    if (sceneLevel === 1) return scenes.slice(0, 1);
+    if (sceneLevel === 2) return scenes.slice(0, 2);
+    if (sceneLevel === 3) return scenes.slice(0, 3);
+    return scenes;
+  }, [scenes, sceneLevel]);
 
   // Save changes
   const handleSceneTextChange = (sceneId: number, text: string) => {
@@ -231,12 +252,55 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
         </div>
       </div>
 
-      {/* FREITAG MODE: SCENE-BY-SCENE (IMAGES ARE TWICE AS BIG ON SCREEN) */}
+      {/* FREITAG MODE: SCENE-BY-SCENE */}
       {activeTab === 'scenes_step' && (
         <div className="space-y-6">
-          {/* Sentence Starters Tool Box */}
+          {/* Difficulty Level Selector (Section 15) */}
+          <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">
+                Schwierigkeitsstufe wählen:
+              </div>
+              <div className="text-sm font-bold text-slate-800">
+                {sceneLevel === 1
+                  ? 'Stufe 1: 1 Bild – schreibe 1 Satz'
+                  : sceneLevel === 2
+                  ? 'Stufe 2: 2 Bilder – schreibe je 1 Satz'
+                  : sceneLevel === 3
+                  ? 'Stufe 3: 3 Bilder – nutze zuerst, dann, am Ende'
+                  : 'Stufe 4: Alle 9 Bilder – die vollständige Bildergeschichte'}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {[
+                { lvl: 1 as const, label: '1 Bild' },
+                { lvl: 2 as const, label: '2 Bilder' },
+                { lvl: 3 as const, label: '3 Bilder' },
+                { lvl: 4 as const, label: 'Alle 9 Bilder' },
+              ].map((opt) => (
+                <button
+                  key={opt.lvl}
+                  onClick={() => {
+                    playChime('click');
+                    setSceneLevel(opt.lvl);
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all ${
+                    sceneLevel === opt.lvl
+                      ? 'bg-amber-500 text-white shadow-md scale-105'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sentence Starters Tool Box with LARGER FONT (Section 11) */}
           <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200">
             <div className="text-sm font-black uppercase text-amber-900 mb-2.5 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-600" />
               <span>💡 Hilfreiche Satzanfänge (klicke zum Vorlesen):</span>
             </div>
             <div className="flex flex-wrap gap-2.5">
@@ -247,7 +311,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                     playChime('click');
                     handleSpeak(st.replace('…', ''));
                   }}
-                  className="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-sm font-bold border border-amber-200 shadow-2xs transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 text-base font-bold border border-amber-200 shadow-2xs transition-colors"
                 >
                   {st}
                 </button>
@@ -255,17 +319,20 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
             </div>
           </div>
 
-          {/* 9 SCENES GRID - IMAGES TWICE AS BIG */}
+          {/* SCENES GRID - IMAGES FIRST, NO SPOILER TEXTS (Section 10 & 12) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {scenes.map((scene) => {
+            {visibleScenes.map((scene) => {
               const currentVal = sceneTexts[scene.id] || '';
+              const isHelpOpen = !!revealedWordHelp[scene.id];
+              const isSolutionOpen = !!revealedSolution[scene.id];
+
               return (
                 <div
                   key={scene.id}
                   className="bg-white rounded-3xl p-6 shadow-md border-2 border-slate-200 flex flex-col justify-between space-y-5 hover:border-amber-300 transition-colors"
                 >
-                  <div>
-                    {/* Scene Image / Icon - TWICE AS BIG (h-64 sm:h-72, text-8xl) */}
+                  <div className="space-y-4">
+                    {/* Scene Image / Icon - TWICE AS BIG */}
                     <div className="w-full h-64 sm:h-72 rounded-3xl bg-gradient-to-tr from-amber-50 via-orange-50 to-amber-100 border-2 border-amber-200 flex flex-col items-center justify-center text-8xl sm:text-9xl relative overflow-hidden shadow-inner group">
                       <span className="animate-bounce-subtle select-none">{scene.emoji}</span>
                       <span className="absolute top-3 left-3 text-sm font-black uppercase px-3 py-1 rounded-xl bg-white/95 text-amber-900 border border-amber-200 shadow-xs">
@@ -273,40 +340,108 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                       </span>
                     </div>
 
-                    <div className="mt-4">
-                      <h4 className="font-black text-slate-900 text-lg sm:text-xl">
+                    {/* PROMINENT TASK INSTRUCTION (No giveaway description!) */}
+                    <div>
+                      <div className="text-xs font-black uppercase tracking-wider text-slate-400">
                         {scene.title}
+                      </div>
+                      <h4 className="text-xl sm:text-2xl font-black text-indigo-900 mt-1">
+                        Was passiert auf diesem Bild?
                       </h4>
-                      <p className="text-sm sm:text-base text-slate-600 mt-1 font-medium leading-relaxed">
-                        {scene.description}
+                      <p className="text-sm font-semibold text-slate-500 mt-0.5">
+                        Schau dir das Bild genau an und schreibe 1–2 Sätze dazu.
                       </p>
                     </div>
 
-                    {/* Suggested words */}
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                      {scene.suggestedWords.map((sw, wIdx) => (
-                        <span
-                          key={wIdx}
-                          className="px-3 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs sm:text-sm font-bold"
-                        >
-                          {sw}
-                        </span>
-                      ))}
+                    {/* Clickable Sentence Starters for this scene */}
+                    {scene.starterIdeas && scene.starterIdeas.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {scene.starterIdeas.map((st, stIdx) => (
+                          <button
+                            key={stIdx}
+                            onClick={() => {
+                              playChime('click');
+                              const cleanSt = st.replace('…', '').trim();
+                              handleSceneTextChange(
+                                scene.id,
+                                currentVal ? `${currentVal} ${cleanSt}` : `${cleanSt} `
+                              );
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs sm:text-sm font-bold border border-amber-200 shadow-2xs transition-colors"
+                            title="Klicken zum Einfügen in deinen Text"
+                          >
+                            + {st}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* OPTIONAL WÖRTER-HILFE (Behind button, Section 12) */}
+                    <div className="pt-1">
+                      <button
+                        type="button"
+                        onClick={() => toggleWordHelp(scene.id)}
+                        className="text-xs font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 transition-colors"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>{isHelpOpen ? 'Wörter-Hilfe verbergen' : '💡 Wörter-Hilfe anzeigen'}</span>
+                      </button>
+
+                      {isHelpOpen && (
+                        <div className="flex flex-wrap gap-1.5 mt-2.5 p-3 rounded-2xl bg-indigo-50/60 border border-indigo-200 animate-fade-in">
+                          {scene.suggestedWords.map((sw, wIdx) => (
+                            <span
+                              key={wIdx}
+                              className="px-3 py-1 rounded-lg bg-white border border-indigo-200 text-indigo-900 text-xs sm:text-sm font-bold shadow-2xs"
+                            >
+                              {sw}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Student Sentence Input */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                      Schreibe 1–2 Sätze:
+                  <div className="space-y-3 pt-2">
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                      Deine Sätze:
                     </label>
                     <textarea
                       rows={3}
                       value={currentVal}
                       onChange={(e) => handleSceneTextChange(scene.id, e.target.value)}
-                      placeholder={scene.starterIdeas[0] || 'Zuerst...'}
-                      className="w-full p-3.5 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-base font-semibold text-slate-800 resize-none bg-slate-50 focus:bg-white"
+                      placeholder="Schreibe hier deine Sätze zum Bild..."
+                      className="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-base font-semibold text-slate-800 resize-none bg-slate-50 focus:bg-white shadow-inner"
                     />
+
+                    {/* MODEL SENTENCE TOGGLE ONLY AFTER WRITING (Requires 2–3 meaningful words) */}
+                    {(() => {
+                      const unlockStatus = getModelSolutionUnlockStatus(currentVal, 2);
+                      return unlockStatus.isUnlocked ? (
+                        <div className="space-y-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => toggleSolution(scene.id)}
+                            className="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1.5"
+                          >
+                            <BookOpen className="w-3.5 h-3.5" />
+                            <span>{isSolutionOpen ? 'Musterbeispiel verbergen' : 'Musterbeispiel ansehen'}</span>
+                          </button>
+
+                          {isSolutionOpen && (
+                            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs sm:text-sm font-bold leading-relaxed animate-fade-in">
+                              Musterbeispiel: „{scene.description}“
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 py-1 select-none">
+                          <Lock className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Musterbeispiel gesperrt ({unlockStatus.label})</span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               );

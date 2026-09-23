@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
 import dotenv from 'dotenv';
@@ -701,6 +702,89 @@ Provide:
       parentObservation: 'Jedidiah hat heute mit Begeisterung gesprochen und eigene Ideen formuliert.',
     });
   }
+});
+
+// ==========================================
+// PERSISTENT PROGRESS & DATABASE STORAGE API
+// Ensures cross-device continuity and guards against browser localStorage clearing
+// ==========================================
+const DATA_DIR = path.join(process.cwd(), 'data');
+const PROGRESS_FILE = path.join(DATA_DIR, 'user_progress.json');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  } catch (err) {
+    console.warn('Could not create data directory:', err);
+  }
+}
+
+// In-memory cache for fast read/writes
+let inMemoryProgress: Record<string, any> = {};
+try {
+  if (fs.existsSync(PROGRESS_FILE)) {
+    const raw = fs.readFileSync(PROGRESS_FILE, 'utf-8');
+    inMemoryProgress = JSON.parse(raw);
+  }
+} catch (e) {
+  console.warn('Failed to load user progress file, starting fresh:', e);
+}
+
+// Helper to save in-memory progress to disk
+function persistProgressToDisk() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(PROGRESS_FILE, JSON.stringify(inMemoryProgress, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error writing progress to disk:', e);
+  }
+}
+
+// GET user progress
+app.get('/api/progress/:userId?', (req, res) => {
+  const userId = req.params.userId || 'jedidiah';
+  const data = inMemoryProgress[userId] || null;
+  res.json({
+    success: true,
+    userId,
+    data,
+    serverTimestamp: Date.now(),
+  });
+});
+
+// POST save user progress
+app.post('/api/progress/:userId?', (req, res) => {
+  const userId = req.params.userId || 'jedidiah';
+  const progressPayload = req.body;
+
+  if (!progressPayload || typeof progressPayload !== 'object') {
+    return res.status(400).json({ success: false, error: 'Invalid progress payload' });
+  }
+
+  inMemoryProgress[userId] = {
+    ...(inMemoryProgress[userId] || {}),
+    ...progressPayload,
+    lastSavedAt: Date.now(),
+  };
+
+  persistProgressToDisk();
+
+  res.json({
+    success: true,
+    userId,
+    lastSavedAt: inMemoryProgress[userId].lastSavedAt,
+  });
+});
+
+// DELETE / Reset progress
+app.delete('/api/progress/:userId?', (req, res) => {
+  const userId = req.params.userId || 'jedidiah';
+  delete inMemoryProgress[userId];
+  persistProgressToDisk();
+  res.json({ success: true, userId, message: 'Progress reset on server' });
 });
 
 async function startServer() {

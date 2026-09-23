@@ -101,8 +101,68 @@ export interface PracticeMistake {
 
 export interface PointsState {
   pointsToday: number;
-  pointsWeek: number;
+  pointsWeek: number; // strictly capped at 100 per week
+  cumulativePoints: number; // total accumulated points across all weeks for long-term reward ladder
   lastActiveDate: string; // e.g. "2026-09-22"
+}
+
+export type ExerciseStatus = 'open' | 'correct' | 'wrong' | 'skipped' | 'paused' | 'needs_review';
+
+export interface SkippedExerciseItem {
+  id: string;
+  day: DayOfWeek;
+  level: DifficultyLevel;
+  exerciseId: string;
+  title: string;
+  prompt?: string;
+  wordClean: string;
+  grammarCategory?: 'Rechtschreibung' | 'Grammatik' | 'Artikel' | 'Satzbau';
+  skippedAt: number;
+  exerciseData?: any; // Full GeneratedExercise payload for instant resumption anywhere
+}
+
+export interface PausedSessionState {
+  day: DayOfWeek;
+  level: DifficultyLevel;
+  exerciseIndex: number;
+  exerciseQueueIds: string[];
+  currentInputText?: string;
+  currentSelectedOption?: string;
+  savedAt: number;
+}
+
+export interface CumulativeRewardMilestone {
+  pointsNeeded: number;
+  title: string;
+  rewardDescription: string;
+  emoji: string;
+  badgeName: string;
+}
+
+export interface MiniExamQuestion {
+  id: string;
+  wordId: string;
+  wordClean: string;
+  type: 'sentence_missing_word' | 'sentence_completion' | 'spelling_context' | 'verb_in_sentence' | 'grammar_choice';
+  prompt: string;
+  sentenceWithBlank: string;
+  options?: string[];
+  correctAnswer: string;
+  explanation: string;
+  emoji?: string;
+  hint?: string;
+}
+
+export interface MiniExamResult {
+  id: string;
+  date: string;
+  timestamp: number;
+  score: number; // e.g. 18 / 20
+  totalQuestions: number; // 20
+  percentage: number;
+  passed: boolean;
+  correctWords: string[];
+  wrongWords: string[];
 }
 
 export interface ChildProgress {
@@ -120,4 +180,7 @@ export interface ChildProgress {
   }[];
   mistakes: PracticeMistake[];
   masteredWords: string[];
+  skippedExercises?: SkippedExerciseItem[];
+  pausedSession?: PausedSessionState | null;
+  miniExamResults?: MiniExamResult[];
 }

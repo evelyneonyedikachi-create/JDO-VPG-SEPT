@@ -1,6 +1,31 @@
 import React, { useState } from 'react';
-import { LernwortItem, PracticeMistake, WeeklyCurriculum, Wortart, Artikel } from '../types/lernwoerter';
-import { Lock, Plus, Trash2, Edit3, Save, CheckCircle2, AlertTriangle, Sparkles, BarChart2, BookOpen, RefreshCw, X } from 'lucide-react';
+import {
+  LernwortItem,
+  MiniExamResult,
+  PracticeMistake,
+  WeeklyCurriculum,
+  Wortart,
+  Artikel,
+} from '../types/lernwoerter';
+import {
+  Lock,
+  Plus,
+  Trash2,
+  Edit3,
+  Save,
+  CheckCircle2,
+  AlertTriangle,
+  Sparkles,
+  BarChart2,
+  BookOpen,
+  RefreshCw,
+  X,
+  Trophy,
+  Award,
+  Gift,
+  Target,
+  Clock,
+} from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
 
 interface ParentLernwoerterBackendProps {
@@ -9,6 +34,12 @@ interface ParentLernwoerterBackendProps {
   mistakes: PracticeMistake[];
   onClearResolvedMistakes: () => void;
   onClose: () => void;
+  pointsWeek?: number;
+  cumulativePoints?: number;
+  skippedCount?: number;
+  weakWords?: string[];
+  strongWords?: string[];
+  miniExamHistory?: MiniExamResult[];
 }
 
 export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> = ({
@@ -17,6 +48,12 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   mistakes,
   onClearResolvedMistakes,
   onClose,
+  pointsWeek = 0,
+  cumulativePoints = 0,
+  skippedCount = 0,
+  weakWords = [],
+  strongWords = [],
+  miniExamHistory = [],
 }) => {
   const [pinInput, setPinInput] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -334,24 +371,120 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
           {/* TAB 2: PROGRESS DASHBOARD */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
+              {/* Key Parent Metrics */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="bg-sky-50 border border-sky-200 p-4 rounded-2xl text-center">
-                  <div className="text-3xl font-black text-sky-800">11 / 14</div>
-                  <div className="text-xs font-bold text-sky-600 mt-1 uppercase">Lernwörter gemeistert</div>
+                <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-2xl text-center">
+                  <div className="text-3xl font-black text-indigo-800">
+                    {pointsWeek} / 100
+                  </div>
+                  <div className="text-xs font-bold text-indigo-600 mt-1 uppercase">
+                    Wochen-Punkte (max 100)
+                  </div>
                 </div>
-                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-center">
-                  <div className="text-3xl font-black text-emerald-800">82%</div>
-                  <div className="text-xs font-bold text-emerald-600 mt-1 uppercase">Rechtschreibung</div>
-                </div>
+
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center">
-                  <div className="text-3xl font-black text-amber-800">74%</div>
-                  <div className="text-xs font-bold text-amber-600 mt-1 uppercase">Grammatik & Formen</div>
+                  <div className="text-3xl font-black text-amber-800">
+                    {skippedCount}
+                  </div>
+                  <div className="text-xs font-bold text-amber-600 mt-1 uppercase">
+                    Offene Übersprungene
+                  </div>
                 </div>
+
+                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-center">
+                  <div className="text-3xl font-black text-emerald-800">
+                    {cumulativePoints} / 1000
+                  </div>
+                  <div className="text-xs font-bold text-emerald-600 mt-1 uppercase">
+                    Belohnungs-Leiter (Pizza 🍕)
+                  </div>
+                </div>
+
                 <div className="bg-purple-50 border border-purple-200 p-4 rounded-2xl text-center">
-                  <div className="text-3xl font-black text-purple-800">78%</div>
-                  <div className="text-xs font-bold text-purple-600 mt-1 uppercase">Satzbau</div>
+                  <div className="text-3xl font-black text-purple-800">
+                    {miniExamHistory.length > 0
+                      ? `${miniExamHistory[miniExamHistory.length - 1].score}/20`
+                      : 'Bereit'}
+                  </div>
+                  <div className="text-xs font-bold text-purple-600 mt-1 uppercase">
+                    Mini-Prüfung (Woche 1–4)
+                  </div>
                 </div>
               </div>
+
+              {/* WEAK WORDS & STRONGEST WORDS OVERVIEW */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Weak Words */}
+                <div className="p-5 rounded-2xl border border-rose-200 bg-rose-50/50 space-y-2">
+                  <div className="flex items-center gap-2 text-rose-900 font-black text-sm">
+                    <Target className="w-4 h-4 text-rose-600" />
+                    <span>Häufige Stolperwörter (Fokus)</span>
+                  </div>
+                  {weakWords.length === 0 ? (
+                    <p className="text-xs text-slate-500 italic">
+                      Keine wiederholten Fehler – alles stabil!
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {weakWords.map((w, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold border border-rose-200"
+                        >
+                          {w}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Strong Words */}
+                <div className="p-5 rounded-2xl border border-emerald-200 bg-emerald-50/50 space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-900 font-black text-sm">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Sicher gemeisterte Wörter</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {(strongWords.length > 0 ? strongWords : ['Zimmer', 'Messer', 'Kuss', 'Schloss']).map(
+                      (w, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200"
+                        >
+                          {w}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini Exam History */}
+              {miniExamHistory.length > 0 && (
+                <div className="p-5 rounded-2xl border border-indigo-200 bg-indigo-50/40 space-y-3">
+                  <div className="flex items-center gap-2 text-indigo-950 font-black text-sm">
+                    <Award className="w-4 h-4 text-indigo-600" />
+                    <span>Ergebnisse der 4-Wochen Mini-Prüfungen</span>
+                  </div>
+                  <div className="divide-y divide-indigo-100 text-xs">
+                    {miniExamHistory.map((res, rIdx) => (
+                      <div key={rIdx} className="py-2 flex items-center justify-between">
+                        <div>
+                          <span className="font-bold text-slate-800">{res.date}</span>
+                          <span className="text-slate-500 ml-2">({res.percentage}% richtig)</span>
+                        </div>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full font-black ${
+                            res.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {res.score} / {res.totalQuestions} Punkte
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <h4 className="font-black text-slate-900 text-sm">Pädagogische Einschätzung:</h4>
