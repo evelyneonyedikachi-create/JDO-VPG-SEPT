@@ -39,9 +39,12 @@ import {
   BookOpen,
   Star,
   Lock,
+  Check,
 } from 'lucide-react';
 import { getModelSolutionUnlockStatus } from '../utils/textValidation';
 import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
+import { CompletedExerciseRecord, DayProgressSummary } from '../types/progress';
+import { RepeatTaskModal } from './RepeatTaskModal';
 
 interface RepeatedMistakeItem {
   id: string;
@@ -70,6 +73,9 @@ interface DailyPracticeWorkspaceProps {
   pausedSession?: PausedSessionState | null;
   onSavePauseSession?: (state: PausedSessionState | null) => void;
   weakWords?: string[];
+  completedRecords?: CompletedExerciseRecord[];
+  onRecordCompletedExercise?: (record: CompletedExerciseRecord) => void;
+  daysProgress?: Record<DayOfWeek, DayProgressSummary>;
 }
 
 export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
@@ -90,6 +96,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   pausedSession,
   onSavePauseSession,
   weakWords = [],
+  completedRecords = [],
+  onRecordCompletedExercise,
+  daysProgress,
 }) => {
   const [level, setLevel] = useState<DifficultyLevel>('starter');
   const [exerciseIndex, setExerciseIndex] = useState<number>(0);
@@ -102,22 +111,25 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [sessionPointsEarned, setSessionPointsEarned] = useState<number>(0);
 
-  // Daily plan and active exercise queue (strictly capped at max 5 exercises)
+  // Daily plan and active exercise queue
   const [dailyPlan, setDailyPlan] = useState<DailyExercisePlan | null>(null);
   const [exerciseQueue, setExerciseQueue] = useState<GeneratedExercise[]>([]);
-  // Mandatory exercise IDs (the base 5 daily exercises)
   const [mandatoryExerciseIds, setMandatoryExerciseIds] = useState<string[]>([]);
-  // Completed exercise IDs in this session
-  const [completedExerciseIds, setCompletedExerciseIds] = useState<string[]>([]);
-  // Mistakes in this session
   const [mistakeList, setMistakeList] = useState<RepeatedMistakeItem[]>([]);
-  // Exercise menu open state and active tab
   const [showExerciseMenu, setShowExerciseMenu] = useState<boolean>(false);
   const [menuTab, setMenuTab] = useState<'heute' | 'offen' | 'skipped' | 'schwerpunkt'>('heute');
-  // Optional word help toggle in Bildgeschichte tasks
   const [showWordHelp, setShowWordHelp] = useState<boolean>(false);
-  // Pause banner / modal notification
   const [pauseNotification, setPauseNotification] = useState<string | null>(null);
+
+  // Voluntary repeat modal state
+  const [repeatModalExercise, setRepeatModalExercise] = useState<{
+    exercise: GeneratedExercise;
+    index: number;
+    pointsEarned: number;
+  } | null>(null);
+
+  // Track if current exercise in this session is voluntary repeat
+  const [isCurrentVoluntaryRepeat, setIsCurrentVoluntaryRepeat] = useState<boolean>(false);
 
   // Initialize or re-initialize exercises with MAX 5 DAILY PLAN
   const loadExercises = () => {
@@ -140,9 +152,26 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
       setSelectedOption(pausedSession.currentSelectedOption || '');
       setPauseNotification('Pausierte Einheit erfolgreich fortgesetzt! 🚀');
       setTimeout(() => setPauseNotification(null), 4000);
+      setIsCurrentVoluntaryRepeat(false);
     } else {
+      // Find first uncompleted exercise in the daily plan so child never reopens finished work
+      const dayCompletedIds = completedRecords
+        .filter((r) => r.day === currentDay)
+        .map((r) => r.id);
+
+      const firstUncompletedIdx = exList.findIndex(
+        (ex) => !dayCompletedIds.includes(ex.id) && !dayCompletedIds.some((c) => c.startsWith(ex.id))
+      );
+
       setExerciseQueue(exList);
-      setExerciseIndex(0);
+      if (firstUncompletedIdx !== -1) {
+        setExerciseIndex(firstUncompletedIdx);
+        setIsCurrentVoluntaryRepeat(false);
+      } else {
+        // All tasks for this day already completed!
+        setExerciseIndex(0);
+        setIsCurrentVoluntaryRepeat(true);
+      }
       resetCurrentInputs();
     }
     setIsCompleted(false);
@@ -152,7 +181,6 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     loadExercises();
     setMistakeList([]);
     setSessionPointsEarned(0);
-    setCompletedExerciseIds([]);
   }, [currentDay, level, words, skippedExercises.length]);
 
   const currentEx = exerciseQueue[exerciseIndex];
@@ -160,16 +188,32 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const isReinforcementTask = currentEx && (currentEx.id.includes('reinf_') || currentEx.id.includes('adaptive_'));
   const isCurrentBonus = currentEx && !mandatoryExerciseIds.includes(currentEx.id);
 
-  // Mandatory goal tracking: strictly 5 tasks
-  const completedMandatoryCount = completedExerciseIds.filter((id) =>
-    mandatoryExerciseIds.includes(id)
+  // Check if an exercise ID is already in completed records
+  const isExerciseAlreadyCompleted = (exId: string): boolean => {
+    return completedRecords.some(
+      (r) => r.day === currentDay && (r.id === exId || r.id.startsWith(exId) || exId.startsWith(r.id))
+    );
+  };
+
+  const getExercisePointsEarned = (exId: string): number => {
+    const rec = completedRecords.find(
+      (r) => r.day === currentDay && (r.id === exId || r.id.startsWith(exId) || exId.startsWith(r.id))
+    );
+    return rec?.pointsEarned ?? (level === 'starter' ? 4 : level === 'profi' ? 6 : 8);
+  };
+
+  // Mandatory goal tracking
+  const dayCompletedRecords = completedRecords.filter((r) => r.day === currentDay);
+  const completedMandatoryCount = mandatoryExerciseIds.filter((mId) =>
+    dayCompletedRecords.some((r) => r.id === mId || r.id.startsWith(mId))
   ).length;
+
   const isMandatoryDone = completedMandatoryCount >= Math.min(5, mandatoryExerciseIds.length || 5);
   const extraTasksInQueue = exerciseQueue.filter(
     (e) => !mandatoryExerciseIds.includes(e.id)
   );
 
-  // Check if current task is recall-based (where answer should NEVER be shown before answering)
+  // Check if current task is recall-based
   const isRecallTask =
     currentEx &&
     (currentEx.type === 'spelling_choice' ||
@@ -207,13 +251,11 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setShowWordHelp(false);
   };
 
-  // RETAKE ENTIRE DAY EXERCISE
   const handleRetakeDayExercise = () => {
     playChime('click');
     loadExercises();
     setMistakeList([]);
     setSessionPointsEarned(0);
-    setCompletedExerciseIds([]);
   };
 
   const handleSpeakPrompt = (text: string) => {
@@ -231,7 +273,6 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setHintMessage(null);
   };
 
-  // PAUSE AND RETURN LATER
   const handlePauseSession = () => {
     playChime('click');
     if (onSavePauseSession && currentEx) {
@@ -248,113 +289,108 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     }
   };
 
-  // SKIP CURRENT EXERCISE (Put into weekly skipped queue)
   const handleSkipExercise = () => {
-    if (!currentEx) return;
     playChime('click');
+    if (!currentEx) return;
 
     if (onSkipExercise) {
       onSkipExercise({
-        id: `skip_${currentEx.id}_${Date.now()}`,
-        exerciseId: currentEx.id,
+        id: `skip_${Date.now()}_${currentEx.id}`,
         day: currentDay,
         level,
-        wordClean: currentEx.word?.cleanWord || '',
+        exerciseId: currentEx.id,
         title: currentEx.title,
         prompt: currentEx.prompt,
+        wordClean: currentEx.word?.cleanWord || currentEx.word?.word || currentEx.title,
         grammarCategory: currentEx.grammarCategory,
-        timestamp: Date.now(),
         skippedAt: Date.now(),
         exerciseData: currentEx,
       });
     }
 
-    setPauseNotification(`Aufgabe „${currentEx.title}“ übersprungen. Du kannst sie jederzeit im Aufgaben-Plan nachholen! ⏩`);
+    setPauseNotification(
+      `Aufgabe übersprungen! Sie wurde für den Wochenabschluss in deine Wiederholungsliste verschoben. ⏩`
+    );
     setTimeout(() => setPauseNotification(null), 4000);
 
-    // Remove from active queue or advance
+    // Advance to next or finish
     if (exerciseIndex < exerciseQueue.length - 1) {
       setExerciseIndex((prev) => prev + 1);
       resetCurrentInputs();
     } else {
-      // Completed all available
-      playChime('cheer');
       setIsCompleted(true);
+      if (onSavePauseSession) {
+        onSavePauseSession(null);
+      }
     }
   };
 
-  // RESUME A SKIPPED EXERCISE DIRECTLY
-  const handleResumeSkippedItem = (skippedItem: SkippedExerciseItem) => {
-    playChime('click');
-    const matched =
-      (skippedItem.exerciseData as GeneratedExercise) ||
-      dailyPlan?.nochOffen.find((e) => e.id === skippedItem.exerciseId) ||
-      dailyPlan?.heuteEmpfohlen.find((e) => e.id === skippedItem.exerciseId) ||
-      dailyPlan?.schwerpunktExtra.find((e) => e.id === skippedItem.exerciseId);
-
-    if (matched) {
-      setExerciseQueue((prev) => [matched, ...prev.filter((e) => e.id !== matched.id)]);
-      setExerciseIndex(0);
-      resetCurrentInputs();
-      setShowExerciseMenu(false);
-    }
-  };
-
-  // CHECK ANSWER
+  // CHECK ANSWER & AWARD POINTS SAFELY (Section 10 Points Protection)
   const handleCheckAnswer = () => {
     if (!currentEx) return;
 
+    let isCorrect = false;
     let studentAnswer = '';
+
     if (currentEx.type === 'sentence_builder') {
-      studentAnswer = selectedWordBlocks.join(' ');
-      if (!studentAnswer.endsWith('.') && currentEx.correctAnswer.endsWith('.')) {
-        studentAnswer += '.';
-      }
-    } else if (currentEx.options && currentEx.type !== 'sentence_expand') {
-      studentAnswer = selectedOption;
-    } else {
+      studentAnswer = selectedWordBlocks.join(' ').trim();
+      const normalize = (s: string) => s.toLowerCase().replace(/[.,!?;:]/g, '').replace(/\s+/g, ' ').trim();
+      isCorrect = normalize(studentAnswer) === normalize(currentEx.correctAnswer);
+    } else if (
+      currentEx.type === 'sentence_expand' ||
+      currentEx.type === 'sentence_linking' ||
+      currentEx.type === 'bildgeschichte_step'
+    ) {
       studentAnswer = textInput.trim();
-    }
-
-    if (!studentAnswer) {
-      setHintMessage('Wähle oder tippe zuerst eine Antwort aus!');
-      return;
-    }
-
-    const cleanInput = studentAnswer.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '').trim();
-    const cleanCorrect = currentEx.correctAnswer.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '').trim();
-
-    let isCorrect = cleanInput === cleanCorrect;
-    if (currentEx.type === 'sentence_expand') {
-      const targetWord = (currentEx.word?.cleanWord || '').toLowerCase();
-      isCorrect = cleanInput.length >= 8 && (!targetWord || cleanInput.includes(targetWord));
-    } else if (currentEx.type === 'bildgeschichte_step') {
-      isCorrect = cleanInput.length >= 8;
+      isCorrect = studentAnswer.length >= 8;
+    } else if (currentEx.type === 'type_word' || currentEx.type === 'missing_letters') {
+      studentAnswer = textInput.trim();
+      isCorrect = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
+    } else {
+      studentAnswer = selectedOption;
+      isCorrect = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
     }
 
     if (isCorrect) {
       playChime('success');
       setFeedbackStatus('correct');
 
-      // Modest points per task (max weekly cap is 100):
-      // Starter: 4 pts, Profi: 6 pts, Meister: 8 pts
-      const basePts = level === 'starter' ? 4 : level === 'profi' ? 6 : 8;
-      const pointsEarned = attemptCount === 0 ? basePts : attemptCount === 1 ? Math.max(2, basePts - 2) : 2;
+      const isAlreadyDone = isExerciseAlreadyCompleted(currentEx.id);
+      const isVoluntaryPractice = isAlreadyDone || isCurrentVoluntaryRepeat;
 
-      setSessionPointsEarned((prev) => prev + pointsEarned);
-      onAwardPoints(pointsEarned, `${currentEx.title} gelöst!`);
+      // Base points calculation
+      const basePoints = level === 'starter' ? 4 : level === 'profi' ? 6 : 8;
+
+      if (!isVoluntaryPractice) {
+        // Points awarded for first successful completion
+        const pointsEarned = attemptCount === 0 ? basePoints : Math.max(2, basePoints - attemptCount);
+        setSessionPointsEarned((prev) => prev + pointsEarned);
+        onAwardPoints(pointsEarned, `${currentEx.title} gelöst!`);
+
+        // Record completed
+        if (onRecordCompletedExercise) {
+          onRecordCompletedExercise({
+            id: currentEx.id,
+            day: currentDay,
+            pointsEarned,
+            completedAt: Date.now(),
+            isVoluntaryRepeat: false,
+          });
+        }
+        setHintMessage(`Super gemacht! +${pointsEarned} Punkte! ⭐ ${currentEx.solutionExplanation || ''}`);
+      } else {
+        // Section 10: Repeat attempt must not award the same required-task points again
+        setHintMessage(`Super geübt! (Freiwillige Wiederholung – Punkte bereits sicher gutgeschrieben) ⭐`);
+      }
 
       // Stars
       onRewardStars(level === 'starter' ? 1 : level === 'profi' ? 2 : 3, `${currentEx.title} gemeistert!`);
 
-      // Track completed
-      if (!completedExerciseIds.includes(currentEx.id)) {
-        setCompletedExerciseIds((prev) => [...prev, currentEx.id]);
-      }
-
       // If this was a skipped task being solved, remove from skipped queue
       if (onCompleteSkipped) {
-        const matchingSkip = skippedExercises.find((s) => s.exerciseId === currentEx.id);
+        const matchingSkip = skippedExercises.find(
+          (s) => s.exerciseId === currentEx.id || s.id === currentEx.id
+        );
         if (matchingSkip) {
           onCompleteSkipped(matchingSkip.id);
         }
@@ -368,27 +404,12 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           )
         );
       }
-
-      // Check if current exercise was in skipped queue and resolve it
-      if (onCompleteSkipped) {
-        const matchingSkipped = skippedExercises.find(
-          (sk) => sk.exerciseId === currentEx.id || sk.id === currentEx.id
-        );
-        if (matchingSkipped) {
-          onCompleteSkipped(matchingSkipped.id);
-        }
-      }
-
-      setHintMessage(
-        `Super gemacht! +${pointsEarned} Punkte! ⭐ ${currentEx.solutionExplanation || ''}`
-      );
     } else {
       playChime('whistle');
       const nextAttempt = attemptCount + 1;
       setAttemptCount(nextAttempt);
       setFeedbackStatus('wrong');
 
-      // Record mistake for spaced repetition & weak word analysis
       onRecordMistake({
         word: currentEx.word?.cleanWord || currentEx.word?.word || currentEx.title,
         category: currentEx.grammarCategory,
@@ -396,7 +417,6 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         correctAnswer: currentEx.correctAnswer,
       });
 
-      // Add to session mistake list if not already there
       const existingMistake = mistakeList.find((m) => m.title === currentEx.title);
       if (!existingMistake) {
         setMistakeList((prev) => [
@@ -412,7 +432,6 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         ]);
       }
 
-      // REPETITION QUEUE: Schedule this exact question to repeat
       const repeatId = `${currentEx.id}_repeat_${Date.now()}`;
       const isAlreadyScheduled = exerciseQueue.some(
         (ex, idx) => idx > exerciseIndex && ex.title === currentEx.title
@@ -441,6 +460,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     playChime('click');
     if (exerciseIndex < exerciseQueue.length - 1) {
       setExerciseIndex((prev) => prev + 1);
+      setIsCurrentVoluntaryRepeat(false);
       resetCurrentInputs();
     } else {
       playChime('cheer');
@@ -458,7 +478,6 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setHintMessage(`Lösung: "${currentEx.correctAnswer}". ${currentEx.solutionExplanation || ''}`);
   };
 
-  // INJECT REINFORCEMENT EXERCISES FOR WEAK WORDS
   const handleLoadReinforcement = () => {
     playChime('click');
     if (weakWords.length === 0) return;
@@ -468,7 +487,28 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setTimeout(() => setPauseNotification(null), 4000);
   };
 
-  // Days metadata
+  // Section 2: Selecting an exercise from the task list
+  const handleSelectExerciseFromList = (ex: GeneratedExercise, qIdx: number) => {
+    const isDone = isExerciseAlreadyCompleted(ex.id);
+    if (isDone) {
+      // Show confirmation dialog:
+      // "Diese Aufgabe hast du schon geschafft. Möchtest du sie freiwillig noch einmal üben?"
+      setRepeatModalExercise({
+        exercise: ex,
+        index: qIdx,
+        pointsEarned: getExercisePointsEarned(ex.id),
+      });
+      return;
+    }
+
+    // Uncompleted task -> open directly
+    playChime('click');
+    setExerciseIndex(qIdx);
+    setIsCurrentVoluntaryRepeat(false);
+    resetCurrentInputs();
+    setShowExerciseMenu(false);
+  };
+
   const days: { id: DayOfWeek; name: string; icon: string; avatar: string }[] = [
     { id: 'monday', name: 'Montag', icon: '🔍', avatar: 'Mia' },
     { id: 'tuesday', name: 'Dienstag', icon: '⚽', avatar: 'Ben' },
@@ -478,19 +518,32 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     { id: 'saturday', name: 'Samstag', icon: '🏆', avatar: 'Challenge' },
   ];
 
-  // Daily workload count: completed vs total
-  const completedTodayCount = Math.min(
-    exerciseQueue.length,
-    completedExerciseIds.filter((id) => exerciseQueue.some((q) => q.id === id)).length
-  );
-
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
-      {/* Day Selector Navigation Bar */}
+      {/* SECTION 2: REPEAT TASK MODAL */}
+      {repeatModalExercise && (
+        <RepeatTaskModal
+          exerciseTitle={repeatModalExercise.exercise.title}
+          pointsEarned={repeatModalExercise.pointsEarned}
+          onCancel={() => setRepeatModalExercise(null)}
+          onConfirmRepeat={() => {
+            setExerciseIndex(repeatModalExercise.index);
+            setIsCurrentVoluntaryRepeat(true);
+            resetCurrentInputs();
+            setShowExerciseMenu(false);
+            setRepeatModalExercise(null);
+          }}
+        />
+      )}
+
+      {/* SECTION 3 & 4: DAY SELECTOR NAVIGATION BAR WITH VISUAL COMPLETION STATUS */}
       <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-md border border-slate-200">
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {days.map((d) => {
             const isActive = currentDay === d.id;
+            const summary = daysProgress ? daysProgress[d.id] : null;
+            const isDayDone = summary?.isCompleted ?? false;
+
             return (
               <button
                 key={d.id}
@@ -498,21 +551,41 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                   playChime('click');
                   onSelectDay(d.id);
                 }}
-                className={`py-3 px-2 rounded-2xl flex flex-col items-center justify-center transition-all ${
+                className={`py-2.5 px-2 rounded-2xl flex flex-col items-center justify-center transition-all border ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 scale-102 font-black'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold'
+                    ? 'bg-indigo-600 text-white border-indigo-700 shadow-md font-black scale-102'
+                    : isDayDone
+                    ? 'bg-emerald-50/70 hover:bg-emerald-100/70 border-emerald-300 text-slate-800'
+                    : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 font-bold'
                 }`}
               >
-                <span className="text-xl sm:text-2xl">{d.icon}</span>
-                <span className="text-xs sm:text-sm mt-1">{d.name}</span>
-                <span
-                  className={`text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${
-                    isActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-200/60 text-slate-500'
-                  }`}
-                >
-                  {d.avatar}
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl">{d.icon}</span>
+                  <span className="text-xs font-black">{d.name}</span>
+                </div>
+
+                {/* Day status badge */}
+                <div className="mt-1">
+                  {summary ? (
+                    <span
+                      className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
+                        isActive
+                          ? 'bg-indigo-700 text-indigo-100 border-indigo-500'
+                          : summary.statusBadge.color
+                      }`}
+                    >
+                      {summary.statusBadge.icon} {summary.statusBadge.label}
+                    </span>
+                  ) : (
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full ${
+                        isActive ? 'bg-indigo-700 text-indigo-100' : 'bg-slate-200/60 text-slate-500'
+                      }`}
+                    >
+                      {d.avatar}
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
@@ -563,7 +636,6 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
 
         {/* WORKLOAD & POINTS STATUS */}
         <div className="flex items-center gap-3">
-          {/* Daily Workload Indicator (Strictly tracks 5 mandatory tasks, bonus separate) */}
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs sm:text-sm font-black">
             <CheckCircle2 className={`w-4 h-4 ${isMandatoryDone ? 'text-emerald-600' : 'text-indigo-600'}`} />
             <span>
@@ -611,7 +683,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           </div>
           <button
             onClick={() => setPauseNotification(null)}
-            className="text-indigo-400 hover:text-indigo-700 text-xs font-black px-2 py-1"
+            className="text-slate-400 hover:text-slate-600 font-bold text-sm"
           >
             ✕
           </button>
@@ -658,11 +730,11 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
               )}
             </span>
 
-            {/* Bonus badge */}
-            {isCurrentBonus && (
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-100 border border-purple-300 text-purple-900 text-[11px] font-black flex items-center gap-1">
-                <Star className="w-3 h-3 text-purple-600" />
-                <span>Freiwillige Zusatz-Aufgabe (Kein Pflicht-Pensum)</span>
+            {/* Completed badge if current exercise is already done */}
+            {currentEx && isExerciseAlreadyCompleted(currentEx.id) && (
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 border border-emerald-300 text-emerald-800 text-[11px] font-black flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>Erledigt · +{getExercisePointsEarned(currentEx.id)} Punkte</span>
               </span>
             )}
 
@@ -678,7 +750,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
             {isReinforcementTask && (
               <span className="px-2.5 py-0.5 rounded-full bg-rose-100 border border-rose-300 text-rose-900 text-[11px] font-black flex items-center gap-1">
                 <Target className="w-3 h-3" />
-                <span>Schwerpunkt</span>
+                <span>Fokus-Training</span>
               </span>
             )}
           </div>
@@ -686,7 +758,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handlePauseSession}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-black flex items-center gap-1.5 transition-colors"
+              className="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-xs font-black flex items-center gap-1.5 transition-colors"
               title="Pausieren und später weitermachen"
             >
               <Pause className="w-4 h-4 text-indigo-600" />
@@ -704,7 +776,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* EXPANDABLE EXERCISE MENU / ORDER PICKER (Section 18 & 19) */}
+        {/* EXPANDABLE EXERCISE MENU / ORDER PICKER (Sections 1 & 2) */}
         {showExerciseMenu && (
           <div className="bg-white rounded-3xl p-5 shadow-lg border border-slate-200 space-y-4 animate-fade-in">
             {/* 4 Section Tabs */}
@@ -754,58 +826,68 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
               </button>
             </div>
 
-            {/* TAB 1: HEUTE EMPFOHLEN (Max 5 mixed tasks) */}
+            {/* TAB 1: HEUTE EMPFOHLEN (Section 1: Clearly Mark Completed Tasks) */}
             {menuTab === 'heute' && (
               <div className="space-y-2">
                 <div className="text-xs font-bold text-slate-500">
-                  Ausgewogene Tagesmischung für heute (max. 5 Aufgaben). Klicke eine Aufgabe, um ihre Reihenfolge zu wählen:
+                  Ausgewogene Tagesmischung für heute (max. 5 Aufgaben). Erledigte Aufgaben sind mit grünem Häkchen markiert:
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1">
                   {exerciseQueue.map((ex, qIdx) => {
                     const isCurrent = qIdx === exerciseIndex;
-                    const isCompletedItem = completedExerciseIds.includes(ex.id);
-                    // Meaningful recommendation: Next uncompleted item is recommended next!
-                    const isNextRecommended = !isCompletedItem && qIdx === exerciseIndex;
+                    const isDone = isExerciseAlreadyCompleted(ex.id);
+                    const pts = getExercisePointsEarned(ex.id);
 
-                    let badgeLabel = '🟢 Gut zum Üben';
-                    let badgeColor = 'bg-slate-100 text-slate-700';
-
-                    if (isCompletedItem) {
-                      badgeLabel = '✅ Erledigt';
-                      badgeColor = 'bg-emerald-100 text-emerald-800';
-                    } else if (isNextRecommended) {
-                      badgeLabel = '⭐ Als Nächstes empfohlen';
-                      badgeColor = 'bg-indigo-100 text-indigo-900 border border-indigo-300 font-black';
-                    } else if (ex.id.includes('_repeat')) {
-                      badgeLabel = '🔄 Wiederholen';
-                      badgeColor = 'bg-amber-100 text-amber-900';
-                    } else if (ex.id.includes('reinf_') || ex.id.includes('adaptive_')) {
-                      badgeLabel = '🎯 Schwerpunkt';
-                      badgeColor = 'bg-rose-100 text-rose-900';
-                    }
+                    // First uncompleted item in queue is recommended next
+                    const firstUncompletedIndex = exerciseQueue.findIndex(
+                      (item) => !isExerciseAlreadyCompleted(item.id)
+                    );
+                    const isNextRecommended = !isDone && qIdx === firstUncompletedIndex;
 
                     return (
                       <button
                         key={ex.id}
-                        onClick={() => {
-                          playChime('click');
-                          setExerciseIndex(qIdx);
-                          resetCurrentInputs();
-                          setShowExerciseMenu(false);
-                        }}
-                        className={`p-3 rounded-2xl text-left border transition-all flex flex-col justify-between gap-1.5 ${
-                          isCurrent
+                        onClick={() => handleSelectExerciseFromList(ex, qIdx)}
+                        className={`p-3.5 rounded-2xl text-left border-2 transition-all flex flex-col justify-between gap-2 ${
+                          isDone
+                            ? 'bg-emerald-50/60 border-emerald-300 hover:bg-emerald-100/60'
+                            : isCurrent
                             ? 'border-indigo-600 bg-indigo-50/70 shadow-sm'
+                            : isNextRecommended
+                            ? 'border-indigo-300 bg-indigo-50/40 hover:bg-indigo-50'
                             : 'border-slate-200 bg-white hover:bg-slate-50'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-black text-slate-400">#{qIdx + 1}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badgeColor}`}>
-                            {badgeLabel}
-                          </span>
+
+                          {/* SECTION 1 & 12 VISUAL STATUS BADGE */}
+                          {isDone ? (
+                            <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Erledigt · +{pts} Punkte</span>
+                            </span>
+                          ) : isNextRecommended ? (
+                            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-300 flex items-center gap-1">
+                              <Star className="w-3 h-3 text-indigo-600 fill-indigo-600" />
+                              <span>Als Nächstes</span>
+                            </span>
+                          ) : ex.id.includes('_repeat') ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">
+                              🔄 Wiederholen
+                            </span>
+                          ) : ex.id.includes('reinf_') || ex.id.includes('adaptive_') ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-900">
+                              🎯 Schwerpunkt
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                              🟡 Offen
+                            </span>
+                          )}
                         </div>
-                        <div className="font-bold text-slate-900 text-sm line-clamp-1">
+
+                        <div className="font-black text-slate-900 text-sm line-clamp-1">
                           {ex.title}
                         </div>
                         <div className="text-xs text-indigo-900 font-semibold line-clamp-1">
@@ -849,68 +931,78 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                             Bonus
                           </span>
                         </div>
-                        <div className="font-bold text-slate-800 text-xs line-clamp-2">
+                        <div className="font-bold text-slate-800 text-xs line-clamp-1">
                           {ex.prompt}
-                        </div>
-                        <div className="text-[11px] text-purple-600 font-medium">
-                          + Als freiwilligen Zusatz üben
                         </div>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-sm font-bold text-slate-500">
-                    Alle Wochen-Aufgaben wurden bereits eingeplant! 🎉
-                  </div>
+                  <p className="text-xs text-slate-400 italic py-2">
+                    Keine weiteren offenen Übungen mehr in diesem Pool.
+                  </p>
                 )}
               </div>
             )}
 
-            {/* TAB 3: ÜBERSPRUNGEN */}
+            {/* TAB 3: ÜBERSPRUNGENE AUFGABEN */}
             {menuTab === 'skipped' && (
               <div className="space-y-2">
                 <div className="text-xs font-bold text-slate-500">
-                  Übersprungene Aufgaben bleiben erhalten und können jederzeit nachgeholt werden:
+                  Aufgaben, die du während der Woche übersprungen hast. Diese musst du für den 100-Punkte-Wochenabschluss nachholen:
                 </div>
-                {skippedExercises.length > 0 ? (
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                {skippedExercises.length === 0 ? (
+                  <div className="p-4 text-center text-xs font-bold text-emerald-700 bg-emerald-50 rounded-2xl border border-emerald-200">
+                    🎉 Keine übersprungenen Aufgaben! Alle Pflichtaufgaben sind im Plan.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                     {skippedExercises.map((sk) => (
                       <div
                         key={sk.id}
-                        className="p-3 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-xs"
+                        className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-center justify-between gap-2"
                       >
                         <div>
-                          <div className="font-black text-amber-950">{sk.title}</div>
-                          <div className="text-amber-800 font-medium">{sk.prompt}</div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-black uppercase text-amber-800 px-1.5 py-0.5 rounded bg-amber-200">
+                              {sk.day.toUpperCase()}
+                            </span>
+                            <span className="font-black text-slate-900 text-xs">{sk.title}</span>
+                          </div>
+                          <div className="text-xs text-slate-600 font-medium mt-0.5">
+                            Wort: <strong>{sk.wordClean}</strong>
+                          </div>
                         </div>
+
                         <button
-                          onClick={() => handleResumeSkippedItem(sk)}
-                          className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black shrink-0 transition-colors"
+                          onClick={() => {
+                            playChime('click');
+                            if (sk.exerciseData) {
+                              setExerciseQueue((prev) => [sk.exerciseData, ...prev]);
+                              setExerciseIndex(0);
+                            }
+                            resetCurrentInputs();
+                            setShowExerciseMenu(false);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shrink-0"
                         >
-                          Jetzt nachholen ➡️
+                          Jetzt lösen 🚀
                         </button>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="p-4 text-center text-sm font-bold text-emerald-600">
-                    Keine übersprungenen Aufgaben! Alles brav gelöst. 🌟
-                  </div>
                 )}
               </div>
             )}
 
-            {/* TAB 4: SCHWERPUNKT */}
+            {/* TAB 4: SCHWERPUNKT-AUFGABEN */}
             {menuTab === 'schwerpunkt' && (
               <div className="space-y-2">
-                <div className="text-xs font-bold text-slate-500 flex items-center justify-between">
-                  <span>Gezielte Zusatz-Übungen für Wörter mit Fehlern (Freiwillig):</span>
-                  <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-black">
-                    Empfohlen · Freiwillig
-                  </span>
+                <div className="text-xs font-bold text-slate-500">
+                  Gezielte Trainingsaufgaben zu deinen häufigsten Fehlern (Doppelkonsonanten, Artikel & Beugung):
                 </div>
                 {dailyPlan && dailyPlan.schwerpunktExtra.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 pt-1 max-h-60 overflow-y-auto">
                     {dailyPlan.schwerpunktExtra.map((ex) => (
                       <button
                         key={ex.id}
@@ -921,32 +1013,33 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                           resetCurrentInputs();
                           setShowExerciseMenu(false);
                         }}
-                        className="p-3.5 rounded-2xl text-left border border-rose-200 bg-rose-50/50 hover:bg-rose-100 transition-all"
+                        className="p-3 rounded-2xl text-left border border-rose-200 bg-rose-50/50 hover:bg-rose-100 transition-all flex flex-col justify-between gap-1"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-black text-rose-900">{ex.title}</span>
+                          <span className="text-[10px] font-bold text-rose-800 uppercase">
+                            {ex.title}
+                          </span>
                           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-200 text-rose-900">
-                            Freiwillig
+                            Fokus
                           </span>
                         </div>
-                        <div className="text-xs font-bold text-slate-700 mt-1">{ex.prompt}</div>
-                        <div className="text-[11px] text-rose-600 font-bold mt-2 flex items-center gap-1">
-                          <span>+ Als freiwilligen Schwerpunkt üben</span>
+                        <div className="font-bold text-slate-800 text-xs line-clamp-1">
+                          {ex.prompt}
                         </div>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-sm font-bold text-slate-500">
-                    Keine offenen Fehlerschwerpunkte für diese Wörter vorhanden. Super! 🚀
-                  </div>
+                  <p className="text-xs text-slate-400 italic py-2">
+                    Keine zusätzlichen Schwerpunkt-Aufgaben nötig – super!
+                  </p>
                 )}
               </div>
             )}
           </div>
         )}
 
-        {/* SKIPPED TASKS BANNER */}
+        {/* SKIPPED EXERCISES REMINDER BANNER */}
         {skippedExercises.length > 0 && (
           <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-3 text-amber-900">
             <div className="flex items-center gap-2.5">
@@ -1035,7 +1128,11 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         ) : (
           /* ACTIVE EXERCISE CARD */
           currentEx && (
-            <div className="bg-white rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg border border-slate-200 space-y-6">
+            <div className={`rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg border-2 space-y-6 transition-all ${
+              isExerciseAlreadyCompleted(currentEx.id)
+                ? 'bg-emerald-50/40 border-emerald-300'
+                : 'bg-white border-slate-200'
+            }`}>
               {/* Card Meta Bar */}
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -1049,6 +1146,14 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                       `Aufgabe ${Math.min(exerciseIndex + 1, 5)} von ${Math.min(5, mandatoryExerciseIds.length || 5)}`
                     )}
                   </span>
+
+                  {/* Section 1: Erledigt status badge if completed */}
+                  {isExerciseAlreadyCompleted(currentEx.id) && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Erledigt · +{getExercisePointsEarned(currentEx.id)} Punkte</span>
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -1078,345 +1183,175 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
               </div>
 
               {/* PROMINENT IMAGE / VISUAL PRESENTATION */}
-              {/* For recall tasks (type_word, missing_letters, spelling_choice, picture_match),
-                  NEVER show the target word in readable text before answering! */}
               {currentEx.word && (
-                <div className="flex justify-center">
-                  <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-3xl bg-gradient-to-tr from-indigo-50 via-slate-50 to-amber-50 border-3 border-indigo-200 shadow-xl flex flex-col items-center justify-center relative overflow-hidden group">
-                    <div className="text-7xl sm:text-8xl md:text-9xl animate-bounce-subtle select-none">
-                      {currentEx.word.emoji || '📝'}
+                <div className="flex items-center justify-center p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-slate-200">
+                  <div className="text-center space-y-2">
+                    <div className="text-7xl sm:text-8xl select-none filter drop-shadow-md animate-bounce-subtle">
+                      {currentEx.word.emoji}
                     </div>
-
-                    {/* DECORATIVE LABEL: Only revealed after answering or for non-recall tasks */}
-                    <div className="absolute bottom-3 sm:bottom-4 px-4 sm:px-6 py-1.5 sm:py-2 rounded-2xl bg-white/95 backdrop-blur-xs border-2 border-indigo-200 text-sm sm:text-base md:text-lg font-black text-indigo-950 shadow-md">
-                      {feedbackStatus === 'correct' || feedbackStatus === 'revealed' ? (
-                        currentEx.word.cleanWord
-                      ) : isRecallTask ? (
-                        <span className="text-slate-400 font-bold flex items-center gap-1.5 text-xs sm:text-sm">
-                          <span>❓</span>
-                          <span>Was ist das?</span>
-                        </span>
-                      ) : (
-                        currentEx.word.cleanWord
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* INSTRUCTION HIERARCHY (Section 1 & 2):
-                  1. Small secondary technical exercise label
-                  2. Large prominent action instruction with accent color */}
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-500 font-black text-xs uppercase tracking-wider border border-slate-200">
-                    {currentEx.title}
-                  </span>
-                  {currentEx.grammarCategory && (
-                    <span className="px-2.5 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 font-bold text-xs border border-indigo-100">
-                      {currentEx.grammarCategory}
-                    </span>
-                  )}
-                  {isCurrentBonus && (
-                    <span className="px-2.5 py-0.5 rounded-lg bg-purple-100 text-purple-800 font-bold text-xs border border-purple-200">
-                      Freiwilliger Bonus
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 space-y-2 min-w-0">
-                    {/* Large prominent task instruction */}
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-indigo-950 leading-snug tracking-tight break-words">
-                      {currentEx.prompt}
-                    </h3>
-
-                    {/* Contextual Sentence / Pattern / Blank Card (if any) */}
-                    {currentEx.contextSentence && currentEx.type !== 'bildgeschichte_step' && (
-                      <div className="mt-3 p-3.5 sm:p-5 rounded-2xl bg-slate-50 border-2 border-slate-200 text-slate-800 text-base sm:text-lg md:text-xl font-bold tracking-wide break-words">
-                        {currentEx.contextSentence}
+                    {/* Recall tasks hide word context until answered */}
+                    {!isRecallTask && (
+                      <div className="text-xs font-black tracking-wider uppercase text-slate-500">
+                        {currentEx.word.wortart} • Gruppe {currentEx.word.group}
                       </div>
                     )}
                   </div>
-
-                  <button
-                    onClick={() => handleSpeakPrompt(`${currentEx.prompt}. ${currentEx.contextSentence || ''}`)}
-                    className="p-3 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition-colors shrink-0 shadow-xs"
-                    title="Aufgabe vorlesen"
-                  >
-                    <Volume2 className="w-5 sm:w-6 h-5 sm:h-6" />
-                  </button>
-                </div>
-              </div>
-
-              {/* 💡 NON-SPOILER CONCEPT HINT CARD (EINZAHL & MEHRZAHL - Section 7 & 8) */}
-              {currentEx.type === 'plural_choice' && currentEx.pluralRuleHint && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/90 border-2 border-amber-300 shadow-xs flex items-start gap-3.5">
-                  <div className="text-2xl shrink-0 mt-0.5">💡</div>
-                  <div className="space-y-1">
-                    <div className="text-xs font-black uppercase tracking-wider text-amber-900">
-                      Tipp
-                    </div>
-                    <div className="text-sm sm:text-base font-bold text-amber-950 leading-relaxed">
-                      {currentEx.pluralRuleHint}
-                    </div>
-                  </div>
                 </div>
               )}
 
-              {/* EXERCISE INTERACTION ZONE */}
-              <div className="pt-2">
-                {/* 1. Sentence Builder with draggable/clickable Word Blocks (Wednesday) */}
-                {currentEx.type === 'sentence_builder' && (
-                  <div className="space-y-6">
-                    <div className="min-h-[84px] p-5 rounded-2xl bg-slate-50 border-2 border-dashed border-indigo-300 flex flex-wrap items-center gap-2.5">
+              {/* PROMINENT ACTION PROMPT */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase text-indigo-600 tracking-wider">
+                    {currentEx.title}
+                  </span>
+                  <button
+                    onClick={() => handleSpeakPrompt(`${currentEx.prompt} ${currentEx.contextSentence || ''}`)}
+                    className="p-2 rounded-xl text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition-colors"
+                    title="Aufgabe laut vorlesen"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                  {currentEx.prompt}
+                </h3>
+
+                {currentEx.contextSentence && (
+                  <p className="text-base sm:text-lg text-indigo-950 font-bold bg-indigo-50/70 p-3.5 rounded-2xl border border-indigo-100">
+                    {currentEx.contextSentence}
+                  </p>
+                )}
+              </div>
+
+              {/* INTERACTIVE WORK AREA */}
+              <div className="space-y-4 pt-2">
+                {/* 1. Sentence Builder Blocks */}
+                {currentEx.type === 'sentence_builder' && currentEx.wordBlocks && (
+                  <div className="space-y-4">
+                    <div className="p-4 sm:p-5 rounded-2xl bg-indigo-50/60 border-2 border-indigo-200 min-h-[64px] flex flex-wrap items-center gap-2">
                       {selectedWordBlocks.length === 0 ? (
-                        <span className="text-base font-bold text-slate-400 italic">
-                          Klicke auf die Wort-Blöcke unten, um den Satz zu bauen...
+                        <span className="text-slate-400 text-sm font-medium italic">
+                          Klicke unten auf die Wort-Blöcke in der richtigen Reihenfolge...
                         </span>
                       ) : (
-                        selectedWordBlocks.map((block, bIdx) => (
+                        selectedWordBlocks.map((blk, bIdx) => (
                           <button
                             key={bIdx}
-                            onClick={() => handleSelectWordBlock(block)}
-                            className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-extrabold text-base sm:text-lg shadow-md active:scale-95 transition-transform flex items-center gap-1.5"
+                            onClick={() => handleSelectWordBlock(blk)}
+                            className="px-3.5 py-2 rounded-xl bg-indigo-600 text-white font-black text-sm sm:text-base shadow-sm hover:bg-indigo-700 active:scale-95 transition-all"
                           >
-                            <span>{block}</span>
-                            <span className="text-xs text-indigo-200 ml-1">✕</span>
+                            {blk} ✕
                           </button>
                         ))
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="text-xs font-black uppercase tracking-wider text-slate-500">
-                        Verfügbare Wort-Blöcke:
-                      </div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        {currentEx.wordBlocks?.map((block, idx) => {
-                          const isUsed = selectedWordBlocks.includes(block);
-                          return (
-                            <button
-                              key={idx}
-                              disabled={isUsed || feedbackStatus === 'correct'}
-                              onClick={() => handleSelectWordBlock(block)}
-                              className={`px-5 py-3 rounded-2xl font-black text-base sm:text-lg transition-all border shadow-xs ${
-                                isUsed
-                                  ? 'opacity-30 bg-slate-200 border-slate-300 text-slate-500 cursor-not-allowed'
-                                  : 'bg-white hover:bg-indigo-50 border-slate-300 text-slate-800 hover:border-indigo-400 active:scale-95'
-                              }`}
-                            >
-                              {block}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {selectedWordBlocks.length > 0 && feedbackStatus !== 'correct' && (
-                      <button
-                        onClick={() => {
-                          playChime('click');
-                          setSelectedWordBlocks([]);
-                        }}
-                        className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        <span>Blöcke zurücksetzen</span>
-                      </button>
-                    )}
-                  </div>
-                )}
-
-                {/* 2. Multiple Choice Options (Spelling, Conjugation, Wortart, Plural, Article, Connector) */}
-                {currentEx.options &&
-                  currentEx.type !== 'sentence_expand' &&
-                  currentEx.type !== 'sentence_builder' &&
-                  currentEx.type !== 'bildgeschichte_step' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                      {currentEx.options.map((opt, oIdx) => {
-                        const isSelected = selectedOption === opt;
+                    <div className="flex flex-wrap gap-2.5 pt-1">
+                      {currentEx.wordBlocks.map((blk, bIdx) => {
+                        const isChosen = selectedWordBlocks.includes(blk);
                         return (
                           <button
-                            key={oIdx}
-                            disabled={feedbackStatus === 'correct'}
-                            onClick={() => {
-                              playChime('click');
-                              setSelectedOption(opt);
-                              setHintMessage(null);
-                            }}
-                            className={`p-5 rounded-2xl font-black text-lg sm:text-xl transition-all border-2 text-center shadow-xs ${
-                              isSelected
-                                ? 'bg-indigo-50 border-indigo-600 text-indigo-900 shadow-md scale-102'
-                                : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300'
+                            key={bIdx}
+                            onClick={() => handleSelectWordBlock(blk)}
+                            disabled={isChosen}
+                            className={`px-4 py-2.5 rounded-xl font-black text-sm sm:text-base border-2 transition-all ${
+                              isChosen
+                                ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                                : 'bg-white hover:bg-indigo-50 border-slate-300 text-slate-800 shadow-sm active:scale-95'
                             }`}
                           >
-                            {opt}
+                            {blk}
                           </button>
                         );
                       })}
                     </div>
-                  )}
-
-                {/* 3. Text Typing (Missing letters, Full word, Sentence writing) */}
-                {(currentEx.type === 'missing_letters' ||
-                  currentEx.type === 'type_word' ||
-                  currentEx.type === 'sentence_expand') && (
-                  <div className="space-y-4">
-                    {currentEx.expandSuggestions && currentEx.expandSuggestions.length > 0 && (
-                      <div className="bg-indigo-50/80 p-4 rounded-2xl border border-indigo-100 space-y-2">
-                        <div className="text-xs font-black uppercase text-indigo-900 flex items-center gap-1.5">
-                          <Lightbulb className="w-4 h-4 text-amber-500" />
-                          <span>Mögliche Ideen zum Ergänzen:</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {currentEx.expandSuggestions.map((sug, sIdx) => (
-                            <button
-                              key={sIdx}
-                              onClick={() => {
-                                playChime('click');
-                                setTextInput((prev) => (prev ? `${prev} ${sug}` : sug));
-                              }}
-                              className="px-4 py-2 rounded-xl bg-white hover:bg-amber-100 text-indigo-900 text-sm font-bold border border-indigo-200 shadow-2xs transition-colors"
-                            >
-                              + {sug}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={textInput}
-                        disabled={feedbackStatus === 'correct'}
-                        onChange={(e) => {
-                          setTextInput(e.target.value);
-                          setHintMessage(null);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleCheckAnswer();
-                        }}
-                        placeholder="Hier deine Antwort eingeben..."
-                        className="w-full px-6 py-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none text-lg sm:text-xl font-bold text-slate-900 placeholder:text-slate-400 bg-white"
-                      />
-                    </div>
                   </div>
                 )}
 
-                {/* 4. Bildgeschichte step inside daily practice (Section 10-14) */}
-                {currentEx.type === 'bildgeschichte_step' && (
-                  <div className="space-y-5">
-                    {/* Large Scene Illustration */}
-                    <div className="w-full h-56 sm:h-64 rounded-3xl bg-gradient-to-tr from-amber-50 via-orange-50 to-amber-100 border-2 border-amber-200 flex flex-col items-center justify-center text-7xl sm:text-8xl relative overflow-hidden shadow-inner">
-                      <span className="animate-bounce-subtle select-none">{currentEx.sceneEmoji || '📖'}</span>
-                      <span className="absolute top-3 left-3 text-xs font-black uppercase px-3 py-1 rounded-xl bg-white/95 text-amber-900 border border-amber-200 shadow-xs">
-                        {currentEx.contextSentence || 'Bildgeschichte'}
-                      </span>
-                    </div>
+                {/* 2. Text Input (Missing Letters, Type Word, Sentence Expand) */}
+                {(currentEx.type === 'missing_letters' ||
+                  currentEx.type === 'type_word' ||
+                  currentEx.type === 'sentence_expand' ||
+                  currentEx.type === 'sentence_linking' ||
+                  currentEx.type === 'bildgeschichte_step') && (
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleCheckAnswer();
+                      }}
+                      placeholder="Deine Antwort hier tippen..."
+                      className="w-full px-5 py-4 rounded-2xl border-2 border-slate-300 focus:border-indigo-600 focus:outline-hidden text-lg font-bold text-slate-900 bg-white shadow-inner"
+                      autoFocus
+                    />
+                  </div>
+                )}
 
-                    {/* Sentence Starters in large readable chips */}
-                    {currentEx.starterIdeas && currentEx.starterIdeas.length > 0 && (
-                      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 space-y-2.5">
-                        <div className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                          <Lightbulb className="w-4 h-4 text-amber-500" />
-                          <span>Hilfreiche Satzanfänge (klicke zum Einfügen):</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2.5">
-                          {currentEx.starterIdeas.map((st, sIdx) => (
-                            <button
-                              key={sIdx}
-                              onClick={() => {
-                                playChime('click');
-                                const clean = st.replace('…', '').trim();
-                                setTextInput((prev) => (prev ? `${prev} ${clean}` : `${clean} `));
-                              }}
-                              className="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 text-base font-bold border border-amber-200 shadow-2xs transition-colors"
-                            >
-                              + {st}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Optional Wörter-Hilfe Toggle */}
-                    {currentEx.expandSuggestions && currentEx.expandSuggestions.length > 0 && (
-                      <div className="space-y-2">
+                {/* 3. Multiple Choice Options */}
+                {currentEx.options && currentEx.options.length > 0 && currentEx.type !== 'sentence_builder' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {currentEx.options.map((opt, oIdx) => {
+                      const isSelected = selectedOption === opt;
+                      return (
                         <button
-                          type="button"
+                          key={oIdx}
                           onClick={() => {
                             playChime('click');
-                            setShowWordHelp(!showWordHelp);
+                            setSelectedOption(opt);
                           }}
-                          className="text-xs font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 transition-colors"
+                          className={`p-4 rounded-2xl border-2 text-left font-black text-base sm:text-lg transition-all flex items-center justify-between ${
+                            isSelected
+                              ? 'border-indigo-600 bg-indigo-50 text-indigo-950 shadow-sm ring-2 ring-indigo-200'
+                              : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
+                          }`}
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                          <span>{showWordHelp ? 'Wörter-Hilfe ausblenden' : '💡 Wörter-Hilfe anzeigen'}</span>
+                          <span>{opt}</span>
+                          <span
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${
+                              isSelected
+                                ? 'border-indigo-600 bg-indigo-600 text-white'
+                                : 'border-slate-300 bg-white'
+                            }`}
+                          >
+                            {isSelected ? '✓' : ''}
+                          </span>
                         </button>
-
-                        {showWordHelp && (
-                          <div className="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200 flex flex-wrap gap-2 animate-fade-in">
-                            {currentEx.expandSuggestions.map((w, wIdx) => (
-                              <span
-                                key={wIdx}
-                                className="px-3 py-1 rounded-xl bg-white border border-indigo-200 text-indigo-900 text-sm font-bold shadow-2xs"
-                              >
-                                {w}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Student Sentence Textarea */}
-                    <div className="space-y-2">
-                      <textarea
-                        rows={3}
-                        value={textInput}
-                        disabled={feedbackStatus === 'correct'}
-                        onChange={(e) => {
-                          setTextInput(e.target.value);
-                          setHintMessage(null);
-                        }}
-                        placeholder="Schreibe 1–2 Sätze zu dem Bild..."
-                        className="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none text-base sm:text-lg font-semibold text-slate-900 resize-none bg-white placeholder:text-slate-400 shadow-inner"
-                      />
-                    </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
 
-              {/* HINT & FEEDBACK BANNER */}
+              {/* HINT & FEEDBACK MESSAGE */}
               {hintMessage && (
                 <div
-                  className={`p-5 rounded-2xl border flex items-start gap-3.5 transition-all ${
+                  className={`p-4 rounded-2xl border-2 text-sm sm:text-base font-bold flex items-center gap-3 animate-fade-in ${
                     feedbackStatus === 'correct'
                       ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                       : feedbackStatus === 'wrong'
-                      ? 'bg-amber-50 border-amber-300 text-amber-900'
-                      : 'bg-indigo-50 border-indigo-200 text-indigo-900'
+                      ? 'bg-rose-50 border-rose-300 text-rose-900'
+                      : 'bg-amber-50 border-amber-300 text-amber-900'
                   }`}
                 >
-                  <div className="shrink-0 mt-0.5 text-2xl">
+                  <span className="text-xl">
                     {feedbackStatus === 'correct' ? '🎉' : feedbackStatus === 'wrong' ? '💡' : 'ℹ️'}
-                  </div>
-                  <div className="flex-1 text-base sm:text-lg font-bold leading-relaxed">
-                    {hintMessage}
-                  </div>
+                  </span>
+                  <div className="flex-1">{hintMessage}</div>
                 </div>
               )}
 
-              {/* ACTION BUTTONS (Prüfen, Hilfe, Skip) */}
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                <div className="flex flex-wrap items-center gap-2">
+              {/* ACTION FOOTER */}
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+                <div className="flex items-center gap-2">
                   {feedbackStatus !== 'correct' && (
                     <>
                       {currentEx.type === 'bildgeschichte_step' ? (
                         (() => {
-                          const unlockStatus = getModelSolutionUnlockStatus(textInput, 2);
+                          const unlockStatus = getModelSolutionUnlockStatus(textInput);
                           return unlockStatus.isUnlocked ? (
                             <button
                               type="button"
@@ -1492,7 +1427,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           )
         )}
 
-        {/* MISTAKE MEMORY & REVIEW FOCUS ("Das üben wir noch" / "Schwierige Wörter") */}
+        {/* MISTAKE MEMORY & REVIEW FOCUS */}
         {weakWords.length > 0 && (
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-rose-200 space-y-4">
             <div className="flex items-center justify-between">

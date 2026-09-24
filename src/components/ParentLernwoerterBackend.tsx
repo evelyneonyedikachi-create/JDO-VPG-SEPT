@@ -48,6 +48,8 @@ interface ParentLernwoerterBackendProps {
   weakWords?: string[];
   strongWords?: string[];
   miniExamHistory?: MiniExamResult[];
+  daysProgress?: Record<string, any>;
+  weeklyOverview?: any;
 }
 
 export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> = ({
@@ -64,6 +66,8 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   weakWords = [],
   strongWords = [],
   miniExamHistory = [],
+  daysProgress,
+  weeklyOverview,
 }) => {
   const [pinInput, setPinInput] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -381,46 +385,94 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
           {/* TAB 2: PROGRESS DASHBOARD */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
-              {/* Key Parent Metrics */}
+              {/* Key Parent Metrics (Section 9) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-indigo-50 border border-indigo-200 p-4 rounded-2xl text-center">
                   <div className="text-3xl font-black text-indigo-800">
                     {pointsWeek} / 100
                   </div>
                   <div className="text-xs font-bold text-indigo-600 mt-1 uppercase">
-                    Wochen-Punkte (max 100)
+                    Aktuelle Wochen-Punkte
+                  </div>
+                </div>
+
+                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-center">
+                  <div className="text-3xl font-black text-emerald-800">
+                    {weeklyOverview?.potentialPointsStillAttainable ?? 100} / 100
+                  </div>
+                  <div className="text-xs font-bold text-emerald-600 mt-1 uppercase">
+                    Maximal noch erreichbar
                   </div>
                 </div>
 
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center">
                   <div className="text-3xl font-black text-amber-800">
-                    {skippedCount}
+                    {weeklyOverview?.remainingRequiredWeekly ?? 0}
                   </div>
                   <div className="text-xs font-bold text-amber-600 mt-1 uppercase">
-                    Offene Übersprungene
-                  </div>
-                </div>
-
-                <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-center">
-                  <div className="text-2xl sm:text-3xl font-black text-emerald-800">
-                    {formatPoints(cumulativePoints)}
-                  </div>
-                  <div className="text-xs font-bold text-emerald-600 mt-1 uppercase">
-                    Gesamt-Punkte (Lifetime)
+                    Offene Pflichtaufgaben
                   </div>
                 </div>
 
                 <div className="bg-purple-50 border border-purple-200 p-4 rounded-2xl text-center">
-                  <div className="text-3xl font-black text-purple-800">
-                    {miniExamHistory.length > 0
-                      ? `${miniExamHistory[miniExamHistory.length - 1].score}/20`
-                      : 'Bereit'}
+                  <div className="text-2xl sm:text-3xl font-black text-purple-800">
+                    {formatPoints(cumulativePoints)}
                   </div>
                   <div className="text-xs font-bold text-purple-600 mt-1 uppercase">
-                    Mini-Prüfung (Woche 1–4)
+                    Gesamt-Punkte (Lifetime)
                   </div>
                 </div>
               </div>
+
+              {/* SECTION 9: CLEAR WEEKLY DAY STATUS TABLE FOR PARENTS */}
+              {daysProgress && (
+                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                  <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Trophy className="w-4 h-4 text-amber-500" />
+                      <h4 className="font-black text-slate-900 text-sm">
+                        Wochenplan & Tagesstatus (Pflichtaufgaben)
+                      </h4>
+                    </div>
+                    <span className="text-xs font-bold text-slate-500">
+                      5 Aufgaben pro Tag • 30 Aufgaben pro Woche
+                    </span>
+                  </div>
+
+                  <div className="divide-y divide-slate-100">
+                    {Object.values(daysProgress).map((dayProg: any) => (
+                      <div
+                        key={dayProg.day}
+                        className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{dayProg.dayIcon}</span>
+                          <div>
+                            <div className="font-black text-slate-900 text-sm flex items-center gap-2">
+                              <span>{dayProg.dayLabel}</span>
+                              <span className="text-xs text-slate-400 font-semibold">
+                                ({dayProg.avatar})
+                              </span>
+                            </div>
+                            <div className="text-xs text-slate-500 font-medium">
+                              {dayProg.completedRequired} von {dayProg.totalRequired} Aufgaben abgeschlossen
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border ${dayProg.statusBadge.color}`}
+                          >
+                            <span>{dayProg.statusBadge.icon}</span>
+                            <span>{dayProg.statusBadge.label}</span>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* WEAK WORDS & STRONGEST WORDS OVERVIEW */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

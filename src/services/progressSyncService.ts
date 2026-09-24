@@ -21,6 +21,7 @@ export interface PersistedUserProgress {
   miniExamHistory?: any[];
   mistakes?: any[];
   claimedRewards?: number[];
+  completedExerciseRecords?: any[];
   storyData?: Record<string, string>;
   lastSavedAt?: number;
 }

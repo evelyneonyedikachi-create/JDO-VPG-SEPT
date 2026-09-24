@@ -16,9 +16,12 @@ import {
   Award,
   Gift,
   Target,
+  CheckCircle2,
 } from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
 import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
+import { WeeklyProgressPanel } from './WeeklyProgressPanel';
+import { DayProgressSummary, NextRecommendedTask, WeeklyOverviewStats } from '../types/progress';
 
 interface HeuteScreenProps {
   currentDay: DayOfWeek;
@@ -32,6 +35,10 @@ interface HeuteScreenProps {
   onResumePaused?: () => void;
   skippedCount?: number;
   weakWords?: string[];
+  daysProgress?: Record<DayOfWeek, DayProgressSummary>;
+  weeklyOverview?: WeeklyOverviewStats;
+  nextTask?: NextRecommendedTask;
+  onSelectDay: (day: DayOfWeek) => void;
   onStartToday: () => void;
   onGoToWords: () => void;
   onGoToBildgeschichte: () => void;
@@ -52,6 +59,10 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
   onResumePaused,
   skippedCount = 0,
   weakWords = [],
+  daysProgress,
+  weeklyOverview,
+  nextTask,
+  onSelectDay,
   onStartToday,
   onGoToWords,
   onGoToBildgeschichte,
@@ -123,8 +134,30 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
   // Next reward ladder milestone
   const { nextMilestone, pointsToNext, progressPercent } = getNextRewardMilestone(cumulativePoints);
 
+  const isTodayComplete = daysProgress ? daysProgress[currentDay]?.isCompleted : false;
+
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
+      {/* SECTION 7, 5, 4, 3: PROMINENT "ALS NÄCHSTES" & WEEKLY PROGRESS PANEL */}
+      {daysProgress && weeklyOverview && nextTask && (
+        <WeeklyProgressPanel
+          currentDay={currentDay}
+          onSelectDay={onSelectDay}
+          daysProgress={daysProgress}
+          weeklyOverview={weeklyOverview}
+          nextTask={nextTask}
+          onStartNextTask={() => {
+            if (nextTask.day !== currentDay) {
+              onSelectDay(nextTask.day);
+            }
+            onStartToday();
+          }}
+          onOpenSkipped={() => {
+            onStartToday();
+          }}
+        />
+      )}
+
       {/* PAUSED SESSION NOTIFICATION / RESUME BANNER */}
       {pausedSession && onResumePaused && (
         <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-3xl p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in">
@@ -159,14 +192,27 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
       )}
 
       {/* Hero Welcome Banner */}
-      <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+      <div className={`rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden transition-all ${
+        isTodayComplete
+          ? 'bg-gradient-to-br from-emerald-600 via-teal-700 to-indigo-900'
+          : 'bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800'
+      }`}>
         <div className="absolute right-0 bottom-0 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl -mr-20 -mb-20 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
           <div className="space-y-4 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-black uppercase tracking-wider border border-white/20">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Hallo Jedidiah! Deine heutige Mission:</span>
+              {isTodayComplete ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>{todayInfo.title} • ✅ Geschafft!</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Hallo Jedidiah! Deine heutige Mission:</span>
+                </>
+              )}
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
@@ -204,9 +250,13 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
                   playChime('click');
                   onStartToday();
                 }}
-                className="px-8 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-lg sm:text-xl shadow-xl shadow-amber-400/25 active:scale-95 flex items-center gap-3 transition-transform"
+                className={`px-8 py-4 rounded-2xl font-black text-lg sm:text-xl shadow-xl active:scale-95 flex items-center gap-3 transition-transform ${
+                  isTodayComplete
+                    ? 'bg-white text-emerald-900 hover:bg-emerald-50 shadow-emerald-950/20'
+                    : 'bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-amber-400/25'
+                }`}
               >
-                <span>🚀 Jetzt starten</span>
+                <span>{isTodayComplete ? '🔁 Freiwillig üben' : '🚀 Jetzt starten'}</span>
                 <ArrowRight className="w-6 h-6" />
               </button>
 
@@ -333,34 +383,6 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
           </div>
         </div>
       </div>
-
-      {/* SKIPPED ITEMS REMINDER IF ANY */}
-      {skippedCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-3xl p-5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-200/80 flex items-center justify-center text-amber-900 font-black">
-              <SkipForward className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-black text-slate-900 text-base">
-                {skippedCount} übersprungene Aufgabe{skippedCount > 1 ? 'n' : ''} offen
-              </h4>
-              <p className="text-xs text-amber-900 font-medium">
-                Um den vollen Wochenabschluss und alle Belohnungen zu erhalten, schließe diese Aufgaben vor dem Wochenende ab.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={() => {
-              playChime('click');
-              onStartToday();
-            }}
-            className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shrink-0"
-          >
-            Jetzt nachholen
-          </button>
-        </div>
-      )}
 
       {/* Week Overview Quick Links */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

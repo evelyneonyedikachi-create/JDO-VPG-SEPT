@@ -41,6 +41,12 @@ import {
   subscribeSyncStatus,
   SyncState,
 } from './services/progressSyncService';
+import { CompletedExerciseRecord } from './types/progress';
+import {
+  calculateAllDaysProgress,
+  calculateWeeklyOverview,
+  determineNextRecommendedTask,
+} from './services/progressService';
 
 type MainView = 'heute' | 'woerter' | 'ueben' | 'bildgeschichte' | 'sterne' | 'games';
 
@@ -147,6 +153,28 @@ export default function App() {
       const updated = exists ? prev.filter((l) => l !== level) : [...prev, level];
       try {
         localStorage.setItem('jd_claimed_rewards', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  // Completed exercise records (id, day, pointsEarned, completedAt)
+  const [completedRecords, setCompletedRecords] = useState<CompletedExerciseRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem('jd_completed_records');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleRecordCompletedExercise = (record: CompletedExerciseRecord) => {
+    setCompletedRecords((prev) => {
+      const exists = prev.some((r) => r.id === record.id && r.day === record.day);
+      if (exists) return prev;
+      const updated = [...prev, record];
+      try {
+        localStorage.setItem('jd_completed_records', JSON.stringify(updated));
       } catch {}
       return updated;
     });
@@ -308,6 +336,7 @@ export default function App() {
         if (Array.isArray(remote.miniExamHistory)) setMiniExamHistory(remote.miniExamHistory);
         if (Array.isArray(remote.mistakes)) setMistakes(remote.mistakes);
         if (Array.isArray(remote.claimedRewards)) setClaimedRewards(remote.claimedRewards);
+        if (Array.isArray(remote.completedExerciseRecords)) setCompletedRecords(remote.completedExerciseRecords);
       }
       isInitialRemoteLoadDone.current = true;
     });
@@ -329,6 +358,7 @@ export default function App() {
         miniExamHistory,
         mistakes,
         claimedRewards,
+        completedExerciseRecords: completedRecords,
       },
       'jedidiah'
     );
@@ -342,6 +372,7 @@ export default function App() {
     miniExamHistory,
     mistakes,
     claimedRewards,
+    completedRecords,
   ]);
 
   // Modals
@@ -603,63 +634,100 @@ export default function App() {
       {/* Main Dynamic Workspace */}
       <main className="flex-1 flex flex-col items-center justify-start p-3 sm:p-6 w-full">
         {/* VIEW 1: HEUTE (Today's Mission) */}
-        {currentView === 'heute' && (
-          <HeuteScreen
-            currentDay={activeDay}
-            words={curriculum.words}
-            starsCount={starsCount}
-            streakDays={streakDays}
-            pointsToday={pointsState.pointsToday}
-            pointsWeek={pointsState.pointsWeek}
-            cumulativePoints={pointsState.cumulativePoints}
-            pausedSession={pausedSession}
-            onResumePaused={() => {
-              if (pausedSession) {
-                setActiveDay(pausedSession.day);
-                setCurrentView('ueben');
-              }
-            }}
-            skippedCount={skippedExercises.length}
-            weakWords={activeWeakWords}
-            onStartToday={() => setCurrentView('ueben')}
-            onGoToWords={() => setCurrentView('woerter')}
-            onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
-            onOpenWorksheet={() => openPrintForDay(activeDay)}
-            onOpenRewards={() => setCurrentView('sterne')}
-            onOpenMiniExam={() => setShowMiniExam(true)}
-          />
-        )}
+        {(() => {
+          const daysProgress = calculateAllDaysProgress({
+            words: curriculum.words,
+            completedRecords,
+            pausedSession,
+            skippedExercises,
+          });
 
-        {/* VIEW 2: MEINE LERNWÖRTER (Word Explorer, Lernwörter 1 & 2, Flashcards, Pronoun Sentence Tables) */}
-        {currentView === 'woerter' && (
-          <LernwoerterWordExplorer
-            words={curriculum.words}
-            onOpenWorksheet={() => openPrintForDay('monday')}
-          />
-        )}
+          const weeklyOverview = calculateWeeklyOverview({
+            daysProgress,
+            pointsWeek: pointsState.pointsWeek,
+            skippedExercises,
+            pausedSession,
+          });
 
-        {/* VIEW 3: ÜBEN (Monday to Saturday Daily Interactive Exercise Engine) */}
-        {currentView === 'ueben' && (
-          <DailyPracticeWorkspace
-            currentDay={activeDay}
-            onSelectDay={(day) => setActiveDay(day)}
-            words={curriculum.words}
-            pointsToday={pointsState.pointsToday}
-            pointsWeek={pointsState.pointsWeek}
-            cumulativePoints={pointsState.cumulativePoints}
-            onRewardStars={handleRewardStars}
-            onAwardPoints={handleAwardPoints}
-            onRecordMistake={handleRecordMistake}
-            onOpenWorksheet={openPrintForDay}
-            onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
-            skippedExercises={skippedExercises}
-            onSkipExercise={handleSkipExercise}
-            onCompleteSkipped={handleCompleteSkipped}
-            pausedSession={pausedSession}
-            onSavePauseSession={handleSavePauseSession}
-            weakWords={activeWeakWords}
-          />
-        )}
+          const nextTask = determineNextRecommendedTask({
+            currentDay: activeDay,
+            words: curriculum.words,
+            daysProgress,
+            pausedSession,
+            skippedExercises,
+            weakWords: activeWeakWords,
+            completedRecords,
+          });
+
+          return (
+            <>
+              {currentView === 'heute' && (
+                <HeuteScreen
+                  currentDay={activeDay}
+                  words={curriculum.words}
+                  starsCount={starsCount}
+                  streakDays={streakDays}
+                  pointsToday={pointsState.pointsToday}
+                  pointsWeek={pointsState.pointsWeek}
+                  cumulativePoints={pointsState.cumulativePoints}
+                  pausedSession={pausedSession}
+                  onResumePaused={() => {
+                    if (pausedSession) {
+                      setActiveDay(pausedSession.day);
+                      setCurrentView('ueben');
+                    }
+                  }}
+                  skippedCount={skippedExercises.length}
+                  weakWords={activeWeakWords}
+                  daysProgress={daysProgress}
+                  weeklyOverview={weeklyOverview}
+                  nextTask={nextTask}
+                  onSelectDay={(day) => setActiveDay(day)}
+                  onStartToday={() => setCurrentView('ueben')}
+                  onGoToWords={() => setCurrentView('woerter')}
+                  onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
+                  onOpenWorksheet={() => openPrintForDay(activeDay)}
+                  onOpenRewards={() => setCurrentView('sterne')}
+                  onOpenMiniExam={() => setShowMiniExam(true)}
+                />
+              )}
+
+              {/* VIEW 2: MEINE LERNWÖRTER (Word Explorer, Lernwörter 1 & 2, Flashcards, Pronoun Sentence Tables) */}
+              {currentView === 'woerter' && (
+                <LernwoerterWordExplorer
+                  words={curriculum.words}
+                  onOpenWorksheet={() => openPrintForDay('monday')}
+                />
+              )}
+
+              {/* VIEW 3: ÜBEN (Monday to Saturday Daily Interactive Exercise Engine) */}
+              {currentView === 'ueben' && (
+                <DailyPracticeWorkspace
+                  currentDay={activeDay}
+                  onSelectDay={(day) => setActiveDay(day)}
+                  words={curriculum.words}
+                  pointsToday={pointsState.pointsToday}
+                  pointsWeek={pointsState.pointsWeek}
+                  cumulativePoints={pointsState.cumulativePoints}
+                  onRewardStars={handleRewardStars}
+                  onAwardPoints={handleAwardPoints}
+                  onRecordMistake={handleRecordMistake}
+                  onOpenWorksheet={openPrintForDay}
+                  onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
+                  skippedExercises={skippedExercises}
+                  onSkipExercise={handleSkipExercise}
+                  onCompleteSkipped={handleCompleteSkipped}
+                  pausedSession={pausedSession}
+                  onSavePauseSession={handleSavePauseSession}
+                  weakWords={activeWeakWords}
+                  completedRecords={completedRecords}
+                  onRecordCompletedExercise={handleRecordCompletedExercise}
+                  daysProgress={daysProgress}
+                />
+              )}
+            </>
+          );
+        })()}
 
         {/* VIEW 4: BILDGESCHICHTE (Freitag 9 Szenen & Samstag Wochen-Challenge) */}
         {currentView === 'bildgeschichte' && (
@@ -714,23 +782,41 @@ export default function App() {
       </footer>
 
       {/* MODAL 1: PARENT BACKEND (PIN 1234) */}
-      {showParentBackend && (
-        <ParentLernwoerterBackend
-          curriculum={curriculum}
-          onSaveCurriculum={handleSaveCurriculum}
-          mistakes={mistakes}
-          onClearResolvedMistakes={handleClearResolvedMistakes}
-          onClose={() => setShowParentBackend(false)}
-          pointsWeek={pointsState.pointsWeek}
-          cumulativePoints={pointsState.cumulativePoints}
-          claimedRewards={claimedRewards}
-          onToggleClaimReward={handleToggleClaimReward}
-          skippedCount={skippedExercises.length}
-          weakWords={activeWeakWords}
-          strongWords={['Zimmer', 'Messer', 'Kuss', 'Schloss', 'passen', 'dünn']}
-          miniExamHistory={miniExamHistory}
-        />
-      )}
+      {showParentBackend && (() => {
+        const daysProgress = calculateAllDaysProgress({
+          words: curriculum.words,
+          completedRecords,
+          pausedSession,
+          skippedExercises,
+        });
+
+        const weeklyOverview = calculateWeeklyOverview({
+          daysProgress,
+          pointsWeek: pointsState.pointsWeek,
+          skippedExercises,
+          pausedSession,
+        });
+
+        return (
+          <ParentLernwoerterBackend
+            curriculum={curriculum}
+            onSaveCurriculum={handleSaveCurriculum}
+            mistakes={mistakes}
+            onClearResolvedMistakes={handleClearResolvedMistakes}
+            onClose={() => setShowParentBackend(false)}
+            pointsWeek={pointsState.pointsWeek}
+            cumulativePoints={pointsState.cumulativePoints}
+            claimedRewards={claimedRewards}
+            onToggleClaimReward={handleToggleClaimReward}
+            skippedCount={skippedExercises.length}
+            weakWords={activeWeakWords}
+            strongWords={['Zimmer', 'Messer', 'Kuss', 'Schloss', 'passen', 'dünn']}
+            miniExamHistory={miniExamHistory}
+            daysProgress={daysProgress}
+            weeklyOverview={weeklyOverview}
+          />
+        );
+      })()}
 
       {/* MODAL 2: PRINTABLE WORKSHEET MODAL */}
       {showPrintModal && (
