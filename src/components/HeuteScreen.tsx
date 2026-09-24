@@ -18,6 +18,7 @@ import {
   Target,
 } from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
+import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
 
 interface HeuteScreenProps {
   currentDay: DayOfWeek;
@@ -120,9 +121,7 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
   const todayInfo = dayDetails[currentDay] || dayDetails.monday;
 
   // Next reward ladder milestone
-  const nextTargetPoints = 1000;
-  const pointsRemaining = Math.max(0, nextTargetPoints - cumulativePoints);
-  const rewardPercent = Math.min(100, Math.round((cumulativePoints / nextTargetPoints) * 100));
+  const { nextMilestone, pointsToNext, progressPercent } = getNextRewardMilestone(cumulativePoints);
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
@@ -261,14 +260,14 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform">
-                🍕
+                {nextMilestone.emoji.slice(0, 2)}
               </div>
               <div>
                 <span className="text-xs font-black uppercase text-amber-700 tracking-wider">
-                  Belohnungs-Leiter
+                  Belohnungs-Leiter ({nextMilestone.title})
                 </span>
                 <h3 className="text-xl font-black text-slate-900">
-                  Pizza + Fanta Fest 🍕🥤
+                  {nextMilestone.reward}
                 </h3>
               </div>
             </div>
@@ -277,19 +276,19 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
 
           <div className="space-y-1.5 bg-amber-50/70 p-3.5 rounded-2xl border border-amber-100">
             <div className="flex justify-between text-xs font-black text-slate-700">
-              <span>Fortschritt zu 1.000 Punkten</span>
-              <span>{cumulativePoints} / {nextTargetPoints} Pkt ({rewardPercent}%)</span>
+              <span>Fortschritt zu {formatPoints(nextMilestone.points)} Punkten</span>
+              <span>{formatPoints(cumulativePoints)} / {formatPoints(nextMilestone.points)} Pkt ({progressPercent}%)</span>
             </div>
             <div className="h-3 bg-amber-200/60 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                style={{ width: `${rewardPercent}%` }}
+                style={{ width: `${progressPercent}%` }}
               />
             </div>
             <p className="text-xs text-amber-900 font-bold pt-0.5">
-              {pointsRemaining === 0
-                ? '🎉 Meilenstein erreicht! Zeit für die Pizza-Party!'
-                : `Noch ${pointsRemaining} Punkte bis zur großen Familien-Pizza mit Fanta!`}
+              {pointsToNext === 0
+                ? `🎉 ${nextMilestone.title} geschafft! Zeit für: ${nextMilestone.reward}!`
+                : `Noch ${formatPoints(pointsToNext)} Punkte bis ${nextMilestone.reward}`}
             </p>
           </div>
         </div>

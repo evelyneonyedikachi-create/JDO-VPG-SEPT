@@ -8,6 +8,11 @@ import {
   Artikel,
 } from '../types/lernwoerter';
 import {
+  REWARD_LADDER,
+  getNextRewardMilestone,
+  formatPoints,
+} from '../data/rewardLadder';
+import {
   Lock,
   Plus,
   Trash2,
@@ -25,6 +30,7 @@ import {
   Gift,
   Target,
   Clock,
+  Check,
 } from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
 
@@ -36,6 +42,8 @@ interface ParentLernwoerterBackendProps {
   onClose: () => void;
   pointsWeek?: number;
   cumulativePoints?: number;
+  claimedRewards?: number[];
+  onToggleClaimReward?: (level: number) => void;
   skippedCount?: number;
   weakWords?: string[];
   strongWords?: string[];
@@ -50,6 +58,8 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   onClose,
   pointsWeek = 0,
   cumulativePoints = 0,
+  claimedRewards = [],
+  onToggleClaimReward,
   skippedCount = 0,
   weakWords = [],
   strongWords = [],
@@ -392,11 +402,11 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                 </div>
 
                 <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-center">
-                  <div className="text-3xl font-black text-emerald-800">
-                    {cumulativePoints} / 1000
+                  <div className="text-2xl sm:text-3xl font-black text-emerald-800">
+                    {formatPoints(cumulativePoints)}
                   </div>
                   <div className="text-xs font-bold text-emerald-600 mt-1 uppercase">
-                    Belohnungs-Leiter (Pizza 🍕)
+                    Gesamt-Punkte (Lifetime)
                   </div>
                 </div>
 
@@ -485,6 +495,60 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                   </div>
                 </div>
               )}
+
+              {/* REWARDS STATUS & PARENT CONFIRMATION */}
+              <div className="p-5 rounded-2xl border border-amber-200 bg-amber-50/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-amber-950 font-black text-sm">
+                    <Gift className="w-4 h-4 text-amber-600" />
+                    <span>Familien-Belohnungs-Leiter ({formatPoints(cumulativePoints)} Punkte gesamt)</span>
+                  </div>
+                  <span className="text-xs font-bold text-amber-800">
+                    {REWARD_LADDER.filter((r) => cumulativePoints >= r.points).length} von 20 Stufen erreicht
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  Punkte werden beim Einlösen <strong>nicht abgezogen</strong>. Bestätigen Sie hier oder im Erfolge-Bildschirm, wenn eine Belohnung an Jedidiah übergeben wurde.
+                </p>
+                <div className="divide-y divide-amber-100 text-xs max-h-48 overflow-y-auto pr-1">
+                  {REWARD_LADDER.filter((r) => cumulativePoints >= r.points).length === 0 ? (
+                    <div className="py-3 text-center text-slate-400 italic">
+                      Noch keine Stufe erreicht (Erste Stufe bei 1.000 Punkten).
+                    </div>
+                  ) : (
+                    REWARD_LADDER.filter((r) => cumulativePoints >= r.points).map((r) => {
+                      const isClaimed = claimedRewards.includes(r.level);
+                      return (
+                        <div key={r.level} className="py-2 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span>{r.emoji}</span>
+                            <span className="font-bold text-slate-900">{r.title}: {r.reward}</span>
+                            <span className="text-slate-500 font-semibold">({formatPoints(r.points)} Pkt)</span>
+                          </div>
+                          {onToggleClaimReward ? (
+                            <button
+                              onClick={() => {
+                                playChime('click');
+                                onToggleClaimReward(r.level);
+                              }}
+                              className={`px-3 py-1 rounded-xl text-xs font-black flex items-center gap-1 transition-all ${
+                                isClaimed
+                                  ? 'bg-emerald-600 text-white shadow-xs'
+                                  : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-300'
+                              }`}
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>{isClaimed ? 'Erhalten ✓' : 'Als erhalten markieren'}</span>
+                            </button>
+                          ) : (
+                            <span className="text-emerald-700 font-bold">Erreicht ✓</span>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
 
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <h4 className="font-black text-slate-900 text-sm">Pädagogische Einschätzung:</h4>

@@ -41,6 +41,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { getModelSolutionUnlockStatus } from '../utils/textValidation';
+import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
 
 interface RepeatedMistakeItem {
   id: string;
@@ -573,11 +574,19 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
             </span>
           </div>
 
-          {/* Cumulative Points */}
-          <div className="flex items-center gap-1.5 bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-xl text-xs font-black text-purple-900">
-            <span>🍕</span>
-            <span>{cumulativePoints} / 1000</span>
-          </div>
+          {/* Cumulative Points to Next Milestone */}
+          {(() => {
+            const { nextMilestone } = getNextRewardMilestone(cumulativePoints);
+            return (
+              <div
+                className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl text-xs font-black text-amber-900"
+                title={`Nächstes Ziel: ${nextMilestone.reward} (${formatPoints(nextMilestone.points)} Punkte)`}
+              >
+                <span>{nextMilestone.emoji.slice(0, 2)}</span>
+                <span>{formatPoints(cumulativePoints)} / {formatPoints(nextMilestone.points)}</span>
+              </div>
+            );
+          })()}
 
           {/* Worksheet Print */}
           <button

@@ -1,6 +1,22 @@
-import React from 'react';
-import { Star, Trophy, Flame, Sparkles, CheckCircle2, Award, ArrowLeft, Gift, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Star,
+  Trophy,
+  Flame,
+  Sparkles,
+  CheckCircle2,
+  Award,
+  ArrowLeft,
+  Gift,
+  Lock,
+  Gamepad2,
+  ShieldCheck,
+  Check,
+  ChevronDown,
+  Info,
+} from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
+import { REWARD_LADDER, getNextRewardMilestone, formatPoints, RewardMilestone } from '../data/rewardLadder';
 
 interface SterneRewardsScreenProps {
   starsCount: number;
@@ -8,6 +24,8 @@ interface SterneRewardsScreenProps {
   pointsToday: number;
   pointsWeek: number;
   cumulativePoints?: number;
+  claimedRewards?: number[];
+  onToggleClaimReward?: (level: number) => void;
   onBackToHome: () => void;
 }
 
@@ -17,41 +35,21 @@ export const SterneRewardsScreen: React.FC<SterneRewardsScreenProps> = ({
   pointsToday,
   pointsWeek,
   cumulativePoints = 0,
+  claimedRewards = [],
+  onToggleClaimReward,
   onBackToHome,
 }) => {
-  // Reward Ladder milestones
-  const rewardLadder = [
-    {
-      points: 1000,
-      title: 'Stufe 1: Pizza + Fanta Fest 🍕🥤',
-      description: 'Große Wunsch-Pizza + gekühlte Fanta / „Fantastica“ mit der Familie!',
-      emoji: '🍕',
-      color: 'from-amber-500 to-red-500',
-    },
-    {
-      points: 2000,
-      title: 'Stufe 2: Kino & Popcorn Nachmittag 🎬🍿',
-      description: 'Wunschfilm im Kino mit großem Popcorn oder ein toller Spiele-Nachmittag!',
-      emoji: '🍿',
-      color: 'from-blue-500 to-indigo-600',
-    },
-    {
-      points: 3000,
-      title: 'Stufe 3: Großer Familien-Ausflug 🎡',
-      description: 'Ein ganzer Tag im Freizeitpark, Erlebnisbad oder Tierpark nach deiner Wahl!',
-      emoji: '🎡',
-      color: 'from-purple-500 to-pink-600',
-    },
-    {
-      points: 4000,
-      title: 'Stufe 4: Meister-Pokal & Super-Belohnung 👑',
-      description: 'Echter Pokal als Lernwörter-Champion der 4. Klasse + Familien-Überraschung!',
-      emoji: '🏆',
-      color: 'from-yellow-400 to-amber-600',
-    },
-  ];
+  const [filterMode, setFilterMode] = useState<'all' | 'next' | 'unlocked'>('all');
 
-  // Badges
+  // Next milestone progress calculation (towards next milestone, not 20,000)
+  const { nextMilestone, pointsToNext, progressPercent } = getNextRewardMilestone(cumulativePoints);
+
+  // Stufe 20 major milestone
+  const majorMilestone = REWARD_LADDER[REWARD_LADDER.length - 1];
+  const isMajorUnlocked = cumulativePoints >= majorMilestone.points;
+  const pointsToMajor = Math.max(0, majorMilestone.points - cumulativePoints);
+
+  // Badges for specific skills & habits
   const badges = [
     {
       id: 'woerter_detektiv',
@@ -103,11 +101,6 @@ export const SterneRewardsScreen: React.FC<SterneRewardsScreenProps> = ({
     },
   ];
 
-  // Find next milestone
-  const nextMilestone = rewardLadder.find((r) => cumulativePoints < r.points) || rewardLadder[rewardLadder.length - 1];
-  const pointsToNext = Math.max(0, nextMilestone.points - cumulativePoints);
-  const progressPercent = Math.min(100, Math.round((cumulativePoints / nextMilestone.points) * 100));
-
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8">
       {/* Top Banner */}
@@ -121,7 +114,7 @@ export const SterneRewardsScreen: React.FC<SterneRewardsScreenProps> = ({
             Jedidiah’s Belohnungs-Leiter ⭐
           </h2>
           <p className="text-amber-100 text-sm sm:text-base font-medium max-w-lg">
-            Sammle fleißig Punkte! Wochenpunkte sind auf 100 begrenzt, aber deine Gesamtpunkte wachsen immer weiter für die großen Belohnungen.
+            Sammle jede Woche bis zu 100 Punkte! Deine Punkte verfallen nie und wachsen dauerhaft als Gesamtpunkte. Belohnungen schalten sich automatisch frei – ohne Punkteabzug!
           </p>
         </div>
 
@@ -132,7 +125,7 @@ export const SterneRewardsScreen: React.FC<SterneRewardsScreenProps> = ({
           </div>
           <div className="h-10 w-px bg-white/20" />
           <div className="text-center px-2">
-            <div className="text-2xl sm:text-3xl font-black text-amber-100">{cumulativePoints}</div>
+            <div className="text-2xl sm:text-3xl font-black text-amber-100">{formatPoints(cumulativePoints)}</div>
             <div className="text-xs font-bold uppercase text-white/80">Gesamt-Punkte</div>
           </div>
           <div className="h-10 w-px bg-white/20" />
@@ -143,93 +136,334 @@ export const SterneRewardsScreen: React.FC<SterneRewardsScreenProps> = ({
         </div>
       </div>
 
-      {/* LONG-TERM REWARD LADDER SECTION */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      {/* PROMINENT REWARD SCREEN: CURRENT POINTS & NEXT REWARD */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border-2 border-amber-300 space-y-6 relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Gift className="w-6 h-6 text-indigo-600" />
+              <Gift className="w-6 h-6 text-amber-600" />
               <h3 className="text-2xl font-black text-slate-900">
-                Die Große Belohnungs-Leiter
+                Aktueller Belohnungs-Stand
               </h3>
             </div>
-            <p className="text-slate-500 font-semibold text-sm">
-              Familien-vereinbarte Meilensteine durch fleißiges Üben über die Wochen
+            <p className="text-slate-500 font-semibold text-xs sm:text-sm">
+              Familien-vereinbarte Belohnungen • Punkte werden beim Einlösen <u>nicht</u> abgezogen
             </p>
           </div>
 
-          <div className="bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-2xl text-right">
-            <div className="text-xs font-black text-indigo-900 uppercase">Nächstes Ziel</div>
-            <div className="text-base font-black text-indigo-700">
-              Noch {pointsToNext} Punkte bis {nextMilestone.emoji}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800 self-start sm:self-auto">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
+            <span>Familienabsprache (Eltern bestätigen Einlösung)</span>
+          </div>
+        </div>
+
+        {/* PROMINENT METRIC CARDS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* 1. CURRENT POINTS TOWARDS NEXT MILESTONE */}
+          <div className="bg-gradient-to-br from-indigo-50 to-blue-50/80 p-5 sm:p-6 rounded-3xl border border-indigo-200 space-y-2">
+            <div className="text-xs font-black uppercase text-indigo-700 tracking-wider">
+              Aktuelle Punkte
+            </div>
+            <div className="text-3xl sm:text-4xl font-black text-slate-900">
+              {formatPoints(cumulativePoints)} / {formatPoints(nextMilestone.points)} Punkte
+            </div>
+            <div className="text-xs font-medium text-slate-500">
+              Fortschritt zum nächsten Meilenstein ({nextMilestone.title})
+            </div>
+          </div>
+
+          {/* 2. NEXT REWARD CALLOUT */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50/80 p-5 sm:p-6 rounded-3xl border border-amber-200 space-y-2 flex flex-col justify-between">
+            <div>
+              <div className="text-xs font-black uppercase text-amber-800 tracking-wider flex items-center gap-1.5">
+                <span>Nächste Belohnung</span>
+                <span className="text-base">{nextMilestone.emoji}</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-amber-950 mt-1">
+                {nextMilestone.reward}
+              </div>
+            </div>
+            <div className="pt-2 text-sm sm:text-base font-black text-amber-900 flex items-center gap-2">
+              {cumulativePoints >= nextMilestone.points ? (
+                <span className="text-emerald-700 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <span>Bereit zum Einlösen! 🎉</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <span>{nextMilestone.emoji.slice(0, 2)}</span>
+                  <span>Noch {formatPoints(pointsToNext)} Punkte bis {nextMilestone.reward}</span>
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* PROGRESS TOWARDS NEXT MILESTONE */}
-        <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-          <div className="flex justify-between items-center text-sm font-black text-slate-700">
-            <span>Fortschritt zu {nextMilestone.title}</span>
-            <span>{cumulativePoints} / {nextMilestone.points} Punkte ({progressPercent}%)</span>
+        {/* PROGRESS BAR: TOWARDS THE NEXT MILESTONE (NOT 20,000) */}
+        <div className="space-y-2 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+          <div className="flex justify-between items-center text-xs sm:text-sm font-black text-slate-700">
+            <span className="flex items-center gap-1.5">
+              <span>{nextMilestone.emoji}</span>
+              <span>Fortschritt zu {nextMilestone.title} ({nextMilestone.reward})</span>
+            </span>
+            <span>{progressPercent}%</span>
           </div>
-          <div className="h-4 bg-slate-200 rounded-full overflow-hidden">
+          <div className="h-5 bg-slate-200 rounded-full overflow-hidden p-0.5 border border-slate-300">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-amber-500 rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
+              className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-full transition-all duration-700 shadow-inner"
+              style={{ width: `${Math.max(5, progressPercent)}%` }}
             />
+          </div>
+          <div className="flex justify-between items-center text-[11px] font-bold text-slate-500 px-1">
+            <span>Start</span>
+            <span>Ziel: {formatPoints(nextMilestone.points)} Punkte</span>
+          </div>
+        </div>
+      </div>
+
+      {/* MAJOR REWARD: SPECIAL VISUAL SHOWCASE (STUFE 20) */}
+      <div className={`relative rounded-3xl p-6 sm:p-8 overflow-hidden transition-all shadow-xl border-2 ${
+        isMajorUnlocked
+          ? 'bg-gradient-to-br from-violet-900 via-purple-900 to-amber-950 border-amber-400 text-white'
+          : 'bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 border-indigo-400/40 text-white'
+      }`}>
+        <div className="absolute top-0 right-0 w-80 h-80 bg-fuchsia-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-3 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-xs uppercase shadow-md tracking-wider">
+              <Gamepad2 className="w-4 h-4" />
+              <span>👑 Das Große Hauptziel • Stufe 20</span>
+            </div>
+
+            <h3 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+              🎮 20.000 Punkte — Nintendo Game Reward
+            </h3>
+
+            <div className="text-xl sm:text-2xl font-black text-amber-300">
+              Smith Toys Gift Card
+            </div>
+
+            <p className="text-indigo-200 text-xs sm:text-sm font-medium max-w-xl">
+              Das große Finale der Belohnungs-Leiter! Nach fleißigen Wochen voller Lernwörter wartet der Smith Toys Gutschein für ein neues Nintendo-Spiel nach deiner Wahl.
+            </p>
+          </div>
+
+          <div className="shrink-0 flex flex-col items-center">
+            <div className={`p-6 rounded-3xl border-2 backdrop-blur-md text-center space-y-2 min-w-[220px] ${
+              isMajorUnlocked
+                ? 'bg-amber-400/20 border-amber-400 shadow-xl shadow-amber-400/20'
+                : 'bg-white/10 border-white/20'
+            }`}>
+              <div className="text-4xl sm:text-5xl">🎮🏆</div>
+              <div className="text-xs font-black uppercase tracking-wider text-amber-200">
+                {isMajorUnlocked ? 'Geschafft!' : 'Großes Ziel'}
+              </div>
+              <div className="text-lg font-black">
+                {isMajorUnlocked ? (
+                  <span className="text-emerald-300 flex items-center justify-center gap-1">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Freigeschaltet!</span>
+                  </span>
+                ) : (
+                  <span className="text-amber-100 flex items-center justify-center gap-1.5">
+                    <Lock className="w-4 h-4 text-amber-300" />
+                    <span>Noch {formatPoints(pointsToMajor)} Pkt</span>
+                  </span>
+                )}
+              </div>
+
+              {isMajorUnlocked && onToggleClaimReward && (
+                <button
+                  onClick={() => {
+                    playChime('success');
+                    onToggleClaimReward(20);
+                  }}
+                  className={`mt-2 w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all shadow-md ${
+                    claimedRewards.includes(20)
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-amber-400 hover:bg-amber-300 text-slate-950'
+                  }`}
+                >
+                  {claimedRewards.includes(20) ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Belohnung erhalten ✓</span>
+                    </>
+                  ) : (
+                    <span>Als erhalten markieren</span>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* COMPACT REWARD LADDER TABLE / LIST */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-slate-200 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                Vollständige Belohnungs-Leiter (Stufe 1 bis 20)
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 font-semibold">
+              Alle 1.000 Punkte ein Meilenstein • Alle 4.000 Punkte Kino & Popcorn • Bei 20.000 Smith Toys Gutschein
+            </p>
+          </div>
+
+          {/* Quick Filter */}
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl self-start sm:self-auto text-xs font-bold">
+            <button
+              onClick={() => setFilterMode('all')}
+              className={`px-3 py-1.5 rounded-xl transition-all ${
+                filterMode === 'all' ? 'bg-white shadow-xs text-slate-900 font-black' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Alle 20 Stufen
+            </button>
+            <button
+              onClick={() => setFilterMode('next')}
+              className={`px-3 py-1.5 rounded-xl transition-all ${
+                filterMode === 'next' ? 'bg-white shadow-xs text-indigo-700 font-black' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Nächste Ziele
+            </button>
+            <button
+              onClick={() => setFilterMode('unlocked')}
+              className={`px-3 py-1.5 rounded-xl transition-all ${
+                filterMode === 'unlocked' ? 'bg-white shadow-xs text-emerald-700 font-black' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Geschafft ({REWARD_LADDER.filter((r) => cumulativePoints >= r.points).length})
+            </button>
           </div>
         </div>
 
-        {/* LADDER STEPS */}
-        <div className="space-y-4">
-          {rewardLadder.map((step, sIdx) => {
+        {/* LADDER ITEMS */}
+        <div className="grid grid-cols-1 gap-3">
+          {REWARD_LADDER.filter((step) => {
             const isUnlocked = cumulativePoints >= step.points;
+            if (filterMode === 'unlocked') return isUnlocked;
+            if (filterMode === 'next') {
+              // Show up to 3 next upcoming milestones plus current
+              return step.points >= cumulativePoints && step.points <= cumulativePoints + 3000;
+            }
+            return true;
+          }).map((step) => {
+            const isUnlocked = cumulativePoints >= step.points;
+            const isClaimed = claimedRewards.includes(step.level);
+            const isNext = step.level === nextMilestone.level && !isUnlocked;
+            const pointsNeeded = Math.max(0, step.points - cumulativePoints);
+
             return (
               <div
-                key={sIdx}
-                className={`p-5 rounded-3xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                  isUnlocked
-                    ? 'bg-amber-50/70 border-amber-300 shadow-md'
-                    : 'bg-white border-slate-200 opacity-80'
+                key={step.level}
+                className={`p-4 sm:p-5 rounded-2xl border-2 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+                  step.isMajor
+                    ? isUnlocked
+                      ? 'bg-gradient-to-r from-violet-100 via-purple-50 to-amber-100 border-purple-400 shadow-md ring-2 ring-purple-300'
+                      : 'bg-gradient-to-r from-violet-50/70 to-purple-50/70 border-violet-300 shadow-xs'
+                    : isUnlocked
+                    ? 'bg-emerald-50/50 border-emerald-300 shadow-xs'
+                    : isNext
+                    ? 'bg-amber-50/70 border-amber-400 ring-2 ring-amber-200 shadow-sm'
+                    : 'bg-white border-slate-200'
                 }`}
               >
-                <div className="flex items-center gap-4">
+                {/* Left: Info */}
+                <div className="flex items-center gap-3.5">
                   <div
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm text-white shrink-0 bg-gradient-to-tr ${step.color}`}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shrink-0 shadow-xs ${
+                      step.isMajor
+                        ? 'bg-gradient-to-br from-violet-600 to-amber-500 text-white'
+                        : isUnlocked
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : isNext
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                        : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    }`}
                   >
                     {step.emoji}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                        {step.points} Punkte
-                      </span>
-                      <h4 className="font-black text-slate-900 text-lg">
+
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-black text-slate-500">
                         {step.title}
-                      </h4>
+                      </span>
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                        {formatPoints(step.points)} Punkte
+                      </span>
+                      {step.isMajor && (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-purple-600 text-white">
+                          Nintendo Game
+                        </span>
+                      )}
+                      {step.type === 'kino' && !step.isMajor && (
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-blue-800">
+                          Kino-Spezial
+                        </span>
+                      )}
                     </div>
-                    <p className="text-sm text-slate-600 font-medium">
-                      {step.description}
-                    </p>
+
+                    <h4 className="text-base sm:text-lg font-black text-slate-900 mt-0.5">
+                      {step.reward}
+                    </h4>
                   </div>
                 </div>
 
-                <div className="shrink-0 text-right sm:pl-4">
+                {/* Right: State & Actions */}
+                <div className="shrink-0 flex items-center gap-3 self-end sm:self-auto">
                   {isUnlocked ? (
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-black border border-emerald-300 shadow-xs">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Freigeschaltet! 🎉</span>
-                    </span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Geschafft!</span>
+                      </span>
+
+                      {/* Parent Mark: Belohnung erhalten */}
+                      {onToggleClaimReward && (
+                        <button
+                          onClick={() => {
+                            playChime('click');
+                            onToggleClaimReward(step.level);
+                          }}
+                          title="Als Elternteil bestätigen, dass diese Belohnung eingelöst/gegeben wurde"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border ${
+                            isClaimed
+                              ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
+                              : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+                          }`}
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>{isClaimed ? 'Belohnung erhalten ✓' : 'Belohnung erhalten?'}</span>
+                        </button>
+                      )}
+                    </div>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-500 text-sm font-bold border border-slate-200">
-                      <Lock className="w-4 h-4 text-slate-400" />
-                      <span>Noch {step.points - cumulativePoints} Pkt</span>
-                    </span>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">
+                      <Lock className="w-3.5 h-3.5 text-slate-400" />
+                      <span>🔒 Noch {formatPoints(pointsNeeded)} Punkte</span>
+                    </div>
                   )}
                 </div>
               </div>
             );
           })}
+        </div>
+
+        {/* Small pedagogical disclaimer */}
+        <div className="flex items-center gap-2 pt-2 text-xs text-slate-500 font-medium">
+          <Info className="w-4 h-4 text-slate-400 shrink-0" />
+          <span>
+            Alle Belohnungen sind <strong>Familien-Absprachen</strong>. Eltern behalten die Kontrolle und bestätigen die Einlösung über das Häkchen.
+          </span>
         </div>
       </div>
 

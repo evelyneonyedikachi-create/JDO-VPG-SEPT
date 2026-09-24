@@ -130,6 +130,28 @@ export default function App() {
     }
   });
 
+  // Claimed / received rewards tracker (level numbers, e.g. [1, 2])
+  // Claiming a reward NEVER deducts points. Points accumulate permanently as lifetime points.
+  const [claimedRewards, setClaimedRewards] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem('jd_claimed_rewards');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleToggleClaimReward = (level: number) => {
+    setClaimedRewards((prev) => {
+      const exists = prev.includes(level);
+      const updated = exists ? prev.filter((l) => l !== level) : [...prev, level];
+      try {
+        localStorage.setItem('jd_claimed_rewards', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
   const handleAwardPoints = (points: number, _reason: string) => {
     setPointsState((prev) => {
       const updated = {
@@ -285,6 +307,7 @@ export default function App() {
         if (remote.pausedSession !== undefined) setPausedSession(remote.pausedSession);
         if (Array.isArray(remote.miniExamHistory)) setMiniExamHistory(remote.miniExamHistory);
         if (Array.isArray(remote.mistakes)) setMistakes(remote.mistakes);
+        if (Array.isArray(remote.claimedRewards)) setClaimedRewards(remote.claimedRewards);
       }
       isInitialRemoteLoadDone.current = true;
     });
@@ -305,6 +328,7 @@ export default function App() {
         pausedSession,
         miniExamHistory,
         mistakes,
+        claimedRewards,
       },
       'jedidiah'
     );
@@ -317,6 +341,7 @@ export default function App() {
     pausedSession,
     miniExamHistory,
     mistakes,
+    claimedRewards,
   ]);
 
   // Modals
@@ -657,6 +682,8 @@ export default function App() {
             pointsToday={pointsState.pointsToday}
             pointsWeek={pointsState.pointsWeek}
             cumulativePoints={pointsState.cumulativePoints}
+            claimedRewards={claimedRewards}
+            onToggleClaimReward={handleToggleClaimReward}
             onBackToHome={() => setCurrentView('heute')}
           />
         )}
@@ -696,6 +723,8 @@ export default function App() {
           onClose={() => setShowParentBackend(false)}
           pointsWeek={pointsState.pointsWeek}
           cumulativePoints={pointsState.cumulativePoints}
+          claimedRewards={claimedRewards}
+          onToggleClaimReward={handleToggleClaimReward}
           skippedCount={skippedExercises.length}
           weakWords={activeWeakWords}
           strongWords={['Zimmer', 'Messer', 'Kuss', 'Schloss', 'passen', 'dünn']}

@@ -20,6 +20,7 @@ export interface PersistedUserProgress {
   pausedSession?: any;
   miniExamHistory?: any[];
   mistakes?: any[];
+  claimedRewards?: number[];
   storyData?: Record<string, string>;
   lastSavedAt?: number;
 }
