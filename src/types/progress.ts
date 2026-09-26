@@ -20,6 +20,22 @@ export interface CompletedExerciseRecord {
   confirmedText?: string;
 }
 
+export interface DayTaskDetail {
+  id: string;
+  exerciseIndex: number;
+  title: string;
+  prompt: string;
+  type: string;
+  status: 'completed' | 'open' | 'skipped' | 'paused' | 'focus';
+  statusBadge: {
+    label: string;
+    icon: string;
+    color: string;
+  };
+  wordClean?: string;
+  pointsEarned?: number;
+}
+
 export interface DayProgressSummary {
   day: DayOfWeek;
   dayLabel: string;
@@ -37,6 +53,8 @@ export interface DayProgressSummary {
     icon: string;
     color: string; // Tailwind class
   };
+  tasks: DayTaskDetail[];
+  outstandingTasks: DayTaskDetail[];
 }
 
 export interface NextRecommendedTask {

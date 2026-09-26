@@ -2,6 +2,7 @@ import { DayOfWeek, LernwortItem, PausedSessionState, SkippedExerciseItem } from
 import {
   CompletedExerciseRecord,
   DayProgressSummary,
+  DayTaskDetail,
   NextRecommendedTask,
   WeeklyOverviewStats,
 } from '../types/progress';
@@ -113,6 +114,80 @@ export function calculateAllDaysProgress({
       };
     }
 
+    // Build detailed task breakdown for exact outstanding task tracking (User Request)
+    const dayTasks: DayTaskDetail[] = plan.heuteEmpfohlen.map((ex, exIdx) => {
+      const matchingRec = completedRecords.find(
+        (r) => r.day === day && (r.id === ex.id || r.id.startsWith(ex.id) || ex.id.startsWith(r.id))
+      );
+      const isDone = !!matchingRec;
+      const isSkip = skippedExercises.some(
+        (s) => s.day === day && (s.exerciseId === ex.id || s.id === ex.id)
+      );
+      const isPause = isPaused && pausedSession?.exerciseIndex === exIdx;
+      const isFocus = ex.id.includes('reinf_') || ex.id.includes('adaptive_');
+
+      let taskStatus: 'completed' | 'open' | 'skipped' | 'paused' | 'focus' = 'open';
+      let taskBadge = {
+        label: 'Offen',
+        icon: '🟡',
+        color: 'bg-amber-100 text-amber-900 border-amber-300',
+      };
+
+      if (isDone) {
+        taskStatus = 'completed';
+        taskBadge = {
+          label: 'Erledigt',
+          icon: '✅',
+          color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        };
+      } else if (isSkip) {
+        taskStatus = 'skipped';
+        taskBadge = {
+          label: 'Übersprungen',
+          icon: '⏩',
+          color: 'bg-orange-100 text-orange-900 border-orange-300',
+        };
+      } else if (isPause) {
+        taskStatus = 'paused';
+        taskBadge = {
+          label: 'Pausiert',
+          icon: '⏸',
+          color: 'bg-blue-100 text-blue-800 border-blue-300',
+        };
+      } else if (isFocus) {
+        taskStatus = 'focus';
+        taskBadge = {
+          label: 'Schwerpunkt',
+          icon: '🎯',
+          color: 'bg-rose-100 text-rose-800 border-rose-300',
+        };
+      }
+
+      // Format exact title for display (e.g. "Fehlende Buchstaben: Zimmer", "Bildgeschichte: Szene 1")
+      let displayTitle = ex.title;
+      if (ex.type === 'bildgeschichte_step') {
+        displayTitle = `Bildgeschichte: Szene ${ex.sceneId || (exIdx + 1)}`;
+      } else if (ex.word?.cleanWord) {
+        // Remove duplicate prefix if title already includes word
+        const cleanT = ex.title.replace(/·.*$/, '').trim();
+        displayTitle = `${cleanT}: ${ex.word.cleanWord}`;
+      }
+
+      return {
+        id: ex.id,
+        exerciseIndex: exIdx,
+        title: displayTitle,
+        prompt: ex.prompt,
+        type: ex.type,
+        status: taskStatus,
+        statusBadge: taskBadge,
+        wordClean: ex.word?.cleanWord,
+        pointsEarned: matchingRec?.pointsEarned,
+      };
+    });
+
+    const outstandingTasks = dayTasks.filter((t) => t.status !== 'completed');
+
     result[day] = {
       day,
       dayLabel: meta.label,
@@ -126,6 +201,8 @@ export function calculateAllDaysProgress({
       isCompleted,
       statusText,
       statusBadge,
+      tasks: dayTasks,
+      outstandingTasks,
     };
   });
 

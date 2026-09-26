@@ -36,6 +36,7 @@ interface WeeklyProgressPanelProps {
   nextTask: NextRecommendedTask;
   onStartNextTask: () => void;
   onOpenSkipped?: () => void;
+  onOpenTaskDirectly?: (day: DayOfWeek, exerciseIndex: number, exerciseId: string) => void;
 }
 
 export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
@@ -46,7 +47,9 @@ export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
   nextTask,
   onStartNextTask,
   onOpenSkipped,
+  onOpenTaskDirectly,
 }) => {
+  const [expandedDay, setExpandedDay] = React.useState<DayOfWeek | null>(null);
   return (
     <div className="w-full space-y-5">
       {/* END-OF-WEEK CELEBRATION (Section 11) */}
@@ -208,30 +211,37 @@ export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
           )}
         </div>
 
-        {/* SECTION 3 & 4: DAY NAVIGATION CARDS */}
-        <div className="pt-2">
-          <div className="text-xs font-black uppercase text-slate-400 tracking-wider mb-2.5">
-            Wochentage im Überblick (Klicke einen Tag zum Wechseln):
+        {/* SECTION 3 & 4: DAY NAVIGATION CARDS WITH EXACT OUTSTANDING TASKS (User Request) */}
+        <div className="pt-2 space-y-3">
+          <div className="flex items-center justify-between text-xs font-black uppercase text-slate-400 tracking-wider">
+            <span>Wochentage im Überblick:</span>
+            <span className="text-[11px] text-indigo-600 font-bold lowercase">
+              Tippe auf einen Tag für offene Aufgaben
+            </span>
           </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {DAYS_ORDER.map((day) => {
               const summary = daysProgress[day];
               const isSelected = currentDay === day;
+              const isExpanded = expandedDay === day;
+              const hasOutstanding = summary.outstandingTasks && summary.outstandingTasks.length > 0;
 
               return (
-                <button
+                <div
                   key={day}
-                  onClick={() => {
-                    playChime('click');
-                    onSelectDay(day);
-                  }}
-                  className={`p-3 rounded-2xl text-left border-2 transition-all flex flex-col justify-between gap-2 ${
+                  className={`p-3 rounded-2xl border-2 transition-all flex flex-col justify-between gap-2 cursor-pointer ${
                     isSelected
-                      ? 'border-indigo-600 bg-indigo-50/70 shadow-sm scale-102'
+                      ? 'border-indigo-600 bg-indigo-50/70 shadow-sm'
                       : summary.isCompleted
                       ? 'border-emerald-300 bg-emerald-50/40 hover:bg-emerald-50'
                       : 'border-slate-200 bg-white hover:bg-slate-50'
                   }`}
+                  onClick={() => {
+                    playChime('click');
+                    onSelectDay(day);
+                    setExpandedDay(isExpanded ? null : day);
+                  }}
                 >
                   <div className="flex items-center justify-between gap-1">
                     <span className="text-xl">{summary.dayIcon}</span>
@@ -240,25 +250,174 @@ export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
                     </span>
                   </div>
 
-                  <div>
-                    <div className="text-sm font-black text-slate-900">
-                      {summary.dayLabel}
+                  <div className="space-y-0.5">
+                    <div className="text-sm font-black text-slate-900 flex items-center justify-between">
+                      <span>{summary.dayLabel}</span>
+                      <span className="text-[10px] text-slate-400 font-bold">
+                        {isExpanded ? '▴' : '▾'}
+                      </span>
                     </div>
+
+                    {/* Exact Day Card Summary (User Request) */}
+                    {summary.isCompleted ? (
+                      <div className="text-[11px] font-black text-emerald-700">
+                        ✅ 5 von 5 geschafft
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-[11px] font-black text-slate-700">
+                          {summary.completedRequired} von {summary.totalRequired} geschafft
+                        </div>
+                        {summary.outstandingTasks && summary.outstandingTasks.length === 1 && (
+                          <div className="text-[10px] font-bold text-amber-900 truncate" title={`Offen: ${summary.outstandingTasks[0].title}`}>
+                            Offen: {summary.outstandingTasks[0].title}
+                          </div>
+                        )}
+                        {summary.outstandingTasks && summary.outstandingTasks.length > 1 && (
+                          <div className="text-[10px] font-bold text-amber-800">
+                            Noch {summary.outstandingTasks.length} Aufgaben offen
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Visual Status Badge */}
-                  <div className="pt-1">
+                  {/* Visual Status Badge & Toggle */}
+                  <div className="pt-1 flex items-center justify-between gap-1">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-black border ${summary.statusBadge.color}`}
                     >
                       <span>{summary.statusBadge.icon}</span>
                       <span>{summary.statusBadge.label}</span>
                     </span>
+                    {hasOutstanding && (
+                      <span className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800">
+                        {isExpanded ? '▴ Weniger' : '▾ Details'}
+                      </span>
+                    )}
                   </div>
-                </button>
+
+                  {/* Inline Expandable List on Card Click (User Request: Tap to reveal exact outstanding tasks) */}
+                  {isExpanded && hasOutstanding && (
+                    <div className="mt-2 pt-2 border-t border-slate-200/90 space-y-1 animate-fade-in">
+                      <div className="text-[9px] font-black text-amber-900 uppercase tracking-wider">
+                        Offene Aufgaben ({summary.outstandingTasks.length}):
+                      </div>
+                      <div className="space-y-1">
+                        {summary.outstandingTasks.map((task) => (
+                          <div
+                            key={task.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playChime('click');
+                              if (onOpenTaskDirectly) {
+                                onOpenTaskDirectly(day, task.exerciseIndex, task.id);
+                              } else {
+                                onSelectDay(day);
+                              }
+                            }}
+                            className="text-[10px] font-bold text-slate-800 hover:text-indigo-700 bg-white p-1.5 rounded-lg border border-slate-200 shadow-2xs hover:border-indigo-400 flex items-center justify-between gap-1 transition-all active:scale-95 cursor-pointer"
+                            title={`Klicke hier, um „${task.title}“ direkt zu öffnen`}
+                          >
+                            <span className="truncate min-w-0 font-bold">
+                              • {task.title}
+                            </span>
+                            <span
+                              className={`shrink-0 text-[9px] font-black px-1 rounded border ${task.statusBadge.color}`}
+                            >
+                              {task.statusBadge.icon}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
+
+          {/* EXPANDABLE DETAIL DRAWER: EXACT OUTSTANDING TASKS (User Request) */}
+          {expandedDay && daysProgress[expandedDay] && (
+            <div className="mt-3 p-4 sm:p-5 rounded-3xl bg-indigo-50/80 border-2 border-indigo-200 animate-fade-in space-y-3 shadow-md">
+              <div className="flex items-center justify-between border-b border-indigo-100 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{daysProgress[expandedDay].dayIcon}</span>
+                  <div>
+                    <h5 className="text-base sm:text-lg font-black text-slate-900">
+                      Aufgaben für {daysProgress[expandedDay].dayLabel}
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium">
+                      {daysProgress[expandedDay].isCompleted
+                        ? 'Alle 5 Aufgaben dieser Tages-Mission wurden erfolgreich gemeistert! 🎉'
+                        : `${daysProgress[expandedDay].completedRequired} von ${daysProgress[expandedDay].totalRequired} erledigt. Klicke eine offene Aufgabe, um sie direkt zu starten:`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setExpandedDay(null)}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-white border border-slate-200 shadow-2xs"
+                >
+                  Schließen ✕
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                {daysProgress[expandedDay].tasks.map((task) => {
+                  const isDone = task.status === 'completed';
+                  return (
+                    <div
+                      key={task.id}
+                      onClick={() => {
+                        playChime('click');
+                        if (onOpenTaskDirectly) {
+                          onOpenTaskDirectly(expandedDay, task.exerciseIndex, task.id);
+                        } else {
+                          onSelectDay(expandedDay);
+                        }
+                      }}
+                      className={`p-3 rounded-2xl border-2 transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                        isDone
+                          ? 'bg-white/80 border-emerald-200 hover:bg-emerald-50/50'
+                          : 'bg-white border-slate-300 shadow-xs hover:border-indigo-500 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span
+                            className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${task.statusBadge.color}`}
+                          >
+                            {task.statusBadge.icon} {task.statusBadge.label}
+                          </span>
+                          <span className="text-sm font-black text-slate-900 truncate">
+                            {task.title}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium truncate">
+                          {task.prompt}
+                        </p>
+                      </div>
+
+                      <div className="shrink-0">
+                        {isDone ? (
+                          <span className="px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>+{task.pointsEarned || 4} Pkt</span>
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-black shadow-xs flex items-center gap-1">
+                            <span>Starten</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

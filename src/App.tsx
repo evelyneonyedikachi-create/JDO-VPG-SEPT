@@ -247,6 +247,19 @@ export default function App() {
     } catch {}
   };
 
+  // Direct target task jump (from clicking outstanding tasks on day cards)
+  const [directTargetTask, setDirectTargetTask] = useState<{
+    day: DayOfWeek;
+    exerciseIndex: number;
+    exerciseId: string;
+  } | null>(null);
+
+  const handleOpenTaskDirectly = (day: DayOfWeek, exerciseIndex: number, exerciseId: string) => {
+    setActiveDay(day);
+    setDirectTargetTask({ day, exerciseIndex, exerciseId });
+    setCurrentView('ueben');
+  };
+
   // 4-Week Cycle Mini Exam
   const [showMiniExam, setShowMiniExam] = useState<boolean>(false);
   const [miniExamHistory, setMiniExamHistory] = useState<MiniExamResult[]>(() => {
@@ -704,6 +717,7 @@ export default function App() {
                   onOpenWorksheet={() => openPrintForDay(activeDay)}
                   onOpenRewards={() => setCurrentView('sterne')}
                   onOpenMiniExam={() => setShowMiniExam(true)}
+                  onOpenTaskDirectly={handleOpenTaskDirectly}
                 />
               )}
 
@@ -738,6 +752,8 @@ export default function App() {
                   completedRecords={completedRecords}
                   onRecordCompletedExercise={handleRecordCompletedExercise}
                   daysProgress={daysProgress}
+                  initialExerciseId={directTargetTask?.day === activeDay ? directTargetTask.exerciseId : undefined}
+                  initialExerciseIndex={directTargetTask?.day === activeDay ? directTargetTask.exerciseIndex : undefined}
                 />
               )}
             </>

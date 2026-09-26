@@ -49,6 +49,8 @@ export interface GeneratedExercise {
   starterIdeas?: string[];
   sceneId?: number;
   sceneEmoji?: string;
+  sceneImageSrc?: string;
+  sceneTitle?: string;
   grammarCategory: 'Rechtschreibung' | 'Grammatik' | 'Artikel' | 'Satzbau';
 }
 
@@ -605,6 +607,8 @@ function createBildgeschichteDailyExercise(
     starterIdeas: scene.starterIdeas,
     sceneId: scene.id,
     sceneEmoji: scene.emoji,
+    sceneImageSrc: scene.imageSrc,
+    sceneTitle: scene.title,
     grammarCategory: 'Satzbau',
   };
 }

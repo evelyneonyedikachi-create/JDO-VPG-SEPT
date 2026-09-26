@@ -1,4 +1,5 @@
 import { BildgeschichteScene, LernwortItem, SatzProfiExercise, SentenceBuilderExercise, WeeklyCurriculum } from '../types/lernwoerter';
+import { SCENE_ILLUSTRATIONS } from './sceneIllustrations';
 
 export const DEFAULT_WEEK_1_WORDS: LernwortItem[] = [
   // --- GRUPPE 1 ---
@@ -297,6 +298,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Der Junge wacht fröhlich auf und steht in seinem Zimmer auf.',
     suggestedWords: ['Zimmer', 'Bett', 'aufstehen'],
     starterIdeas: ['Zuerst …', 'Am Morgen …', 'In seinem Zimmer …', 'Der Junge …'],
+    imageSrc: SCENE_ILLUSTRATIONS[1],
   },
   {
     id: 2,
@@ -305,6 +307,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Der Junge schwimmt mit Taucherbrille im See unter der warmen Sonne.',
     suggestedWords: ['schwimmen', 'See', 'Wasser', 'Sonne'],
     starterIdeas: ['Dann …', 'Im Wasser …', 'Am See …', 'Er …'],
+    imageSrc: SCENE_ILLUSTRATIONS[2],
   },
   {
     id: 3,
@@ -313,6 +316,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Auf dem Holzbrett liegt ein roter Apfel und ein scharfes Messer.',
     suggestedWords: ['Messer', 'dünn', 'Apfel', 'schneiden'],
     starterIdeas: ['Danach …', 'Auf dem Küchentisch …', 'In der Hand …', 'Vorsichtig …'],
+    imageSrc: SCENE_ILLUSTRATIONS[3],
   },
   {
     id: 4,
@@ -321,6 +325,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Der Junge gibt seiner lieben Mutter einen herzlichen Kuss auf die Wange.',
     suggestedWords: ['Kuss', 'Mutter', 'lieb', 'freuen'],
     starterIdeas: ['Plötzlich …', 'Vor der Tür …', 'Zum Abschied …', 'Mit einem Lächeln …'],
+    imageSrc: SCENE_ILLUSTRATIONS[4],
   },
   {
     id: 5,
@@ -329,6 +334,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Der Junge läuft über den Pfad zu einem prächtigen alten Schloss mit Türmen.',
     suggestedWords: ['Schloss', 'Turm', 'Weg', 'sehen'],
     starterIdeas: ['Später …', 'In der Ferne …', 'Auf dem Weg …', 'Vor dem Schloss …'],
+    imageSrc: SCENE_ILLUSTRATIONS[5],
   },
   {
     id: 6,
@@ -337,6 +343,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'An der Startlinie mit der Startnummer 123 beginnt das große Rennen.',
     suggestedWords: ['Nummer', 'beginnen', 'rennen', 'Start'],
     starterIdeas: ['Jetzt …', 'An der Startlinie …', 'Mit Startnummer 123 …', 'Alle Kinder …'],
+    imageSrc: SCENE_ILLUSTRATIONS[6],
   },
   {
     id: 7,
@@ -345,6 +352,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Zwei bunte Puzzleteile (blau und rot) greifen perfekt ineinander.',
     suggestedWords: ['passen', 'zusammen', 'Teile', 'Spiel'],
     starterIdeas: ['Hier …', 'Am Nachmittag …', 'Die beiden Teile …', 'Auf dem Tisch …'],
+    imageSrc: SCENE_ILLUSTRATIONS[7],
   },
   {
     id: 8,
@@ -353,6 +361,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Der Junge probiert seine gelbe Jacke an oder steht stolz und fit da.',
     suggestedWords: ['Jacke', 'passen', 'dünn', 'gelb'],
     starterIdeas: ['Danach …', 'Vor dem Spiegel …', 'Voller Stolz …', 'Die Jacke …'],
+    imageSrc: SCENE_ILLUSTRATIONS[8],
   },
   {
     id: 9,
@@ -361,6 +370,7 @@ export const DEFAULT_BILDGESCHICHTE_SCENES: BildgeschichteScene[] = [
     description: 'Ein zähnefletschender, bissiger Hund bellt wütend und der Junge rennt schnell weg.',
     suggestedWords: ['Hund', 'bissig', 'rennen', 'Angst'],
     starterIdeas: ['Am Ende …', 'Plötzlich …', 'Auf dem Heimweg …', 'Schnell …'],
+    imageSrc: SCENE_ILLUSTRATIONS[9],
   },
 ];
 

@@ -22,6 +22,7 @@ import { HandwritingRecognitionConfirmation } from './HandwritingRecognitionConf
 import { Stroke } from '../types/handwriting';
 import { CompletedExerciseRecord } from '../types/progress';
 import { recognizeHandwritingStrokes } from '../services/handwritingRecognitionService';
+import { getSceneImage } from '../data/sceneIllustrations';
 
 interface BildgeschichteWorkshopProps {
   scenes: BildgeschichteScene[];
@@ -129,6 +130,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
   const [revealedSolution, setRevealedSolution] = useState<Record<number, boolean>>({});
   const [sceneLevel, setSceneLevel] = useState<1 | 2 | 3 | 4>(4);
   const [completedSaved, setCompletedSaved] = useState<boolean>(false);
+  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
 
   // Input preference (keyboard vs handwriting with H1161 stylus)
   const [preferredInputMethod, setPreferredInputMethod] = useState<'keyboard' | 'handwriting'>(() => {
@@ -288,10 +290,19 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
 
   const punctuationCheck = sentenceCount >= 3;
 
+  const anyVisibleImageFailed = visibleScenes.some((s) => failedImages[s.id]);
+
   const isChallengeComplete =
-    sentenceCount >= 6 && detectedWords.length >= 6 && detectedConnectors.length >= 2;
+    sentenceCount >= 6 &&
+    detectedWords.length >= 6 &&
+    detectedConnectors.length >= 2 &&
+    !anyVisibleImageFailed;
 
   const handleFinishStory = () => {
+    if (anyVisibleImageFailed) {
+      alert('⚠️ Mindestens ein Bild konnte nicht geladen werden. Die Geschichte kann erst eingereicht werden, wenn alle Bilder sichtbar sind.');
+      return;
+    }
     playChime('cheer');
     setCompletedSaved(true);
     onRewardStars(5, 'Wochen-Challenge: Bildgeschichte erfolgreich geschrieben! 🏆');
@@ -470,12 +481,37 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                   className="bg-white rounded-3xl p-6 shadow-md border-2 border-slate-200 flex flex-col justify-between space-y-5 hover:border-amber-300 transition-colors"
                 >
                   <div className="space-y-4">
-                    {/* Scene Image / Icon - TWICE AS BIG */}
-                    <div className="w-full h-64 sm:h-72 rounded-3xl bg-gradient-to-tr from-amber-50 via-orange-50 to-amber-100 border-2 border-amber-200 flex flex-col items-center justify-center text-8xl sm:text-9xl relative overflow-hidden shadow-inner group">
-                      <span className="animate-bounce-subtle select-none">{scene.emoji}</span>
-                      <span className="absolute top-3 left-3 text-sm font-black uppercase px-3 py-1 rounded-xl bg-white/95 text-amber-900 border border-amber-200 shadow-xs">
-                        Bild {scene.id}
-                      </span>
+                    {/* Scene Image (User Request: Clear, Large, Visible, with Fallback) */}
+                    <div className="w-full h-64 sm:h-72 rounded-3xl bg-amber-50/70 border-2 border-amber-200 flex flex-col items-center justify-center relative overflow-hidden shadow-inner group p-2">
+                      {failedImages[scene.id] ? (
+                        <div className="w-full h-full rounded-2xl bg-rose-50 border-2 border-dashed border-rose-300 flex flex-col items-center justify-center p-4 text-center text-rose-700">
+                          <span className="text-3xl mb-1">⚠️</span>
+                          <span className="font-black text-sm">Bild konnte nicht geladen werden</span>
+                          <span className="text-xs text-rose-500 mt-1 font-medium">
+                            Die Aufgabe kann erst eingereicht werden, wenn das Bild sichtbar ist.
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setFailedImages((prev) => ({ ...prev, [scene.id]: false }))}
+                            className="mt-2.5 px-3 py-1 rounded-xl bg-white border border-rose-300 text-xs font-bold text-rose-700 shadow-2xs hover:bg-rose-100 transition-colors"
+                          >
+                            Neu laden 🔄
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <img
+                            src={scene.imageSrc || getSceneImage(scene.id)}
+                            alt={scene.title}
+                            className="w-full h-full object-contain rounded-2xl"
+                            onLoad={() => setFailedImages((prev) => ({ ...prev, [scene.id]: false }))}
+                            onError={() => setFailedImages((prev) => ({ ...prev, [scene.id]: true }))}
+                          />
+                          <span className="absolute top-3 left-3 text-xs font-black uppercase px-2.5 py-1 rounded-xl bg-white/95 text-amber-900 border border-amber-200 shadow-xs">
+                            Bild {scene.id}
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     {/* PROMINENT TASK INSTRUCTION (No giveaway description!) */}

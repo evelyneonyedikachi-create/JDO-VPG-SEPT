@@ -21,6 +21,7 @@ import {
   Save,
   CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   Sparkles,
   BarChart2,
   BookOpen,
@@ -536,31 +537,63 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                     {Object.values(daysProgress).map((dayProg: any) => (
                       <div
                         key={dayProg.day}
-                        className="px-5 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                        className="px-5 py-3.5 hover:bg-slate-50 transition-colors space-y-2"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{dayProg.dayIcon}</span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{dayProg.dayIcon}</span>
+                            <div>
+                              <div className="font-black text-slate-900 text-sm flex items-center gap-2">
+                                <span>{dayProg.dayLabel}</span>
+                                <span className="text-xs text-slate-400 font-semibold">
+                                  ({dayProg.avatar})
+                                </span>
+                              </div>
+                              <div className="text-xs text-slate-500 font-medium">
+                                {dayProg.completedRequired} von {dayProg.totalRequired} Aufgaben abgeschlossen
+                              </div>
+                            </div>
+                          </div>
+
                           <div>
-                            <div className="font-black text-slate-900 text-sm flex items-center gap-2">
-                              <span>{dayProg.dayLabel}</span>
-                              <span className="text-xs text-slate-400 font-semibold">
-                                ({dayProg.avatar})
-                              </span>
-                            </div>
-                            <div className="text-xs text-slate-500 font-medium">
-                              {dayProg.completedRequired} von {dayProg.totalRequired} Aufgaben abgeschlossen
-                            </div>
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border ${dayProg.statusBadge.color}`}
+                            >
+                              <span>{dayProg.statusBadge.icon}</span>
+                              <span>{dayProg.statusBadge.label}</span>
+                            </span>
                           </div>
                         </div>
 
-                        <div>
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border ${dayProg.statusBadge.color}`}
-                          >
-                            <span>{dayProg.statusBadge.icon}</span>
-                            <span>{dayProg.statusBadge.label}</span>
-                          </span>
-                        </div>
+                        {/* Exact Outstanding Tasks List for Parents (User Request) */}
+                        {dayProg.outstandingTasks && dayProg.outstandingTasks.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-slate-200/60 space-y-1">
+                            <div className="text-[11px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1">
+                              <AlertCircle className="w-3 h-3 text-amber-600" />
+                              <span>Noch offene Aufgaben ({dayProg.outstandingTasks.length}):</span>
+                            </div>
+                            <div className="space-y-1 pl-1">
+                              {dayProg.outstandingTasks.map((task: any) => (
+                                <div
+                                  key={task.id}
+                                  className="text-xs text-slate-700 flex items-center justify-between gap-2 bg-white/70 px-2.5 py-1 rounded-lg border border-slate-200/70"
+                                >
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    <span className="text-amber-500 font-bold">•</span>
+                                    <span className="font-semibold text-slate-900 truncate">
+                                      {task.title}
+                                    </span>
+                                  </div>
+                                  <span
+                                    className={`shrink-0 text-[10px] font-black px-1.5 py-0.5 rounded border ${task.statusBadge.color}`}
+                                  >
+                                    {task.statusBadge.icon} {task.statusBadge.label}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

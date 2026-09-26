@@ -45,6 +45,7 @@ interface HeuteScreenProps {
   onOpenWorksheet: () => void;
   onOpenRewards: () => void;
   onOpenMiniExam: () => void;
+  onOpenTaskDirectly?: (day: DayOfWeek, exerciseIndex: number, exerciseId: string) => void;
 }
 
 export const HeuteScreen: React.FC<HeuteScreenProps> = ({
@@ -69,6 +70,7 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
   onOpenWorksheet,
   onOpenRewards,
   onOpenMiniExam,
+  onOpenTaskDirectly,
 }) => {
   const dayAvatarId =
     currentDay === 'monday'
@@ -155,6 +157,7 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
           onOpenSkipped={() => {
             onStartToday();
           }}
+          onOpenTaskDirectly={onOpenTaskDirectly}
         />
       )}
 

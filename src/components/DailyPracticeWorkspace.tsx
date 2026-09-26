@@ -51,6 +51,7 @@ import { HandwritingCanvas } from './HandwritingCanvas';
 import { HandwritingRecognitionConfirmation } from './HandwritingRecognitionConfirmation';
 import { Stroke } from '../types/handwriting';
 import { recognizeHandwritingStrokes } from '../services/handwritingRecognitionService';
+import { getSceneImage } from '../data/sceneIllustrations';
 
 interface RepeatedMistakeItem {
   id: string;
@@ -82,6 +83,8 @@ interface DailyPracticeWorkspaceProps {
   completedRecords?: CompletedExerciseRecord[];
   onRecordCompletedExercise?: (record: CompletedExerciseRecord) => void;
   daysProgress?: Record<DayOfWeek, DayProgressSummary>;
+  initialExerciseId?: string | null;
+  initialExerciseIndex?: number | null;
 }
 
 export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
@@ -105,6 +108,8 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   completedRecords = [],
   onRecordCompletedExercise,
   daysProgress,
+  initialExerciseId,
+  initialExerciseIndex,
 }) => {
   const [level, setLevel] = useState<DifficultyLevel>('starter');
   const [exerciseIndex, setExerciseIndex] = useState<number>(0);
@@ -169,6 +174,10 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const [isRecognizing, setIsRecognizing] = useState<boolean>(false);
   const [recognizedCandidate, setRecognizedCandidate] = useState<string | null>(null);
 
+  // Bildgeschichte scene image state & word help (User Request)
+  const [sceneImageFailed, setSceneImageFailed] = useState<boolean>(false);
+  const [revealedWordHelp, setRevealedWordHelp] = useState<boolean>(false);
+
   // Initialize or re-initialize exercises with MAX 5 DAILY PLAN
   const loadExercises = () => {
     const plan = generateDailyExercisePlan({
@@ -181,6 +190,35 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setDailyPlan(plan);
     const exList = plan.heuteEmpfohlen;
     setMandatoryExerciseIds(exList.map((e) => e.id));
+
+    // If an exact exercise ID was requested (e.g. from clicking an outstanding task)
+    if (initialExerciseId) {
+      const matchIdx = exList.findIndex(
+        (e) => e.id === initialExerciseId || e.id.startsWith(initialExerciseId) || initialExerciseId.startsWith(e.id)
+      );
+      if (matchIdx !== -1) {
+        setExerciseQueue(exList);
+        setExerciseIndex(matchIdx);
+        setIsCurrentVoluntaryRepeat(false);
+        resetCurrentInputs();
+        setIsCompleted(false);
+        return;
+      }
+    }
+
+    if (
+      initialExerciseIndex !== undefined &&
+      initialExerciseIndex !== null &&
+      initialExerciseIndex >= 0 &&
+      initialExerciseIndex < exList.length
+    ) {
+      setExerciseQueue(exList);
+      setExerciseIndex(initialExerciseIndex);
+      setIsCurrentVoluntaryRepeat(false);
+      resetCurrentInputs();
+      setIsCompleted(false);
+      return;
+    }
 
     // If there is a paused session for this day & level, resume it!
     if (pausedSession && pausedSession.day === currentDay && pausedSession.level === level) {
@@ -226,6 +264,30 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setMistakeList([]);
     setSessionPointsEarned(0);
   }, [currentDay, level, words, skippedExercises.length]);
+
+  // Jump to specific exercise if requested from parent or day-card click
+  useEffect(() => {
+    if (initialExerciseId && exerciseQueue.length > 0) {
+      const matchIdx = exerciseQueue.findIndex(
+        (e) => e.id === initialExerciseId || e.id.startsWith(initialExerciseId) || initialExerciseId.startsWith(e.id)
+      );
+      if (matchIdx !== -1) {
+        setExerciseIndex(matchIdx);
+        setIsCurrentVoluntaryRepeat(false);
+        resetCurrentInputs();
+      }
+    } else if (
+      initialExerciseIndex !== undefined &&
+      initialExerciseIndex !== null &&
+      exerciseQueue.length > 0 &&
+      initialExerciseIndex >= 0 &&
+      initialExerciseIndex < exerciseQueue.length
+    ) {
+      setExerciseIndex(initialExerciseIndex);
+      setIsCurrentVoluntaryRepeat(false);
+      resetCurrentInputs();
+    }
+  }, [initialExerciseId, initialExerciseIndex]);
 
   const currentEx = exerciseQueue[exerciseIndex];
   const isRepeatedTask = currentEx && currentEx.id.includes('_repeat');
@@ -296,6 +358,8 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setHintMessage(null);
     setFeedbackStatus('idle');
     setShowWordHelp(false);
+    setSceneImageFailed(false);
+    setRevealedWordHelp(false);
     setChoiceExerciseMode('choice'); // Always default multiple choice grammar tasks to clickable buttons (Requirement 3)
     setMissingLettersMode('full_word'); // Default Fehlende Buchstaben to rewriting the whole word (Requirement 2)
     setSentenceBuilderMode('blocks'); // Default Satzbau to Wort-Blöcke (Option A)
@@ -381,6 +445,12 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   // CHECK ANSWER & AWARD POINTS SAFELY (Section 10 Points Protection)
   const handleCheckAnswer = async () => {
     if (!currentEx) return;
+
+    // Do not allow submission if Bildgeschichte image failed to load (User Request)
+    if (currentEx.type === 'bildgeschichte_step' && sceneImageFailed) {
+      setHintMessage('⚠️ Das Bild konnte nicht geladen werden. Die Aufgabe kann erst eingereicht werden, wenn das Bild sichtbar ist.');
+      return;
+    }
 
     const isSentenceBuilder = currentEx.type === 'sentence_builder';
     const isChoiceTask = Boolean(
@@ -1400,60 +1470,184 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                 </div>
               </div>
 
-              {/* PROMINENT IMAGE / VISUAL PRESENTATION */}
-              {currentEx.word && (
-                <div className="flex items-center justify-center p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-slate-200">
-                  <div className="text-center space-y-2">
-                    <div className="text-7xl sm:text-8xl select-none filter drop-shadow-md animate-bounce-subtle">
-                      {currentEx.word.emoji}
-                    </div>
-                    {/* Recall tasks hide word context until answered */}
-                    {!isRecallTask && (
-                      <div className="text-xs font-black tracking-wider uppercase text-slate-500">
-                        {currentEx.word.wortart} • Gruppe {currentEx.word.group}
+              {/* BILDGESCHICHTE SCENE PRESENTATION (User Request: 1. Image, 2. Label, 3. Instruction, 4. Starters, 5. Word Help) */}
+              {currentEx.type === 'bildgeschichte_step' ? (
+                <div className="space-y-4">
+                  {/* 1. SCENE IMAGE (Desktop width ~320-480px, responsive, aspect ratio preserved, not cropped) */}
+                  <div className="flex flex-col items-center justify-center p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-amber-50/80 via-orange-50/40 to-amber-100/60 border-2 border-amber-200 shadow-sm">
+                    {sceneImageFailed ? (
+                      <div className="w-full max-w-[440px] aspect-[4/3] rounded-2xl bg-rose-50 border-2 border-dashed border-rose-300 flex flex-col items-center justify-center p-6 text-center text-rose-700">
+                        <span className="text-4xl mb-2">⚠️</span>
+                        <span className="font-black text-base">Bild konnte nicht geladen werden</span>
+                        <span className="text-xs text-rose-500 mt-1 font-medium">
+                          Die Aufgabe kann erst eingereicht werden, wenn das Bild sichtbar ist.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setSceneImageFailed(false)}
+                          className="mt-3 px-3 py-1.5 rounded-xl bg-white border border-rose-300 text-xs font-bold text-rose-700 shadow-2xs hover:bg-rose-100 transition-colors"
+                        >
+                          Neu laden 🔄
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-full max-w-[460px] aspect-[4/3] rounded-2xl overflow-hidden border border-amber-200/90 shadow-md bg-white flex items-center justify-center relative group">
+                        <img
+                          src={
+                            currentEx.sceneImageSrc ||
+                            (currentEx.sceneId ? getSceneImage(currentEx.sceneId) : undefined)
+                          }
+                          alt={currentEx.sceneTitle || currentEx.contextSentence || `Szene ${currentEx.sceneId}`}
+                          className="w-full h-full object-contain"
+                          onLoad={() => setSceneImageFailed(false)}
+                          onError={() => setSceneImageFailed(true)}
+                        />
+                        <span className="absolute top-3 left-3 text-xs font-black uppercase px-2.5 py-1 rounded-xl bg-white/95 text-amber-900 border border-amber-200 shadow-xs">
+                          {currentEx.sceneTitle || currentEx.contextSentence || `Szene ${currentEx.sceneId}`}
+                        </span>
                       </div>
                     )}
                   </div>
-                </div>
-              )}
 
-              {/* PROMINENT ACTION PROMPT */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-black uppercase text-indigo-600 tracking-wider">
-                      {currentEx.title}
-                    </span>
-                    {(currentEx.type === 'missing_letters' ||
-                      currentEx.type === 'type_word' ||
-                      currentEx.type === 'sentence_expand' ||
-                      currentEx.type === 'sentence_linking' ||
-                      currentEx.type === 'bildgeschichte_step') && (
-                      <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black flex items-center gap-1 border border-indigo-200">
-                        <PenTool className="w-3 h-3 text-indigo-600" />
+                  {/* 2. SCENE LABEL */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black uppercase text-amber-800 tracking-wider">
+                        {currentEx.sceneTitle || currentEx.contextSentence || `Szene ${currentEx.sceneId}`}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black flex items-center gap-1 border border-amber-200">
+                        <PenTool className="w-3 h-3 text-amber-700" />
                         <span>✍️ Schreibaufgabe</span>
                       </span>
+                    </div>
+                    <button
+                      onClick={() => handleSpeakPrompt(`${currentEx.prompt}`)}
+                      className="p-2 rounded-xl text-amber-700 hover:bg-amber-50 border border-amber-200 transition-colors"
+                      title="Aufgabe laut vorlesen"
+                    >
+                      <Volume2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 3. MAIN INSTRUCTION */}
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                    {currentEx.prompt}
+                  </h3>
+
+                  {/* 4. OPTIONAL HILFREICHE SATZANFÄNGE */}
+                  {currentEx.starterIdeas && currentEx.starterIdeas.length > 0 && (
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-2">
+                      <div className="text-xs font-black uppercase text-amber-900 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                        <span>💡 Hilfreiche Satzanfänge (klicke zum Einfügen):</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {currentEx.starterIdeas.map((starter, sIdx) => (
+                          <button
+                            key={sIdx}
+                            type="button"
+                            onClick={() => {
+                              playChime('click');
+                              const cleanSt = starter.replace('…', '').trim();
+                              setTextInput((prev) => (prev ? `${prev} ${cleanSt} ` : `${cleanSt} `));
+                            }}
+                            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-amber-100 text-amber-950 text-xs sm:text-sm font-bold border border-amber-200 shadow-2xs transition-colors active:scale-95"
+                            title="Klicken zum Einfügen"
+                          >
+                            + {starter}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. OPTIONAL WÖRTER-HILFE */}
+                  {currentEx.expandSuggestions && currentEx.expandSuggestions.length > 0 && (
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playChime('click');
+                          setRevealedWordHelp((prev) => !prev);
+                        }}
+                        className="text-xs font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 transition-colors"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                        <span>{revealedWordHelp ? 'Wörter-Hilfe verbergen' : '💡 Wörter-Hilfe anzeigen'}</span>
+                      </button>
+
+                      {revealedWordHelp && (
+                        <div className="flex flex-wrap gap-1.5 p-3 rounded-2xl bg-indigo-50/60 border border-indigo-200 animate-fade-in">
+                          {currentEx.expandSuggestions.map((w, wIdx) => (
+                            <span
+                              key={wIdx}
+                              className="px-3 py-1 rounded-lg bg-white border border-indigo-200 text-indigo-900 text-xs sm:text-sm font-bold shadow-2xs"
+                            >
+                              {w}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* PROMINENT IMAGE / VISUAL PRESENTATION */}
+                  {currentEx.word && (
+                    <div className="flex items-center justify-center p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-slate-200">
+                      <div className="text-center space-y-2">
+                        <div className="text-7xl sm:text-8xl select-none filter drop-shadow-md animate-bounce-subtle">
+                          {currentEx.word.emoji}
+                        </div>
+                        {/* Recall tasks hide word context until answered */}
+                        {!isRecallTask && (
+                          <div className="text-xs font-black tracking-wider uppercase text-slate-500">
+                            {currentEx.word.wortart} • Gruppe {currentEx.word.group}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PROMINENT ACTION PROMPT */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black uppercase text-indigo-600 tracking-wider">
+                          {currentEx.title}
+                        </span>
+                        {(currentEx.type === 'missing_letters' ||
+                          currentEx.type === 'type_word' ||
+                          currentEx.type === 'sentence_expand' ||
+                          currentEx.type === 'sentence_linking') && (
+                          <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black flex items-center gap-1 border border-indigo-200">
+                            <PenTool className="w-3 h-3 text-indigo-600" />
+                            <span>✍️ Schreibaufgabe</span>
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleSpeakPrompt(`${currentEx.prompt} ${currentEx.contextSentence || ''}`)}
+                        className="p-2 rounded-xl text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition-colors"
+                        title="Aufgabe laut vorlesen"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+                      {currentEx.prompt}
+                    </h3>
+
+                    {currentEx.contextSentence && (
+                      <p className="text-base sm:text-lg text-indigo-950 font-bold bg-indigo-50/70 p-3.5 rounded-2xl border border-indigo-100">
+                        {currentEx.contextSentence}
+                      </p>
                     )}
                   </div>
-                  <button
-                    onClick={() => handleSpeakPrompt(`${currentEx.prompt} ${currentEx.contextSentence || ''}`)}
-                    className="p-2 rounded-xl text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition-colors"
-                    title="Aufgabe laut vorlesen"
-                  >
-                    <Volume2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
-                  {currentEx.prompt}
-                </h3>
-
-                {currentEx.contextSentence && (
-                  <p className="text-base sm:text-lg text-indigo-950 font-bold bg-indigo-50/70 p-3.5 rounded-2xl border border-indigo-100">
-                    {currentEx.contextSentence}
-                  </p>
-                )}
-              </div>
+                </>
+              )}
 
               {/* INTERACTIVE WORK AREA */}
               <div className="space-y-4 pt-2">
@@ -1907,7 +2101,17 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                   {feedbackStatus !== 'correct' ? (
                     <button
                       onClick={handleCheckAnswer}
-                      className="px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base sm:text-lg shadow-md active:scale-95 transition-all"
+                      disabled={currentEx.type === 'bildgeschichte_step' && sceneImageFailed}
+                      className={`px-8 py-4 rounded-2xl font-black text-base sm:text-lg shadow-md transition-all ${
+                        currentEx.type === 'bildgeschichte_step' && sceneImageFailed
+                          ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95'
+                      }`}
+                      title={
+                        currentEx.type === 'bildgeschichte_step' && sceneImageFailed
+                          ? 'Das Bild konnte nicht geladen werden. Bitte lade das Bild neu.'
+                          : undefined
+                      }
                     >
                       Antwort prüfen ✨
                     </button>

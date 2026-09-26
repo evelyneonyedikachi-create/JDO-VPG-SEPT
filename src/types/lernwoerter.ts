@@ -66,6 +66,7 @@ export interface BildgeschichteScene {
   description: string;
   starterIdeas: string[];
   linesCount?: number;
+  imageSrc?: string;
 }
 
 export interface DailyExerciseSet {
