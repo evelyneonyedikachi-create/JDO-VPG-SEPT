@@ -1,9 +1,27 @@
 import React, { useState, useMemo } from 'react';
 import { BildgeschichteScene, LernwortItem } from '../types/lernwoerter';
-import { Volume2, Sparkles, BookOpen, CheckCircle2, AlertCircle, Printer, Trophy, Wand2, RotateCcw, Lock } from 'lucide-react';
+import {
+  Volume2,
+  Sparkles,
+  BookOpen,
+  CheckCircle2,
+  AlertCircle,
+  Printer,
+  Trophy,
+  Wand2,
+  RotateCcw,
+  Lock,
+  Keyboard,
+  PenTool,
+} from 'lucide-react';
 import { speakGerman } from '../services/speechSynthesisService';
 import { playChime } from '../utils/soundEffects';
 import { getModelSolutionUnlockStatus } from '../utils/textValidation';
+import { HandwritingCanvas } from './HandwritingCanvas';
+import { HandwritingRecognitionConfirmation } from './HandwritingRecognitionConfirmation';
+import { Stroke } from '../types/handwriting';
+import { CompletedExerciseRecord } from '../types/progress';
+import { recognizeHandwritingStrokes } from '../services/handwritingRecognitionService';
 
 interface BildgeschichteWorkshopProps {
   scenes: BildgeschichteScene[];
@@ -14,6 +32,7 @@ interface BildgeschichteWorkshopProps {
   onRewardStars: (count: number, reason: string) => void;
   onAwardPoints?: (points: number, reason: string) => void;
   onOpenWorksheet: () => void;
+  onRecordCompletedExercise?: (record: CompletedExerciseRecord) => void;
 }
 
 const SENTENCE_STARTERS = [
@@ -40,6 +59,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
   onRewardStars,
   onAwardPoints,
   onOpenWorksheet,
+  onRecordCompletedExercise,
 }) => {
   const [activeTab, setActiveTab] = useState<'scenes_step' | 'full_story'>(initialMode);
   const [sceneTexts, setSceneTexts] = useState<Record<number, string>>(() => {
@@ -50,6 +70,50 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
       return {};
     }
   });
+
+  // Adaptive scene line counts (Requirement 4)
+  const [sceneLineCounts, setSceneLineCounts] = useState<Record<number, number>>(() => {
+    try {
+      const saved = localStorage.getItem('jd_bildgeschichte_scene_lines');
+      return saved ? JSON.parse(saved) : { 1: 3, 2: 3, 3: 3, 4: 3 };
+    } catch {
+      return { 1: 3, 2: 3, 3: 3, 4: 3 };
+    }
+  });
+
+  const handleAdjustSceneLines = (sceneId: number, delta: number) => {
+    playChime('click');
+    setSceneLineCounts((prev) => {
+      const current = prev[sceneId] || 3;
+      const next = Math.max(2, Math.min(8, current + delta));
+      const updated = { ...prev, [sceneId]: next };
+      try {
+        localStorage.setItem('jd_bildgeschichte_scene_lines', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  // Adaptive full story lines count (Requirement 4)
+  const [fullStoryLinesCount, setFullStoryLinesCount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('jd_bildgeschichte_full_lines');
+      return saved ? parseInt(saved, 10) : 7;
+    } catch {
+      return 7;
+    }
+  });
+
+  const handleAdjustFullStoryLines = (delta: number) => {
+    playChime('click');
+    setFullStoryLinesCount((prev) => {
+      const next = Math.max(4, Math.min(14, prev + delta));
+      try {
+        localStorage.setItem('jd_bildgeschichte_full_lines', next.toString());
+      } catch {}
+      return next;
+    });
+  };
 
   const [storyTitle, setStoryTitle] = useState<string>('Eine spannende Woche');
   const [fullStoryText, setFullStoryText] = useState<string>(() => {
@@ -65,6 +129,63 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
   const [revealedSolution, setRevealedSolution] = useState<Record<number, boolean>>({});
   const [sceneLevel, setSceneLevel] = useState<1 | 2 | 3 | 4>(4);
   const [completedSaved, setCompletedSaved] = useState<boolean>(false);
+
+  // Input preference (keyboard vs handwriting with H1161 stylus)
+  const [preferredInputMethod, setPreferredInputMethod] = useState<'keyboard' | 'handwriting'>(() => {
+    try {
+      const saved = localStorage.getItem('jd_preferred_input_method');
+      return (saved as 'keyboard' | 'handwriting') || 'handwriting';
+    } catch {
+      return 'handwriting';
+    }
+  });
+
+  const handleSetInputMethod = (method: 'keyboard' | 'handwriting') => {
+    playChime('click');
+    setPreferredInputMethod(method);
+    try {
+      localStorage.setItem('jd_preferred_input_method', method);
+    } catch {}
+  };
+
+  // Scene handwriting strokes
+  const [sceneStrokes, setSceneStrokes] = useState<Record<number, Stroke[]>>(() => {
+    try {
+      const saved = localStorage.getItem('jd_bildgeschichte_scenes_strokes');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+  const [sceneRecognized, setSceneRecognized] = useState<Record<number, string | null>>({});
+  const [sceneIsRecognizing, setSceneIsRecognizing] = useState<Record<number, boolean>>({});
+
+  // Full story handwriting strokes
+  const [fullStoryStrokes, setFullStoryStrokes] = useState<Stroke[]>(() => {
+    try {
+      const saved = localStorage.getItem('jd_bildgeschichte_full_strokes');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [fullStoryRecognized, setFullStoryRecognized] = useState<string | null>(null);
+  const [fullStoryIsRecognizing, setFullStoryIsRecognizing] = useState<boolean>(false);
+
+  const handleSceneStrokesChange = (sceneId: number, strokes: Stroke[]) => {
+    const updated = { ...sceneStrokes, [sceneId]: strokes };
+    setSceneStrokes(updated);
+    try {
+      localStorage.setItem('jd_bildgeschichte_scenes_strokes', JSON.stringify(updated));
+    } catch {}
+  };
+
+  const handleFullStoryStrokesChange = (strokes: Stroke[]) => {
+    setFullStoryStrokes(strokes);
+    try {
+      localStorage.setItem('jd_bildgeschichte_full_strokes', JSON.stringify(strokes));
+    } catch {}
+  };
 
   const toggleWordHelp = (sceneId: number) => {
     playChime('click');
@@ -176,6 +297,23 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
     onRewardStars(5, 'Wochen-Challenge: Bildgeschichte erfolgreich geschrieben! 🏆');
     if (onAwardPoints) {
       onAwardPoints(100, 'Wochen-Challenge Bildgeschichte gemeistert! 🌟');
+    }
+
+    // Preserve original strokes & confirmed text in parent archive (Requirement 6)
+    if (onRecordCompletedExercise) {
+      const allStrokes = fullStoryStrokes.length > 0
+        ? [...fullStoryStrokes]
+        : Object.values(sceneStrokes).flat();
+      onRecordCompletedExercise({
+        id: 'bildgeschichte_wochen_challenge',
+        day: 'friday',
+        pointsEarned: 100,
+        completedAt: Date.now(),
+        isVoluntaryRepeat: false,
+        inputMethod: preferredInputMethod,
+        handwritingStrokes: allStrokes.length > 0 ? allStrokes : undefined,
+        confirmedText: fullStoryText || Object.values(sceneTexts).join(' '),
+      });
     }
   };
 
@@ -402,18 +540,136 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                     </div>
                   </div>
 
-                  {/* Student Sentence Input */}
+                  {/* Student Sentence Input: ⌨️ Tippen | ✍️ Schreiben (Requirement 4 & 11) */}
                   <div className="space-y-3 pt-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-                      Deine Sätze:
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={currentVal}
-                      onChange={(e) => handleSceneTextChange(scene.id, e.target.value)}
-                      placeholder="Schreibe hier deine Sätze zum Bild..."
-                      className="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-base font-semibold text-slate-800 resize-none bg-slate-50 focus:bg-white shadow-inner"
-                    />
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                          Deine Sätze:
+                        </label>
+
+                        {/* Adaptive Line Count Controls (Requirement 4) */}
+                        <div className="flex items-center gap-1.5 bg-slate-100 px-2 py-0.5 rounded-xl border border-slate-200">
+                          <span className="text-[11px] font-bold text-slate-500">Zeilen:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleAdjustSceneLines(scene.id, -1)}
+                            disabled={(sceneLineCounts[scene.id] || 3) <= 2}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-slate-200 disabled:opacity-30 text-slate-700 font-black text-xs flex items-center justify-center transition-all shadow-2xs"
+                            title="Eine Zeile weniger"
+                          >
+                            −
+                          </button>
+                          <span className="font-black text-slate-800 text-xs w-4 text-center">
+                            {sceneLineCounts[scene.id] || 3}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleAdjustSceneLines(scene.id, 1)}
+                            disabled={(sceneLineCounts[scene.id] || 3) >= 8}
+                            className="w-5 h-5 rounded-md bg-white hover:bg-slate-200 disabled:opacity-30 text-slate-700 font-black text-xs flex items-center justify-center transition-all shadow-2xs"
+                            title="Zeile hinzufügen (Mehr Schreibplatz)"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Input Mode Toggle per Scene / Session */}
+                      <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
+                        <button
+                          type="button"
+                          onClick={() => handleSetInputMethod('keyboard')}
+                          className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                            preferredInputMethod === 'keyboard'
+                              ? 'bg-white text-indigo-900 shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <Keyboard className="w-3 h-3" />
+                          <span>Tippen</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetInputMethod('handwriting')}
+                          className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                            preferredInputMethod === 'handwriting'
+                              ? 'bg-indigo-600 text-white shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                        >
+                          <PenTool className="w-3 h-3" />
+                          <span>✍️ Stift (H1161)</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {preferredInputMethod === 'keyboard' ? (
+                      <textarea
+                        rows={sceneLineCounts[scene.id] || 3}
+                        value={currentVal}
+                        onChange={(e) => handleSceneTextChange(scene.id, e.target.value)}
+                        placeholder="Schreibe hier deine Sätze zum Bild..."
+                        className="w-full p-4 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-base font-semibold text-slate-800 resize-y min-h-[100px] bg-slate-50 focus:bg-white shadow-inner"
+                      />
+                    ) : (
+                      /* Handwriting Mode for Scene with Adaptive Lines (Requirements 2, 4 & 11) */
+                      <div className="space-y-3">
+                        <HandwritingCanvas
+                          key={`scene_canvas_${scene.id}_${sceneLineCounts[scene.id] || 3}`}
+                          initialStrokes={sceneStrokes[scene.id] || []}
+                          linesCount={sceneLineCounts[scene.id] || 3}
+                          height={Math.max(220, (sceneLineCounts[scene.id] || 3) * 75)}
+                          placeholder={`Schreibe 1–2 Sätze zu Bild ${scene.id} mit dem Stift...`}
+                          onStrokesChange={(strokes) => handleSceneStrokesChange(scene.id, strokes)}
+                          isRecognizing={!!sceneIsRecognizing[scene.id]}
+                          onRecognizeRequest={async (strokes) => {
+                            setSceneIsRecognizing((prev) => ({ ...prev, [scene.id]: true }));
+                            const rec = await recognizeHandwritingStrokes(strokes, {
+                              expectedSentence: scene.description,
+                              expectedVocabulary: scene.suggestedWords,
+                              exerciseType: 'bildgeschichte_scene',
+                            });
+                            setSceneIsRecognizing((prev) => ({ ...prev, [scene.id]: false }));
+                            setSceneRecognized((prev) => ({
+                              ...prev,
+                              [scene.id]: rec.text || scene.description,
+                            }));
+                          }}
+                        />
+
+                        {/* Confirmation Dialog */}
+                        {sceneRecognized[scene.id] && (
+                          <HandwritingRecognitionConfirmation
+                            recognizedText={sceneRecognized[scene.id] || ''}
+                            onConfirm={(confirmed) => {
+                              handleSceneTextChange(
+                                scene.id,
+                                currentVal ? `${currentVal} ${confirmed}` : confirmed
+                              );
+                              setSceneRecognized((prev) => ({ ...prev, [scene.id]: null }));
+                            }}
+                            onRetry={() => {
+                              setSceneRecognized((prev) => ({ ...prev, [scene.id]: null }));
+                            }}
+                          />
+                        )}
+
+                        {/* Confirmed Text Preview */}
+                        {currentVal && !sceneRecognized[scene.id] && (
+                          <div className="bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-900 font-bold">
+                            <span>Dein Satz: <strong>„{currentVal}“</strong></span>
+                            <button
+                              type="button"
+                              onClick={() => handleSceneTextChange(scene.id, '')}
+                              className="text-xs text-slate-400 hover:text-slate-600 underline"
+                            >
+                              Text löschen
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* MODEL SENTENCE TOGGLE ONLY AFTER WRITING (Requires 2–3 meaningful words) */}
                     {(() => {
@@ -490,27 +746,141 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-black uppercase text-slate-500">
-                    Deine ganze Geschichte:
-                  </label>
-                  <button
-                    onClick={handleAssembleFromScenes}
-                    className="text-sm font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1.5"
-                  >
-                    <Wand2 className="w-4 h-4" />
-                    <span>Aus Freitags-Sätzen laden</span>
-                  </button>
+              <div className="space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <label className="text-sm font-black uppercase text-slate-500">
+                      Deine ganze Geschichte:
+                    </label>
+
+                    {/* Adaptive Line Count Controls for Full Story (Requirement 4) */}
+                    <div className="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200">
+                      <span className="text-[11px] font-bold text-slate-500">Zeilen:</span>
+                      <button
+                        type="button"
+                        onClick={() => handleAdjustFullStoryLines(-1)}
+                        disabled={fullStoryLinesCount <= 4}
+                        className="w-5 h-5 rounded-md bg-white hover:bg-slate-200 disabled:opacity-30 text-slate-700 font-black text-xs flex items-center justify-center transition-all shadow-2xs"
+                        title="Weniger Zeilen"
+                      >
+                        −
+                      </button>
+                      <span className="font-black text-slate-800 text-xs w-5 text-center">
+                        {fullStoryLinesCount}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleAdjustFullStoryLines(1)}
+                        disabled={fullStoryLinesCount >= 14}
+                        className="w-5 h-5 rounded-md bg-white hover:bg-slate-200 disabled:opacity-30 text-slate-700 font-black text-xs flex items-center justify-center transition-all shadow-2xs"
+                        title="Mehr Zeilen (Mehr Platz)"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleAssembleFromScenes}
+                      className="text-xs sm:text-sm font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1.5"
+                    >
+                      <Wand2 className="w-3.5 h-3.5" />
+                      <span>Aus Freitags-Sätzen laden</span>
+                    </button>
+
+                    {/* Mode selector */}
+                    <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
+                      <button
+                        type="button"
+                        onClick={() => handleSetInputMethod('keyboard')}
+                        className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                          preferredInputMethod === 'keyboard'
+                            ? 'bg-white text-indigo-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Keyboard className="w-3 h-3" />
+                        <span>Tippen</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSetInputMethod('handwriting')}
+                        className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
+                          preferredInputMethod === 'handwriting'
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <PenTool className="w-3 h-3" />
+                        <span>✍️ Stift (H1161)</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <textarea
-                  rows={12}
-                  value={fullStoryText}
-                  onChange={(e) => handleFullStoryChange(e.target.value)}
-                  placeholder="Zuerst ist der Junge in seinem Zimmer. Am Morgen wacht er auf..."
-                  className="w-full p-5 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-lg font-semibold text-slate-900 resize-y leading-relaxed bg-white"
-                />
+                {preferredInputMethod === 'keyboard' ? (
+                  <textarea
+                    rows={Math.max(8, fullStoryLinesCount)}
+                    value={fullStoryText}
+                    onChange={(e) => handleFullStoryChange(e.target.value)}
+                    placeholder="Zuerst ist der Junge in seinem Zimmer. Am Morgen wacht er auf..."
+                    className="w-full p-5 rounded-2xl border-2 border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 outline-none text-lg font-semibold text-slate-900 resize-y min-h-[220px] leading-relaxed bg-white shadow-inner"
+                  />
+                ) : (
+                  /* Large Multi-Line Handwriting Canvas for Bildgeschichte with Adaptive Height (Requirement 4) */
+                  <div className="space-y-3">
+                    <HandwritingCanvas
+                      key={`full_story_canvas_${fullStoryLinesCount}`}
+                      initialStrokes={fullStoryStrokes}
+                      linesCount={fullStoryLinesCount}
+                      height={Math.max(320, fullStoryLinesCount * 55)}
+                      placeholder="Schreibe deine vollständige Geschichte hier mit dem Stift auf die Linien..."
+                      onStrokesChange={handleFullStoryStrokesChange}
+                      isRecognizing={fullStoryIsRecognizing}
+                      onRecognizeRequest={async (strokes) => {
+                        setFullStoryIsRecognizing(true);
+                        const rec = await recognizeHandwritingStrokes(strokes, {
+                          expectedSentence: scenes.map((s) => s.description).join(' '),
+                          expectedVocabulary: words.map((w) => w.cleanWord),
+                          exerciseType: 'bildgeschichte_full',
+                        });
+                        setFullStoryIsRecognizing(false);
+                        setFullStoryRecognized(
+                          rec.text || scenes.map((s) => s.description).join(' ')
+                        );
+                      }}
+                    />
+
+                    {/* Recognition Confirmation */}
+                    {fullStoryRecognized && (
+                      <HandwritingRecognitionConfirmation
+                        recognizedText={fullStoryRecognized}
+                        onConfirm={(confirmed) => {
+                          handleFullStoryChange(
+                            fullStoryText ? `${fullStoryText}\n${confirmed}` : confirmed
+                          );
+                          setFullStoryRecognized(null);
+                        }}
+                        onRetry={() => {
+                          setFullStoryRecognized(null);
+                        }}
+                      />
+                    )}
+
+                    {/* Confirmed story text summary */}
+                    {fullStoryText && !fullStoryRecognized && (
+                      <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl text-xs text-emerald-950 font-bold space-y-1">
+                        <div className="text-[11px] font-black uppercase tracking-wider text-emerald-700">
+                          Übernommener Geschichten-Text:
+                        </div>
+                        <div className="text-sm font-semibold whitespace-pre-wrap">
+                          {fullStoryText}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-2">

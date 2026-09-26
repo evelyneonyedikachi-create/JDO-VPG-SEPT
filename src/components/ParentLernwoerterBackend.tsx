@@ -7,6 +7,7 @@ import {
   Wortart,
   Artikel,
 } from '../types/lernwoerter';
+import { CompletedExerciseRecord } from '../types/progress';
 import {
   REWARD_LADDER,
   getNextRewardMilestone,
@@ -31,8 +32,11 @@ import {
   Target,
   Clock,
   Check,
+  PenTool,
 } from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
+import { PenInputTestModal } from './PenInputTestModal';
+import { HandwritingViewerModal } from './HandwritingViewerModal';
 
 interface ParentLernwoerterBackendProps {
   curriculum: WeeklyCurriculum;
@@ -50,6 +54,7 @@ interface ParentLernwoerterBackendProps {
   miniExamHistory?: MiniExamResult[];
   daysProgress?: Record<string, any>;
   weeklyOverview?: any;
+  completedRecords?: CompletedExerciseRecord[];
 }
 
 export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> = ({
@@ -68,12 +73,33 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   miniExamHistory = [],
   daysProgress,
   weeklyOverview,
+  completedRecords = [],
 }) => {
+  const [parentPin, setParentPin] = useState<string>(() => {
+    try {
+      return localStorage.getItem('jd_parent_pin') || '1234';
+    } catch {
+      return '1234';
+    }
+  });
   const [pinInput, setPinInput] = useState<string>('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [pinError, setPinError] = useState<boolean>(false);
 
+  // PIN change modal state
+  const [showPinChangeModal, setShowPinChangeModal] = useState<boolean>(false);
+  const [newPinInput, setNewPinInput] = useState<string>('');
+  const [confirmPinInput, setConfirmPinInput] = useState<string>('');
+  const [pinChangeError, setPinChangeError] = useState<string | null>(null);
+  const [pinChangeSuccess, setPinChangeSuccess] = useState<string | null>(null);
+
   const [activeTab, setActiveTab] = useState<'words' | 'dashboard' | 'spaced_repetition'>('words');
+  const [showPenTestModal, setShowPenTestModal] = useState<boolean>(false);
+  const [selectedHandwritingView, setSelectedHandwritingView] = useState<{
+    title: string;
+    strokes: any[];
+    text?: string;
+  } | null>(null);
 
   // Edit curriculum state
   const [weekNumber, setWeekNumber] = useState<number>(curriculum.weekNumber);
@@ -105,7 +131,7 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   });
 
   const handleVerifyPin = () => {
-    if (pinInput === '1234') {
+    if (pinInput === parentPin) {
       playChime('click');
       setIsAuthenticated(true);
       setPinError(false);
@@ -113,6 +139,46 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
       playChime('whistle');
       setPinError(true);
     }
+  };
+
+  const handleChangePin = () => {
+    if (!/^\d{4,6}$/.test(newPinInput)) {
+      setPinChangeError('Der PIN muss aus 4 bis 6 Ziffern bestehen.');
+      return;
+    }
+    if (newPinInput !== confirmPinInput) {
+      setPinChangeError('Die eingegebenen PINs stimmen nicht überein.');
+      return;
+    }
+    try {
+      localStorage.setItem('jd_parent_pin', newPinInput);
+      setParentPin(newPinInput);
+      setPinChangeSuccess('Neuer Eltern-PIN erfolgreich gespeichert!');
+      setPinChangeError(null);
+      setTimeout(() => {
+        setShowPinChangeModal(false);
+        setPinChangeSuccess(null);
+        setNewPinInput('');
+        setConfirmPinInput('');
+      }, 1400);
+    } catch {
+      setPinChangeError('Fehler beim Speichern des PINs.');
+    }
+  };
+
+  const handleResetDefaultPin = () => {
+    try {
+      localStorage.removeItem('jd_parent_pin');
+      setParentPin('1234');
+      setPinChangeSuccess('PIN auf Standard (1234) zurückgesetzt!');
+      setPinChangeError(null);
+      setTimeout(() => {
+        setShowPinChangeModal(false);
+        setPinChangeSuccess(null);
+        setNewPinInput('');
+        setConfirmPinInput('');
+      }, 1400);
+    } catch {}
   };
 
   const handleAddNewWord = () => {
@@ -193,7 +259,7 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
               Eltern-Bereich
             </h3>
             <p className="text-sm text-slate-500 font-medium mt-1">
-              Bitte PIN eingeben (Standard: <strong>1234</strong>)
+              Bitte PIN eingeben {parentPin === '1234' ? '(Standard: 1234)' : ''}
             </p>
           </div>
 
@@ -259,12 +325,27 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl bg-indigo-800 hover:bg-indigo-700 text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                playChime('click');
+                setShowPinChangeModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-indigo-800 hover:bg-indigo-700 text-xs font-bold text-white flex items-center gap-1.5 transition-colors shadow-2xs"
+              title="Eltern-PIN ändern oder zurücksetzen"
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-300" />
+              <span>PIN ändern</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl bg-indigo-800 hover:bg-indigo-700 text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -303,6 +384,18 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
           >
             <RefreshCw className="w-4 h-4 text-amber-600" />
             <span>Noch üben ({mistakes.length})</span>
+          </button>
+
+          <button
+            onClick={() => {
+              playChime('click');
+              setShowPenTestModal(true);
+            }}
+            className="ml-auto px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 transition-all"
+            title="HUION H1161 & Stylus Eingabetest"
+          >
+            <PenTool className="w-4 h-4 text-indigo-600" />
+            <span>✍️ Stift-Test (H1161)</span>
           </button>
         </div>
 
@@ -602,6 +695,86 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                 </div>
               </div>
 
+              {/* SECTION: HANDSCHRIFT-ARCHIV & ERLEDIGTE ARBEITEN (HUION H1161) */}
+              <div className="p-5 rounded-2xl border border-indigo-200 bg-indigo-50/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-indigo-950 font-black text-sm">
+                    <PenTool className="w-4 h-4 text-indigo-600" />
+                    <span>✍️ Handschrift-Archiv & Gelöste Aufgaben</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      playChime('click');
+                      setShowPenTestModal(true);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 text-indigo-900 border border-indigo-200 text-xs font-black flex items-center gap-1.5 transition-all shadow-2xs"
+                  >
+                    <span>Stift-Diagnose öffnen</span>
+                  </button>
+                </div>
+                <p className="text-xs text-slate-600">
+                  Überprüfen Sie Jedidiahs handschriftliche Stift-Eingaben vom HUION Inspiroy H1161 Tablet im Vektor-Original.
+                </p>
+
+                {completedRecords && completedRecords.length > 0 ? (
+                  <div className="divide-y divide-indigo-100 text-xs max-h-56 overflow-y-auto pr-1">
+                    {completedRecords.slice(-15).reverse().map((rec, rIdx) => {
+                      const hasHandwriting = rec.handwritingStrokes && rec.handwritingStrokes.length > 0;
+                      return (
+                        <div key={rIdx} className="py-2.5 flex items-center justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="font-black text-slate-900 truncate">
+                              {rec.id.replace(/_/g, ' ')}
+                            </div>
+                            <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
+                              <span className="capitalize font-bold text-slate-600">{rec.day}</span>
+                              <span>•</span>
+                              <span>+{rec.pointsEarned} Pkt</span>
+                              {rec.confirmedText && (
+                                <>
+                                  <span>•</span>
+                                  <span className="text-indigo-800 font-semibold truncate">
+                                    „{rec.confirmedText}“
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0 flex items-center gap-2">
+                            {hasHandwriting ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  playChime('click');
+                                  setSelectedHandwritingView({
+                                    title: `Handschrift: ${rec.id}`,
+                                    strokes: rec.handwritingStrokes || [],
+                                    text: rec.confirmedText,
+                                  });
+                                }}
+                                className="px-3 py-1 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
+                              >
+                                <PenTool className="w-3 h-3" />
+                                <span>Handschrift ({rec.handwritingStrokes?.length} Striche)</span>
+                              </button>
+                            ) : (
+                              <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-500 font-bold text-[11px]">
+                                ⌨️ Getippt / Gewählt
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="py-3 text-center text-slate-400 italic text-xs">
+                    Noch keine archivierten Aufgaben in dieser Sitzung.
+                  </div>
+                )}
+              </div>
+
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
                 <h4 className="font-black text-slate-900 text-sm">Pädagogische Einschätzung:</h4>
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
@@ -755,6 +928,126 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
               </div>
             </div>
           </div>
+        )}
+        {/* MODAL: CHANGE PARENT PIN (Requirement 5) */}
+        {showPinChangeModal && (
+          <div className="fixed inset-0 z-70 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-indigo-50 text-indigo-700">
+                    <Lock className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-slate-900 text-base">
+                      Eltern-PIN anpassen
+                    </h4>
+                    <p className="text-xs text-slate-500">
+                      Aktueller PIN: <strong>{parentPin === '1234' ? '1234 (Standard)' : '•••• (Benutzerdefiniert)'}</strong>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPinChangeModal(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-black uppercase text-slate-500">
+                    Neuer PIN (4–6 Ziffern)
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={6}
+                    value={newPinInput}
+                    onChange={(e) => {
+                      setNewPinInput(e.target.value.replace(/\D/g, ''));
+                      setPinChangeError(null);
+                    }}
+                    placeholder="••••"
+                    className="w-full mt-1 px-4 py-2.5 rounded-xl border border-slate-300 font-black text-center tracking-widest text-xl focus:border-indigo-600 outline-none"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-black uppercase text-slate-500">
+                    Neuen PIN bestätigen
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={6}
+                    value={confirmPinInput}
+                    onChange={(e) => {
+                      setConfirmPinInput(e.target.value.replace(/\D/g, ''));
+                      setPinChangeError(null);
+                    }}
+                    placeholder="••••"
+                    className="w-full mt-1 px-4 py-2.5 rounded-xl border border-slate-300 font-black text-center tracking-widest text-xl focus:border-indigo-600 outline-none"
+                  />
+                </div>
+
+                {pinChangeError && (
+                  <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+                    ⚠️ {pinChangeError}
+                  </div>
+                )}
+
+                {pinChangeSuccess && (
+                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+                    ✓ {pinChangeSuccess}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetDefaultPin}
+                  className="text-xs font-bold text-slate-500 hover:text-slate-800 underline"
+                >
+                  Standard-PIN (1234) wiederherstellen
+                </button>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowPinChangeModal(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs"
+                  >
+                    Abbrechen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleChangePin}
+                    className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md"
+                  >
+                    PIN speichern 💾
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL: PEN INPUT TEST PAGE (HUION H1161) */}
+        {showPenTestModal && (
+          <PenInputTestModal onClose={() => setShowPenTestModal(false)} />
+        )}
+
+        {/* MODAL: VIEW ORIGINAL HANDWRITING */}
+        {selectedHandwritingView && (
+          <HandwritingViewerModal
+            title={selectedHandwritingView.title}
+            strokes={selectedHandwritingView.strokes}
+            recognizedText={selectedHandwritingView.text}
+            onClose={() => setSelectedHandwritingView(null)}
+          />
         )}
       </div>
     </div>

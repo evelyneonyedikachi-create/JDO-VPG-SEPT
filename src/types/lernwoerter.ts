@@ -128,6 +128,8 @@ export interface PausedSessionState {
   exerciseQueueIds: string[];
   currentInputText?: string;
   currentSelectedOption?: string;
+  currentHandwritingStrokes?: any[];
+  inputPreference?: 'keyboard' | 'handwriting';
   savedAt: number;
 }
 

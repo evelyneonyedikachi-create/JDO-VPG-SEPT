@@ -40,11 +40,17 @@ import {
   Star,
   Lock,
   Check,
+  Keyboard,
+  PenTool,
 } from 'lucide-react';
 import { getModelSolutionUnlockStatus } from '../utils/textValidation';
 import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
 import { CompletedExerciseRecord, DayProgressSummary } from '../types/progress';
 import { RepeatTaskModal } from './RepeatTaskModal';
+import { HandwritingCanvas } from './HandwritingCanvas';
+import { HandwritingRecognitionConfirmation } from './HandwritingRecognitionConfirmation';
+import { Stroke } from '../types/handwriting';
+import { recognizeHandwritingStrokes } from '../services/handwritingRecognitionService';
 
 interface RepeatedMistakeItem {
   id: string;
@@ -131,6 +137,35 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   // Track if current exercise in this session is voluntary repeat
   const [isCurrentVoluntaryRepeat, setIsCurrentVoluntaryRepeat] = useState<boolean>(false);
 
+  // Input mode: Keyboard (Tippen) vs Handwriting (Schreiben) (Requirement 1)
+  const [inputMethod, setInputMethod] = useState<'keyboard' | 'handwriting'>(() => {
+    try {
+      const saved = localStorage.getItem('jd_preferred_input_method');
+      return (saved as 'keyboard' | 'handwriting') || 'handwriting';
+    } catch {
+      return 'handwriting';
+    }
+  });
+
+  const handleSetInputMethod = (method: 'keyboard' | 'handwriting') => {
+    playChime('click');
+    setInputMethod(method);
+    try {
+      localStorage.setItem('jd_preferred_input_method', method);
+    } catch {}
+  };
+
+  // Fehlende Buchstaben sub-mode: full_word (standard) vs missing_only (easier/starter) (Requirement 2)
+  const [missingLettersMode, setMissingLettersMode] = useState<'full_word' | 'missing_only'>('full_word');
+
+  // Dedicated mode for multiple-choice tasks: defaults to clickable options ('choice') (Requirement 3)
+  const [choiceExerciseMode, setChoiceExerciseMode] = useState<'choice' | 'handwriting'>('choice');
+
+  // Handwriting states for current exercise
+  const [handwritingStrokes, setHandwritingStrokes] = useState<Stroke[]>([]);
+  const [isRecognizing, setIsRecognizing] = useState<boolean>(false);
+  const [recognizedCandidate, setRecognizedCandidate] = useState<string | null>(null);
+
   // Initialize or re-initialize exercises with MAX 5 DAILY PLAN
   const loadExercises = () => {
     const plan = generateDailyExercisePlan({
@@ -150,6 +185,12 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
       setExerciseIndex(Math.min(pausedSession.exerciseIndex, exList.length - 1));
       setTextInput(pausedSession.currentInputText || '');
       setSelectedOption(pausedSession.currentSelectedOption || '');
+      if (pausedSession.currentHandwritingStrokes) {
+        setHandwritingStrokes(pausedSession.currentHandwritingStrokes);
+      }
+      if (pausedSession.inputPreference) {
+        setInputMethod(pausedSession.inputPreference);
+      }
       setPauseNotification('Pausierte Einheit erfolgreich fortgesetzt! 🚀');
       setTimeout(() => setPauseNotification(null), 4000);
       setIsCurrentVoluntaryRepeat(false);
@@ -245,10 +286,15 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setSelectedOption('');
     setTextInput('');
     setSelectedWordBlocks([]);
+    setHandwritingStrokes([]);
+    setRecognizedCandidate(null);
+    setIsRecognizing(false);
     setAttemptCount(0);
     setHintMessage(null);
     setFeedbackStatus('idle');
     setShowWordHelp(false);
+    setChoiceExerciseMode('choice'); // Always default multiple choice grammar tasks to clickable buttons (Requirement 3)
+    setMissingLettersMode('full_word'); // Default Fehlende Buchstaben to rewriting the whole word (Requirement 2)
   };
 
   const handleRetakeDayExercise = () => {
@@ -280,11 +326,14 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         day: currentDay,
         level,
         exerciseIndex,
+        exerciseQueueIds: exerciseQueue.map((e) => e.id),
         currentInputText: textInput,
         currentSelectedOption: selectedOption,
-        timestamp: Date.now(),
+        currentHandwritingStrokes: handwritingStrokes,
+        inputPreference: inputMethod,
+        savedAt: Date.now(),
       });
-      setPauseNotification('Einheit pausiert! Du kannst jederzeit genau hier weitermachen. ⏸️');
+      setPauseNotification('Einheit pausiert! Handschrift & Fortschritt sicher gespeichert. ⏸️');
       setTimeout(() => setPauseNotification(null), 5000);
     }
   };
@@ -326,8 +375,59 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   };
 
   // CHECK ANSWER & AWARD POINTS SAFELY (Section 10 Points Protection)
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = async () => {
     if (!currentEx) return;
+
+    const isChoiceTask = Boolean(
+      currentEx.options && currentEx.options.length > 0 && currentEx.type !== 'sentence_builder'
+    );
+    const activeInputMode = isChoiceTask
+      ? choiceExerciseMode === 'handwriting' ? 'handwriting' : 'keyboard'
+      : inputMethod;
+
+    // AUTO-RECOGNITION SAFETY: If child wrote strokes with the pen but hasn't confirmed text yet
+    if (activeInputMode === 'handwriting' && !textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
+      setIsRecognizing(true);
+      let missingChars = '';
+      if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
+        const pat = currentEx.missingPattern;
+        const wrd = currentEx.word?.word || currentEx.correctAnswer;
+        for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
+          if (pat[i] === '_') missingChars += wrd[i];
+        }
+      }
+      const expected = currentEx.type === 'missing_letters' && missingLettersMode === 'missing_only'
+        ? missingChars || currentEx.correctAnswer
+        : currentEx.correctAnswer;
+
+      const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
+        expectedWord: expected,
+        allowedWords: currentEx.options,
+        expectedVocabulary: words.map((w) => w.cleanWord),
+        expectedSentence: currentEx.targetSentence || currentEx.correctAnswer,
+        exerciseType: currentEx.type,
+      });
+      setIsRecognizing(false);
+      setRecognizedCandidate(rec.text || expected);
+      setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+      return; // Never evaluate before confirmation (Requirement 7)
+    }
+
+    // Unconfirmed candidate safety: never evaluate or dock points while dialog is open
+    if (activeInputMode === 'handwriting' && recognizedCandidate) {
+      setHintMessage('Bitte überprüfe kurz den erkannten Text und bestätige ihn mit "✓ Ja, das stimmt"!');
+      return;
+    }
+
+    // Empty input safety
+    if (activeInputMode === 'handwriting' && !textInput.trim() && handwritingStrokes.length === 0) {
+      setHintMessage(
+        isChoiceTask
+          ? 'Bitte wähle eine Option aus oder schreibe mit dem H1161 Stift.'
+          : 'Bitte schreibe zuerst mit deinem H1161 Stift auf die Linien oder tippe deine Antwort.'
+      );
+      return;
+    }
 
     let isCorrect = false;
     let studentAnswer = '';
@@ -339,16 +439,44 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     } else if (
       currentEx.type === 'sentence_expand' ||
       currentEx.type === 'sentence_linking' ||
+      currentEx.type === 'sentence_completion' ||
+      currentEx.type === 'sentence_missing_word' ||
       currentEx.type === 'bildgeschichte_step'
     ) {
       studentAnswer = textInput.trim();
       isCorrect = studentAnswer.length >= 8;
-    } else if (currentEx.type === 'type_word' || currentEx.type === 'missing_letters') {
+    } else if (currentEx.type === 'missing_letters') {
+      studentAnswer = textInput.trim();
+      // Requirement 11: Allow either missing letters only OR complete word
+      const matchFull = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
+      let missingChars = '';
+      if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
+        const pat = currentEx.missingPattern;
+        const wrd = currentEx.word?.word || currentEx.correctAnswer;
+        for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
+          if (pat[i] === '_') missingChars += wrd[i];
+        }
+      }
+      const cleanStudent = studentAnswer.replace(/[\s,.-]/g, '').toLowerCase();
+      const cleanMissing = missingChars.toLowerCase();
+      const matchMissing = cleanMissing.length > 0 && cleanStudent === cleanMissing;
+      isCorrect = matchFull || matchMissing;
+    } else if (currentEx.type === 'type_word') {
       studentAnswer = textInput.trim();
       isCorrect = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
     } else {
-      studentAnswer = selectedOption;
-      isCorrect = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
+      // Multiple choice or handwriting for Richtige Schreibweise, Verbform, Mehrzahl etc.
+      if (activeInputMode === 'handwriting' && textInput.trim()) {
+        studentAnswer = textInput.trim();
+      } else if (selectedOption) {
+        studentAnswer = selectedOption;
+      } else {
+        studentAnswer = textInput.trim();
+      }
+      const norm = (s: string) => s.trim().toLowerCase().replace(/^(der|die|das)\s+/i, '');
+      isCorrect =
+        studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase() ||
+        norm(studentAnswer) === norm(currentEx.correctAnswer);
     }
 
     if (isCorrect) {
@@ -367,7 +495,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         setSessionPointsEarned((prev) => prev + pointsEarned);
         onAwardPoints(pointsEarned, `${currentEx.title} gelöst!`);
 
-        // Record completed
+        // Record completed with handwriting strokes attached for parent review
         if (onRecordCompletedExercise) {
           onRecordCompletedExercise({
             id: currentEx.id,
@@ -375,6 +503,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
             pointsEarned,
             completedAt: Date.now(),
             isVoluntaryRepeat: false,
+            inputMethod: activeInputMode,
+            handwritingStrokes: activeInputMode === 'handwriting' && handwritingStrokes.length > 0 ? [...handwritingStrokes] : undefined,
+            confirmedText: studentAnswer,
           });
         }
         setHintMessage(`Super gemacht! +${pointsEarned} Punkte! ⭐ ${currentEx.solutionExplanation || ''}`);
@@ -1202,9 +1333,21 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
               {/* PROMINENT ACTION PROMPT */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase text-indigo-600 tracking-wider">
-                    {currentEx.title}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-black uppercase text-indigo-600 tracking-wider">
+                      {currentEx.title}
+                    </span>
+                    {(currentEx.type === 'missing_letters' ||
+                      currentEx.type === 'type_word' ||
+                      currentEx.type === 'sentence_expand' ||
+                      currentEx.type === 'sentence_linking' ||
+                      currentEx.type === 'bildgeschichte_step') && (
+                      <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-black flex items-center gap-1 border border-indigo-200">
+                        <PenTool className="w-3 h-3 text-indigo-600" />
+                        <span>✍️ Schreibaufgabe</span>
+                      </span>
+                    )}
+                  </div>
                   <button
                     onClick={() => handleSpeakPrompt(`${currentEx.prompt} ${currentEx.contextSentence || ''}`)}
                     className="p-2 rounded-xl text-indigo-600 hover:bg-indigo-50 border border-indigo-200 transition-colors"
@@ -1270,58 +1413,329 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                   </div>
                 )}
 
-                {/* 2. Text Input (Missing Letters, Type Word, Sentence Expand) */}
+                {/* 2. Text / Handwriting Input for written exercise types */}
                 {(currentEx.type === 'missing_letters' ||
                   currentEx.type === 'type_word' ||
                   currentEx.type === 'sentence_expand' ||
                   currentEx.type === 'sentence_linking' ||
+                  currentEx.type === 'sentence_completion' ||
+                  currentEx.type === 'sentence_missing_word' ||
                   currentEx.type === 'bildgeschichte_step') && (
-                  <div className="space-y-3">
-                    <input
-                      type="text"
-                      value={textInput}
-                      onChange={(e) => setTextInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleCheckAnswer();
-                      }}
-                      placeholder="Deine Antwort hier tippen..."
-                      className="w-full px-5 py-4 rounded-2xl border-2 border-slate-300 focus:border-indigo-600 focus:outline-hidden text-lg font-bold text-slate-900 bg-white shadow-inner"
-                      autoFocus
-                    />
+                  <div className="space-y-4">
+                    {/* INPUT METHOD TOGGLE: ⌨️ Tippen | ✍️ Schreiben (Requirement 1) */}
+                    <div className="flex items-center justify-between bg-slate-100 p-1.5 rounded-2xl border border-slate-200 w-fit">
+                      <button
+                        type="button"
+                        onClick={() => handleSetInputMethod('keyboard')}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
+                          inputMethod === 'keyboard'
+                            ? 'bg-white text-indigo-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <Keyboard className="w-3.5 h-3.5" />
+                        <span>⌨️ Tippen</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSetInputMethod('handwriting')}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
+                          inputMethod === 'handwriting'
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <PenTool className="w-3.5 h-3.5" />
+                        <span>✍️ Schreiben (H1161 Stift)</span>
+                      </button>
+                    </div>
+
+                    {/* KEYBOARD INPUT MODE */}
+                    {inputMethod === 'keyboard' ? (
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={textInput}
+                          onChange={(e) => setTextInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleCheckAnswer();
+                          }}
+                          placeholder={
+                            currentEx.type === 'sentence_expand' || currentEx.type === 'sentence_linking'
+                              ? 'Schreibe deinen ganzen Satz hier...'
+                              : 'Deine Antwort hier tippen...'
+                          }
+                          className="w-full px-5 py-4 rounded-2xl border-2 border-slate-300 focus:border-indigo-600 focus:outline-hidden text-lg font-bold text-slate-900 bg-white shadow-inner"
+                          autoFocus
+                        />
+                      </div>
+                    ) : (
+                      /* HANDWRITING CANVAS MODE (Requirements 2, 3, 4, 5, 9, 10) */
+                      <div className="space-y-3">
+                        {/* Fehlende Buchstaben Sub-Mode Toggle (Requirement 2) */}
+                        {currentEx.type === 'missing_letters' && (
+                          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-2xl bg-indigo-50/70 border border-indigo-100 text-xs">
+                            <div className="font-bold text-indigo-950 flex items-center gap-1.5">
+                              <span>✍️ Schreib-Aufgabe:</span>
+                              <span className="text-slate-600 font-medium">
+                                {missingLettersMode === 'full_word'
+                                  ? 'Schreibe das vollständige Lernwort sauber auf die Linien.'
+                                  : 'Schreibe nur die fehlenden Buchstaben auf die Linien.'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-indigo-200">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  playChime('click');
+                                  setMissingLettersMode('full_word');
+                                }}
+                                className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+                                  missingLettersMode === 'full_word'
+                                    ? 'bg-indigo-600 text-white shadow-xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                📖 Ganzes Wort (Standard)
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  playChime('click');
+                                  setMissingLettersMode('missing_only');
+                                }}
+                                className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
+                                  missingLettersMode === 'missing_only'
+                                    ? 'bg-indigo-600 text-white shadow-xs'
+                                    : 'text-slate-600 hover:text-slate-900'
+                                }`}
+                              >
+                                🔤 Nur Lücken (Einstieg)
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        <HandwritingCanvas
+                          key={`canvas_${currentEx.id}_${missingLettersMode}`}
+                          initialStrokes={handwritingStrokes}
+                          linesCount={
+                            currentEx.type === 'type_word' || currentEx.type === 'missing_letters'
+                              ? 1
+                              : 3
+                          }
+                          height={
+                            currentEx.type === 'type_word' || currentEx.type === 'missing_letters'
+                              ? 200
+                              : 260
+                          }
+                          placeholder={
+                            currentEx.type === 'type_word'
+                              ? 'Schreibe das Lernwort mit dem Stylus...'
+                              : currentEx.type === 'missing_letters'
+                              ? missingLettersMode === 'full_word'
+                                ? 'Schreibe das vollständige Lernwort mit dem Stift...'
+                                : 'Schreibe die fehlenden Buchstaben mit dem Stift...'
+                              : 'Schreibe deinen Satz mit dem Stift auf die Linien...'
+                          }
+                          onStrokesChange={(updatedStrokes) => {
+                            setHandwritingStrokes(updatedStrokes);
+                          }}
+                          isRecognizing={isRecognizing}
+                          onRecognizeRequest={async (strokesToRecognize) => {
+                            setIsRecognizing(true);
+                            let missingChars = '';
+                            if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
+                              const pat = currentEx.missingPattern;
+                              const wrd = currentEx.word?.word || currentEx.correctAnswer;
+                              for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
+                                if (pat[i] === '_') missingChars += wrd[i];
+                              }
+                            }
+                            const expected = currentEx.type === 'missing_letters' && missingLettersMode === 'missing_only'
+                              ? missingChars || currentEx.correctAnswer
+                              : currentEx.correctAnswer;
+
+                            const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
+                              expectedWord: expected,
+                              expectedVocabulary: words.map((w) => w.cleanWord),
+                              expectedSentence: currentEx.targetSentence || currentEx.correctAnswer,
+                              exerciseType: currentEx.type,
+                            });
+                            setIsRecognizing(false);
+                            setRecognizedCandidate(rec.text || expected);
+                          }}
+                        />
+
+                        {/* RECOGNITION CONFIRMATION DIALOG (Requirements 7, 9 & 10) */}
+                        {recognizedCandidate && (
+                          <HandwritingRecognitionConfirmation
+                            recognizedText={recognizedCandidate}
+                            onConfirm={(confirmedText) => {
+                              setTextInput(confirmedText);
+                              setRecognizedCandidate(null);
+                            }}
+                            onRetry={() => {
+                              setRecognizedCandidate(null);
+                            }}
+                          />
+                        )}
+
+                        {/* Current confirmed/active input preview */}
+                        {textInput && !recognizedCandidate && (
+                          <div className="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center justify-between text-xs text-emerald-900 font-bold">
+                            <span>Übernommener Text: <strong>„{textInput}“</strong></span>
+                            <button
+                              type="button"
+                              onClick={() => setTextInput('')}
+                              className="text-xs text-slate-400 hover:text-slate-600 underline"
+                            >
+                              Zurücksetzen
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* 3. Multiple Choice Options */}
+                {/* 3. Multiple Choice Options OR Handwriting Choice (Requirement 3 & 11: Keep handwriting optional for multiple choice) */}
                 {currentEx.options && currentEx.options.length > 0 && currentEx.type !== 'sentence_builder' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {currentEx.options.map((opt, oIdx) => {
-                      const isSelected = selectedOption === opt;
-                      return (
-                        <button
-                          key={oIdx}
-                          onClick={() => {
-                            playChime('click');
-                            setSelectedOption(opt);
+                  <div className="space-y-4">
+                    {/* Method Selector for Choice Exercises: 🔘 Auswählen (Standard) | ✍️ Schreiben (H1161 Stift) */}
+                    <div className="flex items-center justify-between bg-slate-100 p-1.5 rounded-2xl border border-slate-200 w-fit">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playChime('click');
+                          setChoiceExerciseMode('choice');
+                        }}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
+                          choiceExerciseMode === 'choice'
+                            ? 'bg-white text-indigo-900 shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <span>🔘 Auswählen</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playChime('click');
+                          setChoiceExerciseMode('handwriting');
+                        }}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
+                          choiceExerciseMode === 'handwriting'
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        <PenTool className="w-3.5 h-3.5" />
+                        <span>✍️ Schreiben (H1161 Stift)</span>
+                      </button>
+                    </div>
+
+                    {choiceExerciseMode === 'handwriting' ? (
+                      /* Handwriting mode for choice exercise (e.g. write the plural, verb, or correct spelling) */
+                      <div className="space-y-3">
+                        <HandwritingCanvas
+                          key={`choice_canvas_${currentEx.id}`}
+                          initialStrokes={handwritingStrokes}
+                          linesCount={1}
+                          height={200}
+                          placeholder={
+                            currentEx.type === 'spelling_choice'
+                              ? 'Schreibe die richtige Schreibweise mit dem Stift...'
+                              : currentEx.type === 'plural_choice'
+                              ? 'Schreibe die Mehrzahlform mit dem Stift...'
+                              : currentEx.type === 'verb_conjugation' || currentEx.type === 'verb_in_sentence'
+                              ? 'Schreibe die richtige Verbform mit dem Stift...'
+                              : 'Schreibe deine Antwort mit dem Stift...'
+                          }
+                          onStrokesChange={(updatedStrokes) => {
+                            setHandwritingStrokes(updatedStrokes);
                           }}
-                          className={`p-4 rounded-2xl border-2 text-left font-black text-base sm:text-lg transition-all flex items-center justify-between ${
-                            isSelected
-                              ? 'border-indigo-600 bg-indigo-50 text-indigo-950 shadow-sm ring-2 ring-indigo-200'
-                              : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
-                          }`}
-                        >
-                          <span>{opt}</span>
-                          <span
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${
-                              isSelected
-                                ? 'border-indigo-600 bg-indigo-600 text-white'
-                                : 'border-slate-300 bg-white'
-                            }`}
-                          >
-                            {isSelected ? '✓' : ''}
-                          </span>
-                        </button>
-                      );
-                    })}
+                          isRecognizing={isRecognizing}
+                          onRecognizeRequest={async (strokesToRecognize) => {
+                            setIsRecognizing(true);
+                            const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
+                              expectedWord: currentEx.correctAnswer,
+                              allowedWords: currentEx.options,
+                              expectedVocabulary: words.map((w) => w.cleanWord),
+                              exerciseType: currentEx.type,
+                            });
+                            setIsRecognizing(false);
+                            setRecognizedCandidate(rec.text || currentEx.correctAnswer);
+                          }}
+                        />
+
+                        {/* RECOGNITION CONFIRMATION DIALOG */}
+                        {recognizedCandidate && (
+                          <HandwritingRecognitionConfirmation
+                            recognizedText={recognizedCandidate}
+                            onConfirm={(confirmedText) => {
+                              setTextInput(confirmedText);
+                              setSelectedOption(confirmedText);
+                              setRecognizedCandidate(null);
+                            }}
+                            onRetry={() => {
+                              setRecognizedCandidate(null);
+                            }}
+                          />
+                        )}
+
+                        {/* Current confirmed preview */}
+                        {textInput && !recognizedCandidate && (
+                          <div className="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl flex items-center justify-between text-xs text-emerald-900 font-bold">
+                            <span>Geschriebene Antwort: <strong>„{textInput}“</strong></span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTextInput('');
+                                setSelectedOption('');
+                              }}
+                              className="text-xs text-slate-400 hover:text-slate-600 underline"
+                            >
+                              Zurücksetzen
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* Selection buttons mode */
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {currentEx.options.map((opt, oIdx) => {
+                          const isSelected = selectedOption === opt;
+                          return (
+                            <button
+                              key={oIdx}
+                              onClick={() => {
+                                playChime('click');
+                                setSelectedOption(opt);
+                              }}
+                              className={`p-4 rounded-2xl border-2 text-left font-black text-base sm:text-lg transition-all flex items-center justify-between ${
+                                isSelected
+                                  ? 'border-indigo-600 bg-indigo-50 text-indigo-950 shadow-sm ring-2 ring-indigo-200'
+                                  : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-800'
+                              }`}
+                            >
+                              <span>{opt}</span>
+                              <span
+                                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${
+                                  isSelected
+                                    ? 'border-indigo-600 bg-indigo-600 text-white'
+                                    : 'border-slate-300 bg-white'
+                                }`}
+                              >
+                                {isSelected ? '✓' : ''}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

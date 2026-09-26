@@ -15,6 +15,9 @@ export interface CompletedExerciseRecord {
   pointsEarned: number;
   completedAt: number;
   isVoluntaryRepeat?: boolean;
+  inputMethod?: 'keyboard' | 'handwriting';
+  handwritingStrokes?: any[];
+  confirmedText?: string;
 }
 
 export interface DayProgressSummary {
