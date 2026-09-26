@@ -161,6 +161,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   // Dedicated mode for multiple-choice tasks: defaults to clickable options ('choice') (Requirement 3)
   const [choiceExerciseMode, setChoiceExerciseMode] = useState<'choice' | 'handwriting'>('choice');
 
+  // Satzbau input mode: blocks (standard) vs handwriting vs keyboard
+  const [sentenceBuilderMode, setSentenceBuilderMode] = useState<'blocks' | 'handwriting' | 'keyboard'>('blocks');
+
   // Handwriting states for current exercise
   const [handwritingStrokes, setHandwritingStrokes] = useState<Stroke[]>([]);
   const [isRecognizing, setIsRecognizing] = useState<boolean>(false);
@@ -295,6 +298,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setShowWordHelp(false);
     setChoiceExerciseMode('choice'); // Always default multiple choice grammar tasks to clickable buttons (Requirement 3)
     setMissingLettersMode('full_word'); // Default Fehlende Buchstaben to rewriting the whole word (Requirement 2)
+    setSentenceBuilderMode('blocks'); // Default Satzbau to Wort-Blöcke (Option A)
   };
 
   const handleRetakeDayExercise = () => {
@@ -378,105 +382,181 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const handleCheckAnswer = async () => {
     if (!currentEx) return;
 
+    const isSentenceBuilder = currentEx.type === 'sentence_builder';
     const isChoiceTask = Boolean(
-      currentEx.options && currentEx.options.length > 0 && currentEx.type !== 'sentence_builder'
+      currentEx.options && currentEx.options.length > 0 && !isSentenceBuilder
     );
-    const activeInputMode = isChoiceTask
-      ? choiceExerciseMode === 'handwriting' ? 'handwriting' : 'keyboard'
-      : inputMethod;
-
-    // AUTO-RECOGNITION SAFETY: If child wrote strokes with the pen but hasn't confirmed text yet
-    if (activeInputMode === 'handwriting' && !textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
-      setIsRecognizing(true);
-      let missingChars = '';
-      if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
-        const pat = currentEx.missingPattern;
-        const wrd = currentEx.word?.word || currentEx.correctAnswer;
-        for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
-          if (pat[i] === '_') missingChars += wrd[i];
-        }
-      }
-      const expected = currentEx.type === 'missing_letters' && missingLettersMode === 'missing_only'
-        ? missingChars || currentEx.correctAnswer
-        : currentEx.correctAnswer;
-
-      const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
-        expectedWord: expected,
-        allowedWords: currentEx.options,
-        expectedVocabulary: words.map((w) => w.cleanWord),
-        expectedSentence: currentEx.targetSentence || currentEx.correctAnswer,
-        exerciseType: currentEx.type,
-      });
-      setIsRecognizing(false);
-      setRecognizedCandidate(rec.text || expected);
-      setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
-      return; // Never evaluate before confirmation (Requirement 7)
-    }
-
-    // Unconfirmed candidate safety: never evaluate or dock points while dialog is open
-    if (activeInputMode === 'handwriting' && recognizedCandidate) {
-      setHintMessage('Bitte überprüfe kurz den erkannten Text und bestätige ihn mit "✓ Ja, das stimmt"!');
-      return;
-    }
-
-    // Empty input safety
-    if (activeInputMode === 'handwriting' && !textInput.trim() && handwritingStrokes.length === 0) {
-      setHintMessage(
-        isChoiceTask
-          ? 'Bitte wähle eine Option aus oder schreibe mit dem H1161 Stift.'
-          : 'Bitte schreibe zuerst mit deinem H1161 Stift auf die Linien oder tippe deine Antwort.'
-      );
-      return;
-    }
 
     let isCorrect = false;
     let studentAnswer = '';
 
-    if (currentEx.type === 'sentence_builder') {
-      studentAnswer = selectedWordBlocks.join(' ').trim();
-      const normalize = (s: string) => s.toLowerCase().replace(/[.,!?;:]/g, '').replace(/\s+/g, ' ').trim();
-      isCorrect = normalize(studentAnswer) === normalize(currentEx.correctAnswer);
-    } else if (
-      currentEx.type === 'sentence_expand' ||
-      currentEx.type === 'sentence_linking' ||
-      currentEx.type === 'sentence_completion' ||
-      currentEx.type === 'sentence_missing_word' ||
-      currentEx.type === 'bildgeschichte_step'
-    ) {
-      studentAnswer = textInput.trim();
-      isCorrect = studentAnswer.length >= 8;
-    } else if (currentEx.type === 'missing_letters') {
-      studentAnswer = textInput.trim();
-      // Requirement 11: Allow either missing letters only OR complete word
-      const matchFull = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
-      let missingChars = '';
-      if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
-        const pat = currentEx.missingPattern;
-        const wrd = currentEx.word?.word || currentEx.correctAnswer;
-        for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
-          if (pat[i] === '_') missingChars += wrd[i];
+    // =========================================================================
+    // 1. SATZBAU / SATZ MIT BINDEWORT BAUEN (Option A: Blöcke, Option B: Schreiben/Tippen)
+    // =========================================================================
+    if (isSentenceBuilder) {
+      if (sentenceBuilderMode === 'blocks') {
+        if (selectedWordBlocks.length === 0) {
+          setHintMessage('Bitte klicke auf die Wort-Blöcke, um den Satz in die richtige Reihenfolge zu bringen!');
+          return;
         }
-      }
-      const cleanStudent = studentAnswer.replace(/[\s,.-]/g, '').toLowerCase();
-      const cleanMissing = missingChars.toLowerCase();
-      const matchMissing = cleanMissing.length > 0 && cleanStudent === cleanMissing;
-      isCorrect = matchFull || matchMissing;
-    } else if (currentEx.type === 'type_word') {
-      studentAnswer = textInput.trim();
-      isCorrect = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
-    } else {
-      // Multiple choice or handwriting for Richtige Schreibweise, Verbform, Mehrzahl etc.
-      if (activeInputMode === 'handwriting' && textInput.trim()) {
+        studentAnswer = selectedWordBlocks.join(' ').trim();
+      } else if (sentenceBuilderMode === 'handwriting') {
+        // Auto-recognition safety: if strokes exist but child hasn't confirmed text
+        if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
+          setIsRecognizing(true);
+          const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
+            expectedWord: currentEx.correctAnswer,
+            expectedSentence: currentEx.correctAnswer,
+            expectedVocabulary: words.map((w) => w.cleanWord),
+            exerciseType: currentEx.type,
+          });
+          setIsRecognizing(false);
+          setRecognizedCandidate(rec.text || currentEx.correctAnswer);
+          setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          return;
+        }
+        if (recognizedCandidate) {
+          setHintMessage('Bitte überprüfe kurz den erkannten Text und bestätige ihn mit "✓ Ja, das stimmt"!');
+          return;
+        }
+        if (!textInput.trim() && handwritingStrokes.length === 0) {
+          setHintMessage('Bitte schreibe deinen Satz mit dem H1161 Stift auf die Linien oder wechsle zu 🔤 Wort-Blöcke.');
+          return;
+        }
         studentAnswer = textInput.trim();
-      } else if (selectedOption) {
-        studentAnswer = selectedOption;
       } else {
+        // sentenceBuilderMode === 'keyboard'
+        if (!textInput.trim()) {
+          setHintMessage('Bitte tippe deinen Satz in das Eingabefeld oder wechsle zu 🔤 Wort-Blöcke.');
+          return;
+        }
         studentAnswer = textInput.trim();
+      }
+
+      // Sentence validation rule: normalize punctuation, capitalization, whitespace
+      const normalizeSentence = (s: string) =>
+        s.toLowerCase().replace(/[.,!?;:]/g, '').replace(/\s+/g, ' ').trim();
+      isCorrect = normalizeSentence(studentAnswer) === normalizeSentence(currentEx.correctAnswer);
+    }
+    // =========================================================================
+    // 2. MULTIPLE CHOICE / AUSWAHLAUFGABEN (Klick als Standard, Stift optional)
+    // =========================================================================
+    else if (isChoiceTask) {
+      if (choiceExerciseMode === 'handwriting') {
+        if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
+          setIsRecognizing(true);
+          const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
+            expectedWord: currentEx.correctAnswer,
+            allowedWords: currentEx.options,
+            expectedVocabulary: words.map((w) => w.cleanWord),
+            exerciseType: currentEx.type,
+          });
+          setIsRecognizing(false);
+          setRecognizedCandidate(rec.text || currentEx.correctAnswer);
+          setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          return;
+        }
+        if (recognizedCandidate) {
+          setHintMessage('Bitte überprüfe kurz den erkannten Text und bestätige ihn mit "✓ Ja, das stimmt"!');
+          return;
+        }
+        if (!textInput.trim() && handwritingStrokes.length === 0) {
+          setHintMessage('Bitte schreibe deine Antwort mit dem H1161 Stift oder wechsle zu 🔘 Auswählen.');
+          return;
+        }
+        studentAnswer = textInput.trim();
+      } else {
+        // Normal clickable selection mode
+        if (!selectedOption && !textInput.trim()) {
+          setHintMessage('Bitte wähle eine der Optionen aus!');
+          return;
+        }
+        studentAnswer = selectedOption || textInput.trim();
       }
       const norm = (s: string) => s.trim().toLowerCase().replace(/^(der|die|das)\s+/i, '');
       isCorrect =
         studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase() ||
         norm(studentAnswer) === norm(currentEx.correctAnswer);
+    }
+    // =========================================================================
+    // 3. SCHRIFTLICHE AUFGABEN (Lernwort schreiben, Fehlende Buchstaben, etc.)
+    // =========================================================================
+    else {
+      if (inputMethod === 'handwriting') {
+        if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
+          setIsRecognizing(true);
+          let missingChars = '';
+          if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
+            const pat = currentEx.missingPattern;
+            const wrd = currentEx.word?.word || currentEx.correctAnswer;
+            for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
+              if (pat[i] === '_') missingChars += wrd[i];
+            }
+          }
+          const expected = currentEx.type === 'missing_letters' && missingLettersMode === 'missing_only'
+            ? missingChars || currentEx.correctAnswer
+            : currentEx.correctAnswer;
+
+          const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
+            expectedWord: expected,
+            allowedWords: currentEx.options,
+            expectedVocabulary: words.map((w) => w.cleanWord),
+            expectedSentence: currentEx.targetSentence || currentEx.correctAnswer,
+            exerciseType: currentEx.type,
+          });
+          setIsRecognizing(false);
+          setRecognizedCandidate(rec.text || expected);
+          setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          return;
+        }
+        if (recognizedCandidate) {
+          setHintMessage('Bitte überprüfe kurz den erkannten Text und bestätige ihn mit "✓ Ja, das stimmt"!');
+          return;
+        }
+        if (!textInput.trim() && handwritingStrokes.length === 0) {
+          setHintMessage('Bitte schreibe zuerst mit deinem H1161 Stift auf die Linien oder tippe deine Antwort.');
+          return;
+        }
+        studentAnswer = textInput.trim();
+      } else {
+        // Keyboard typing mode
+        if (!textInput.trim()) {
+          setHintMessage('Bitte tippe deine Antwort in das Eingabefeld.');
+          return;
+        }
+        studentAnswer = textInput.trim();
+      }
+
+      if (
+        currentEx.type === 'sentence_expand' ||
+        currentEx.type === 'sentence_linking' ||
+        currentEx.type === 'sentence_completion' ||
+        currentEx.type === 'sentence_missing_word' ||
+        currentEx.type === 'bildgeschichte_step'
+      ) {
+        isCorrect = studentAnswer.length >= 8;
+      } else if (currentEx.type === 'missing_letters') {
+        const matchFull = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
+        let missingChars = '';
+        if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
+          const pat = currentEx.missingPattern;
+          const wrd = currentEx.word?.word || currentEx.correctAnswer;
+          for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
+            if (pat[i] === '_') missingChars += wrd[i];
+          }
+        }
+        const cleanStudent = studentAnswer.replace(/[\s,.-]/g, '').toLowerCase();
+        const cleanMissing = missingChars.toLowerCase();
+        const matchMissing = cleanMissing.length > 0 && cleanStudent === cleanMissing;
+        isCorrect = matchFull || matchMissing;
+      } else if (currentEx.type === 'type_word') {
+        isCorrect = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
+      } else {
+        const norm = (s: string) => s.trim().toLowerCase().replace(/^(der|die|das)\s+/i, '');
+        isCorrect =
+          studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase() ||
+          norm(studentAnswer) === norm(currentEx.correctAnswer);
+      }
     }
 
     if (isCorrect) {
@@ -494,6 +574,13 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         const pointsEarned = attemptCount === 0 ? basePoints : Math.max(2, basePoints - attemptCount);
         setSessionPointsEarned((prev) => prev + pointsEarned);
         onAwardPoints(pointsEarned, `${currentEx.title} gelöst!`);
+
+        // Determine active input mode for record
+        const activeInputMode: 'keyboard' | 'handwriting' = isSentenceBuilder
+          ? (sentenceBuilderMode === 'handwriting' ? 'handwriting' : 'keyboard')
+          : isChoiceTask
+          ? (choiceExerciseMode === 'handwriting' ? 'handwriting' : 'keyboard')
+          : inputMethod;
 
         // Record completed with handwriting strokes attached for parent review
         if (onRecordCompletedExercise) {
