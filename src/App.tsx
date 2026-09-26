@@ -43,6 +43,7 @@ import {
   SyncState,
 } from './services/progressSyncService';
 import { CompletedExerciseRecord } from './types/progress';
+import { getSceneImage } from './data/sceneIllustrations';
 import {
   calculateAllDaysProgress,
   calculateWeeklyOverview,
@@ -79,7 +80,17 @@ export default function App() {
   const [curriculum, setCurriculum] = useState<WeeklyCurriculum>(() => {
     try {
       const saved = localStorage.getItem('jd_curriculum_v2');
-      return saved ? JSON.parse(saved) : INITIAL_CURRICULUM;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.scenes && Array.isArray(parsed.scenes)) {
+          parsed.scenes = parsed.scenes.map((s: any) => ({
+            ...s,
+            imageSrc: getSceneImage(s.id),
+          }));
+        }
+        return parsed;
+      }
+      return INITIAL_CURRICULUM;
     } catch {
       return INITIAL_CURRICULUM;
     }
@@ -250,13 +261,12 @@ export default function App() {
   // Direct target task jump (from clicking outstanding tasks on day cards)
   const [directTargetTask, setDirectTargetTask] = useState<{
     day: DayOfWeek;
-    exerciseIndex: number;
-    exerciseId: string;
+    taskId: string;
   } | null>(null);
 
-  const handleOpenTaskDirectly = (day: DayOfWeek, exerciseIndex: number, exerciseId: string) => {
+  const handleOpenTaskDirectly = (day: DayOfWeek, taskId: string) => {
     setActiveDay(day);
-    setDirectTargetTask({ day, exerciseIndex, exerciseId });
+    setDirectTargetTask({ day, taskId });
     setCurrentView('ueben');
   };
 
@@ -341,7 +351,16 @@ export default function App() {
 
     fetchRemoteProgress('jedidiah').then((remote) => {
       if (remote) {
-        if (remote.curriculum) setCurriculum(remote.curriculum);
+        if (remote.curriculum) {
+          const cur = remote.curriculum;
+          if (cur.scenes && Array.isArray(cur.scenes)) {
+            cur.scenes = cur.scenes.map((s: any) => ({
+              ...s,
+              imageSrc: getSceneImage(s.id),
+            }));
+          }
+          setCurriculum(cur);
+        }
         if (typeof remote.starsCount === 'number') setStarsCount(remote.starsCount);
         if (typeof remote.streakDays === 'number') setStreakDays(remote.streakDays);
         if (remote.pointsState) setPointsState(remote.pointsState);
@@ -752,8 +771,8 @@ export default function App() {
                   completedRecords={completedRecords}
                   onRecordCompletedExercise={handleRecordCompletedExercise}
                   daysProgress={daysProgress}
-                  initialExerciseId={directTargetTask?.day === activeDay ? directTargetTask.exerciseId : undefined}
-                  initialExerciseIndex={directTargetTask?.day === activeDay ? directTargetTask.exerciseIndex : undefined}
+                  initialExerciseId={directTargetTask?.day === activeDay ? directTargetTask.taskId : undefined}
+                  onClearInitialExerciseId={() => setDirectTargetTask(null)}
                 />
               )}
             </>

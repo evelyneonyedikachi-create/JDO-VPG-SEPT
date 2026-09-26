@@ -84,7 +84,7 @@ interface DailyPracticeWorkspaceProps {
   onRecordCompletedExercise?: (record: CompletedExerciseRecord) => void;
   daysProgress?: Record<DayOfWeek, DayProgressSummary>;
   initialExerciseId?: string | null;
-  initialExerciseIndex?: number | null;
+  onClearInitialExerciseId?: () => void;
 }
 
 export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
@@ -109,10 +109,15 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   onRecordCompletedExercise,
   daysProgress,
   initialExerciseId,
-  initialExerciseIndex,
+  onClearInitialExerciseId,
 }) => {
   const [level, setLevel] = useState<DifficultyLevel>('starter');
   const [exerciseIndex, setExerciseIndex] = useState<number>(0);
+
+  // QA Debug task ID tracking state (User Request)
+  const [lastClickedTaskId, setLastClickedTaskId] = useState<string | null>(initialExerciseId || null);
+  const [lastOpenedTaskId, setLastOpenedTaskId] = useState<string | null>(null);
+  const [lastCompletedTaskId, setLastCompletedTaskId] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [textInput, setTextInput] = useState<string>('');
   const [selectedWordBlocks, setSelectedWordBlocks] = useState<string[]>([]);
@@ -191,33 +196,44 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     const exList = plan.heuteEmpfohlen;
     setMandatoryExerciseIds(exList.map((e) => e.id));
 
-    // If an exact exercise ID was requested (e.g. from clicking an outstanding task)
+    // Combine all available tasks for this day to allow exact deep-linking
+    const allAvailableTasks = [
+      ...exList,
+      ...(plan.schwerpunktExtra || []),
+      ...(plan.nochOffen || []),
+      ...((skippedExercises.filter((s) => s.day === currentDay).map((s) => s.exerciseData).filter(Boolean)) as GeneratedExercise[]),
+    ];
+
+    // Priority 1: Exact target task ID requested from navigation (User Request)
     if (initialExerciseId) {
-      const matchIdx = exList.findIndex(
-        (e) => e.id === initialExerciseId || e.id.startsWith(initialExerciseId) || initialExerciseId.startsWith(e.id)
+      setLastClickedTaskId(initialExerciseId);
+      const targetMatch = allAvailableTasks.find(
+        (e) => e.id === initialExerciseId || e.id.toLowerCase() === initialExerciseId.toLowerCase()
       );
-      if (matchIdx !== -1) {
-        setExerciseQueue(exList);
-        setExerciseIndex(matchIdx);
+      if (targetMatch) {
+        const inExListIdx = exList.findIndex((e) => e.id === targetMatch.id);
+        if (inExListIdx !== -1) {
+          setExerciseQueue(exList);
+          setExerciseIndex(inExListIdx);
+        } else {
+          // Prepend extra/schwerpunkt task to queue so it runs first
+          setExerciseQueue([targetMatch, ...exList]);
+          setExerciseIndex(0);
+        }
+        setLastOpenedTaskId(targetMatch.id);
         setIsCurrentVoluntaryRepeat(false);
         resetCurrentInputs();
         setIsCompleted(false);
+        console.log('[QA Task Mapping]', {
+          action: 'loadExercises with initialExerciseId',
+          clicked: initialExerciseId,
+          opened: targetMatch.id,
+          type: targetMatch.type,
+          word: targetMatch.word?.cleanWord,
+          day: currentDay,
+        });
         return;
       }
-    }
-
-    if (
-      initialExerciseIndex !== undefined &&
-      initialExerciseIndex !== null &&
-      initialExerciseIndex >= 0 &&
-      initialExerciseIndex < exList.length
-    ) {
-      setExerciseQueue(exList);
-      setExerciseIndex(initialExerciseIndex);
-      setIsCurrentVoluntaryRepeat(false);
-      resetCurrentInputs();
-      setIsCompleted(false);
-      return;
     }
 
     // If there is a paused session for this day & level, resume it!
@@ -235,6 +251,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
       setPauseNotification('Pausierte Einheit erfolgreich fortgesetzt! 🚀');
       setTimeout(() => setPauseNotification(null), 4000);
       setIsCurrentVoluntaryRepeat(false);
+      setLastOpenedTaskId(exList[Math.min(pausedSession.exerciseIndex, exList.length - 1)]?.id || null);
     } else {
       // Find first uncompleted exercise in the daily plan so child never reopens finished work
       const dayCompletedIds = completedRecords
@@ -249,10 +266,12 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
       if (firstUncompletedIdx !== -1) {
         setExerciseIndex(firstUncompletedIdx);
         setIsCurrentVoluntaryRepeat(false);
+        setLastOpenedTaskId(exList[firstUncompletedIdx]?.id || null);
       } else {
         // All tasks for this day already completed!
         setExerciseIndex(0);
         setIsCurrentVoluntaryRepeat(true);
+        setLastOpenedTaskId(exList[0]?.id || null);
       }
       resetCurrentInputs();
     }
@@ -267,27 +286,58 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
 
   // Jump to specific exercise if requested from parent or day-card click
   useEffect(() => {
-    if (initialExerciseId && exerciseQueue.length > 0) {
-      const matchIdx = exerciseQueue.findIndex(
-        (e) => e.id === initialExerciseId || e.id.startsWith(initialExerciseId) || initialExerciseId.startsWith(e.id)
+    if (initialExerciseId) {
+      setLastClickedTaskId(initialExerciseId);
+      const inQueueIdx = exerciseQueue.findIndex(
+        (e) => e.id === initialExerciseId || e.id.toLowerCase() === initialExerciseId.toLowerCase()
       );
-      if (matchIdx !== -1) {
-        setExerciseIndex(matchIdx);
+      if (inQueueIdx !== -1) {
+        setExerciseIndex(inQueueIdx);
+        setLastOpenedTaskId(exerciseQueue[inQueueIdx].id);
         setIsCurrentVoluntaryRepeat(false);
         resetCurrentInputs();
+        console.log('[QA Task Mapping]', {
+          action: 'useEffect initialExerciseId inQueue',
+          clicked: initialExerciseId,
+          opened: exerciseQueue[inQueueIdx].id,
+          type: exerciseQueue[inQueueIdx].type,
+          word: exerciseQueue[inQueueIdx].word?.cleanWord,
+          day: currentDay,
+        });
+      } else if (dailyPlan) {
+        const allTasks = [
+          ...dailyPlan.heuteEmpfohlen,
+          ...(dailyPlan.schwerpunktExtra || []),
+          ...(dailyPlan.nochOffen || []),
+          ...((skippedExercises.filter((s) => s.day === currentDay).map((s) => s.exerciseData).filter(Boolean)) as GeneratedExercise[]),
+        ];
+        const match = allTasks.find(
+          (e) => e.id === initialExerciseId || e.id.toLowerCase() === initialExerciseId.toLowerCase()
+        );
+        if (match) {
+          setExerciseQueue((prev) => [match, ...prev.filter((p) => p.id !== match.id)]);
+          setExerciseIndex(0);
+          setLastOpenedTaskId(match.id);
+          setIsCurrentVoluntaryRepeat(false);
+          resetCurrentInputs();
+          console.log('[QA Task Mapping]', {
+            action: 'useEffect initialExerciseId loaded extra',
+            clicked: initialExerciseId,
+            opened: match.id,
+            type: match.type,
+            word: match.word?.cleanWord,
+            day: currentDay,
+          });
+        }
       }
-    } else if (
-      initialExerciseIndex !== undefined &&
-      initialExerciseIndex !== null &&
-      exerciseQueue.length > 0 &&
-      initialExerciseIndex >= 0 &&
-      initialExerciseIndex < exerciseQueue.length
-    ) {
-      setExerciseIndex(initialExerciseIndex);
-      setIsCurrentVoluntaryRepeat(false);
-      resetCurrentInputs();
     }
-  }, [initialExerciseId, initialExerciseIndex]);
+  }, [initialExerciseId]);
+
+  useEffect(() => {
+    if (exerciseQueue[exerciseIndex]) {
+      setLastOpenedTaskId(exerciseQueue[exerciseIndex].id);
+    }
+  }, [exerciseIndex, exerciseQueue]);
 
   const currentEx = exerciseQueue[exerciseIndex];
   const isRepeatedTask = currentEx && currentEx.id.includes('_repeat');
@@ -632,6 +682,17 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     if (isCorrect) {
       playChime('success');
       setFeedbackStatus('correct');
+      setLastCompletedTaskId(currentEx.id);
+      console.log('[QA Task Mapping]', {
+        action: 'Exercise completed',
+        clickedTaskId: lastClickedTaskId,
+        openedTaskId: currentEx.id,
+        completedTaskId: currentEx.id,
+        matchVerification: lastClickedTaskId ? lastClickedTaskId === currentEx.id : 'N/A (organic session)',
+        day: currentDay,
+        type: currentEx.type,
+        word: currentEx.word?.cleanWord,
+      });
 
       const isAlreadyDone = isExerciseAlreadyCompleted(currentEx.id);
       const isVoluntaryPractice = isAlreadyDone || isCurrentVoluntaryRepeat;
@@ -1416,11 +1477,38 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         ) : (
           /* ACTIVE EXERCISE CARD */
           currentEx && (
-            <div className={`rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg border-2 space-y-6 transition-all ${
-              isExerciseAlreadyCompleted(currentEx.id)
-                ? 'bg-emerald-50/40 border-emerald-300'
-                : 'bg-white border-slate-200'
-            }`}>
+            <div className="space-y-3">
+              {/* QA TASK MAPPING TRACKER BAR (Temporary debug requested by user during verification) */}
+              <div className="bg-slate-900 text-slate-100 px-4 py-2.5 rounded-2xl text-xs font-mono flex flex-wrap items-center justify-between gap-2 shadow-inner border border-slate-700">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="px-2 py-0.5 rounded bg-indigo-500/30 text-indigo-300 font-bold uppercase tracking-wider text-[10px]">
+                    QA Mapping Monitor
+                  </span>
+                  <span>Tag: <strong className="text-amber-300">{currentDay}</strong></span>
+                  <span>•</span>
+                  <span>Clicked: <strong className={lastClickedTaskId && lastClickedTaskId === currentEx.id ? 'text-emerald-400' : 'text-amber-300'}>{lastClickedTaskId || '(standard session)'}</strong></span>
+                  <span>•</span>
+                  <span>Opened: <strong className="text-emerald-400">{currentEx.id}</strong></span>
+                  <span>•</span>
+                  <span>Completed: <strong className={lastCompletedTaskId === currentEx.id ? 'text-emerald-400' : 'text-slate-400'}>{lastCompletedTaskId || 'offen'}</strong></span>
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-slate-300">
+                  <span>Typ: <strong>{currentEx.type}</strong></span>
+                  <span>•</span>
+                  <span>Lernwort: <strong>{currentEx.word?.cleanWord || '-'}</strong></span>
+                  {lastClickedTaskId && (
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${lastClickedTaskId === currentEx.id ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
+                      {lastClickedTaskId === currentEx.id ? '✓ Clicked = Opened' : '✗ Mismatch!'}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className={`rounded-3xl p-5 sm:p-8 md:p-10 shadow-lg border-2 space-y-6 transition-all ${
+                isExerciseAlreadyCompleted(currentEx.id)
+                  ? 'bg-emerald-50/40 border-emerald-300'
+                  : 'bg-white border-slate-200'
+              }`}>
               {/* Card Meta Bar */}
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -2129,7 +2217,8 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                 </div>
               </div>
             </div>
-          )
+          </div>
+        )
         )}
 
         {/* MISTAKE MEMORY & REVIEW FOCUS */}

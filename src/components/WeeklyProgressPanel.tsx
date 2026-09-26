@@ -36,7 +36,7 @@ interface WeeklyProgressPanelProps {
   nextTask: NextRecommendedTask;
   onStartNextTask: () => void;
   onOpenSkipped?: () => void;
-  onOpenTaskDirectly?: (day: DayOfWeek, exerciseIndex: number, exerciseId: string) => void;
+  onOpenTaskDirectly?: (day: DayOfWeek, taskId: string) => void;
 }
 
 export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
@@ -311,7 +311,7 @@ export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
                               e.stopPropagation();
                               playChime('click');
                               if (onOpenTaskDirectly) {
-                                onOpenTaskDirectly(day, task.exerciseIndex, task.id);
+                                onOpenTaskDirectly(day, task.id);
                               } else {
                                 onSelectDay(day);
                               }
@@ -372,7 +372,7 @@ export const WeeklyProgressPanel: React.FC<WeeklyProgressPanelProps> = ({
                       onClick={() => {
                         playChime('click');
                         if (onOpenTaskDirectly) {
-                          onOpenTaskDirectly(expandedDay, task.exerciseIndex, task.id);
+                          onOpenTaskDirectly(expandedDay, task.id);
                         } else {
                           onSelectDay(expandedDay);
                         }

@@ -156,10 +156,12 @@ export function getSmartPedagogicalHint(
 export function generateMondayExercises(words: LernwortItem[], level: DifficultyLevel): GeneratedExercise[] {
   const exercises: GeneratedExercise[] = [];
 
-  words.forEach((w, idx) => {
+  words.forEach((w) => {
+    const clean = w.cleanWord.toLowerCase();
+
     // 1. Picture / Emoji match (Visual & Word Association)
     exercises.push({
-      id: `mon_pic_${w.id}_${idx}`,
+      id: `mon_picture_match_${clean}`,
       day: 'monday',
       level,
       type: 'picture_match',
@@ -167,7 +169,7 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
       prompt: 'Welches Wort passt zu diesem Bild?',
       avatarId: 'mia',
       word: w,
-      options: [w.word, ...w.distractors.slice(0, level === 'starter' ? 2 : 3)].sort(() => Math.random() - 0.5),
+      options: [w.word, ...w.distractors.slice(0, level === 'starter' ? 2 : 3)],
       correctAnswer: w.word,
       solutionExplanation: `${w.emoji} steht für „${w.word}“.`,
       userHint1: 'Schau dir das Bild genau an und lies die Auswahlwörter.',
@@ -177,7 +179,7 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
 
     // 2. Missing letters (Phoneme & Spelling discrimination)
     exercises.push({
-      id: `mon_miss_${w.id}_${idx}`,
+      id: `mon_missing_letters_${clean}`,
       day: 'monday',
       level,
       type: 'missing_letters',
@@ -196,7 +198,7 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
 
     // 3. Choose correct spelling
     exercises.push({
-      id: `mon_spell_${w.id}_${idx}`,
+      id: `mon_spelling_choice_${clean}`,
       day: 'monday',
       level,
       type: 'spelling_choice',
@@ -204,7 +206,7 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
       prompt: 'Welche Schreibweise ist richtig?',
       avatarId: 'mia',
       word: w,
-      options: [w.word, ...w.distractors].sort(() => Math.random() - 0.5),
+      options: [w.word, ...w.distractors],
       correctAnswer: w.word,
       solutionExplanation: `Die richtige Schreibweise ist „${w.word}“.`,
       userHint1: 'Pass genau auf Doppellaute auf (wie mm, ss oder nn)!',
@@ -214,7 +216,7 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
 
     // 4. Identify Wortart: Nomen, Verb, Adjektiv
     exercises.push({
-      id: `mon_wortart_${w.id}_${idx}`,
+      id: `mon_wortart_choice_${clean}`,
       day: 'monday',
       level,
       type: 'wortart_choice',
@@ -242,7 +244,7 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
     // 5. Type the entire word & Article/Infinitive
     if (w.wortart === 'Nomen') {
       exercises.push({
-        id: `mon_art_${w.id}_${idx}`,
+        id: `mon_article_choice_${clean}`,
         day: 'monday',
         level,
         type: 'article_choice',
@@ -260,16 +262,16 @@ export function generateMondayExercises(words: LernwortItem[], level: Difficulty
       });
     } else {
       exercises.push({
-        id: `mon_type_${w.id}_${idx}`,
+        id: `mon_type_word_${clean}`,
         day: 'monday',
         level,
         type: 'type_word',
-        title: 'Lernwort tippen',
-        prompt: 'Schau dir das Bild an. Tippe das gesuchte Wort fehlerfrei:',
+        title: 'Lernwort schreiben',
+        prompt: 'Schau dir das Bild an. Schreibe das gesuchte Wort fehlerfrei:',
         avatarId: 'mia',
         word: w,
         correctAnswer: w.word,
-        solutionExplanation: `Super! „${w.word}“ ist fehlerfrei getippt!`,
+        solutionExplanation: `Super! „${w.word}“ ist fehlerfrei geschrieben!`,
         userHint1: 'Denke an Groß- und Kleinschreibung sowie Doppelkonsonanten.',
         userHint2: `Es fängt an mit: „${w.word.slice(0, 3)}“`,
         grammarCategory: 'Rechtschreibung',
@@ -291,9 +293,10 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
 
   // Conjugation tasks with non-spoiler hints
   verbs.forEach((v) => {
+    const clean = v.cleanWord.toLowerCase();
     // Task 1: "Ich" or "Du"
     exercises.push({
-      id: `tue_conj_${v.id}_1`,
+      id: `tue_verb_conjugation_${clean}_du`,
       day: 'tuesday',
       level: 'starter',
       type: 'verb_conjugation',
@@ -324,7 +327,7 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
 
     // Task 2: "Er/Sie/Es" or "Wir"
     exercises.push({
-      id: `tue_conj_${v.id}_2`,
+      id: `tue_verb_conjugation_${clean}_er`,
       day: 'tuesday',
       level: 'profi',
       type: 'verb_conjugation',
@@ -353,10 +356,11 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
   });
 
   // Nouns plural with non-answer hint box!
-  nouns.forEach((n, idx) => {
+  nouns.forEach((n) => {
     if (n.plural) {
+      const clean = n.cleanWord.toLowerCase();
       exercises.push({
-        id: `tue_noun_pl_${n.id}_${idx}`,
+        id: `tue_plural_choice_${clean}`,
         day: 'tuesday',
         level: level,
         type: 'plural_choice',
@@ -372,8 +376,7 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
           `die ${n.cleanWord}s`,
         ]
           .filter((val, i, arr) => arr.indexOf(val) === i)
-          .slice(0, 3)
-          .sort(() => Math.random() - 0.5),
+          .slice(0, 3),
         correctAnswer: n.plural,
         pluralRuleHint: getPluralConceptHint(n.cleanWord),
         solutionExplanation: `Einzahl: ${n.word} → Mehrzahl: ${n.plural}.`,
@@ -385,9 +388,10 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
   });
 
   // Adjectives
-  adjs.forEach((a, idx) => {
+  adjs.forEach((a) => {
+    const clean = a.cleanWord.toLowerCase();
     exercises.push({
-      id: `tue_adj_${a.id}_${idx}`,
+      id: `tue_adjective_form_${clean}`,
       day: 'tuesday',
       level: 'meister',
       type: 'adjective_form',
@@ -428,7 +432,7 @@ export function generateWednesdayExercises(level: DifficultyLevel): GeneratedExe
   const builders = WEDNESDAY_SENTENCE_BUILDERS.filter((b) => b.difficulty === level);
 
   return builders.map((b) => ({
-    id: b.id,
+    id: `wed_sentence_builder_${b.id}`,
     day: 'wednesday',
     level: b.difficulty,
     type: 'sentence_builder',
@@ -459,7 +463,7 @@ export function generateThursdayExercises(level: DifficultyLevel): GeneratedExer
   THURSDAY_SATZ_PROFI_EXERCISES.forEach((ex) => {
     if (level === 'starter') {
       exercises.push({
-        id: `${ex.id}_starter`,
+        id: `thu_sentence_expand_${ex.id}`,
         day: 'thursday',
         level: 'starter',
         type: 'sentence_expand',
@@ -476,7 +480,7 @@ export function generateThursdayExercises(level: DifficultyLevel): GeneratedExer
       });
     } else if (level === 'profi') {
       exercises.push({
-        id: `${ex.id}_profi`,
+        id: `thu_sentence_expand_${ex.id}`,
         day: 'thursday',
         level: 'profi',
         type: 'sentence_expand',
@@ -496,7 +500,7 @@ export function generateThursdayExercises(level: DifficultyLevel): GeneratedExer
     // Sentence-linking tasks (available across levels if linkedTask exists)
     if (ex.linkedTask) {
       exercises.push({
-        id: `${ex.id}_linking_${level}`,
+        id: `thu_sentence_linking_${ex.id}`,
         day: 'thursday',
         level,
         type: 'sentence_linking',
@@ -534,10 +538,11 @@ export function generateReinforcementExercises(
       weakWords.includes(w.id)
   );
 
-  targetWords.forEach((w, idx) => {
+  targetWords.forEach((w) => {
+    const clean = w.cleanWord.toLowerCase();
     // 1. Missing letters reinforcement
     exercises.push({
-      id: `reinf_miss_${w.id}_${idx}`,
+      id: `schwerpunkt_${clean}`,
       day: 'monday',
       level,
       type: 'missing_letters',
@@ -558,7 +563,7 @@ export function generateReinforcementExercises(
     const sampleSent = w.sentences[0] || { text: `Das Wort heißt ${w.cleanWord}.` };
     const blankSent = sampleSent.text.replace(new RegExp(w.cleanWord, 'gi'), '_____');
     exercises.push({
-      id: `reinf_sent_${w.id}_${idx}`,
+      id: `schwerpunkt_satz_${clean}`,
       day: 'wednesday',
       level,
       type: 'spelling_choice',
@@ -842,58 +847,8 @@ export function generateDailyExercisePlan(params: {
     }
   }
 
-  // ADAPTIVE INJECTION (Strictly capping at 5, and NEVER duplicating a word in today's session):
-  if (weakWords.length > 0 && todayFive.length === 5) {
-    // 1. Identify which words are already practiced in today's session
-    const featuredWordSet = new Set(
-      todayFive.map((e) => e.word?.cleanWord?.toLowerCase()).filter(Boolean)
-    );
-
-    // 2. Find the first weak word that is NOT already in today's tasks
-    const unpracticedWeakWord = weakWords.find(
-      (ww) => !featuredWordSet.has(ww.toLowerCase())
-    );
-
-    // 3. Inject only if there is an unpracticed weak word, preventing duplicate spam
-    if (unpracticedWeakWord) {
-      const targetWordObj = words.find(
-        (w) =>
-          w.cleanWord.toLowerCase() === unpracticedWeakWord.toLowerCase() ||
-          w.word.toLowerCase() === unpracticedWeakWord.toLowerCase()
-      );
-
-      if (targetWordObj) {
-        const adaptiveTask: GeneratedExercise = {
-          id: `adaptive_weak_${targetWordObj.id}_${Date.now()}`,
-          day,
-          level,
-          type: 'missing_letters',
-          title: `Schwerpunkt üben · ${targetWordObj.cleanWord}`,
-          prompt: 'Ergänze die fehlenden Buchstaben.',
-          contextSentence: targetWordObj.missingLetterPattern,
-          avatarId: day === 'monday' ? 'mia' : day === 'tuesday' ? 'ben' : 'sophie',
-          word: targetWordObj,
-          correctAnswer: targetWordObj.word,
-          missingPattern: targetWordObj.missingLetterPattern,
-          solutionExplanation: `Sehr gut geübt! Richtig heißt es: „${targetWordObj.word}“.`,
-          userHint1: 'Achte auf den Vokal vor dem Doppelkonsonanten (wie mm, ss oder nn)!',
-          userHint2: 'Klopfe die Silben rhythmisch mit den Händen.',
-          grammarCategory: 'Rechtschreibung',
-        };
-        // Replace a non-Bildgeschichte task so Bildgeschichte is never dropped
-        const replaceIdx = todayFive.findIndex(
-          (t, idx) => idx > 0 && t.type !== 'bildgeschichte_step'
-        );
-        if (replaceIdx !== -1) {
-          todayFive[replaceIdx] = adaptiveTask;
-        } else {
-          todayFive[0] = adaptiveTask;
-        }
-      }
-    }
-  }
-
-  // Ensure strict cap: maximum 5 exercises per day!
+  // Ensure strict cap: exactly the 5 required daily tasks!
+  // Adaptive Schwerpunkt tasks are kept separate in plan.schwerpunktExtra and never overwrite required daily tasks!
   const finalHeuteEmpfohlen = todayFive.slice(0, 5);
 
   // Compile remaining pool for "Noch offen" (excluding the 5 recommended tasks)

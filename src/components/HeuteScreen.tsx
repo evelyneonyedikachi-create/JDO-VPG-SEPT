@@ -45,7 +45,7 @@ interface HeuteScreenProps {
   onOpenWorksheet: () => void;
   onOpenRewards: () => void;
   onOpenMiniExam: () => void;
-  onOpenTaskDirectly?: (day: DayOfWeek, exerciseIndex: number, exerciseId: string) => void;
+  onOpenTaskDirectly?: (day: DayOfWeek, taskId: string) => void;
 }
 
 export const HeuteScreen: React.FC<HeuteScreenProps> = ({
