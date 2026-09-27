@@ -1,0 +1,101 @@
+import React, { useState } from 'react';
+import { DoublingHalvingExercise } from '../../types/math';
+import { playChime } from '../../utils/soundEffects';
+import { Check } from 'lucide-react';
+import { MathScratchpad } from './MathScratchpad';
+
+interface DoublingHalvingViewProps {
+  exercise: DoublingHalvingExercise;
+  onSolve: (isCorrect: boolean) => void;
+  disabled?: boolean;
+}
+
+export const DoublingHalvingView: React.FC<DoublingHalvingViewProps> = ({
+  exercise,
+  onSolve,
+  disabled = false,
+}) => {
+  const [typedAnswer, setTypedAnswer] = useState('');
+  const [hasChecked, setHasChecked] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+
+  const handleCheck = () => {
+    const num = parseInt(typedAnswer.trim(), 10);
+    const correct = num === exercise.correctAnswer;
+
+    setHasChecked(true);
+    setIsCorrect(correct);
+
+    if (correct) {
+      playChime('success');
+      onSolve(true);
+    } else {
+      playChime('error');
+      onSolve(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 sm:p-8 bg-white rounded-3xl border-2 border-slate-200 shadow-sm flex flex-col items-center justify-center gap-6">
+        {exercise.riddleText ? (
+          <div className="text-xl sm:text-2xl font-black text-center text-indigo-950 max-w-md bg-indigo-50 p-4 rounded-2xl border border-indigo-200">
+            „{exercise.riddleText}“
+          </div>
+        ) : (
+          <div className="text-center space-y-1">
+            <span className="text-xs font-black uppercase text-slate-500 tracking-wider">
+              {exercise.mode === 'verdoppeln' ? 'Verdopple die Zahl:' : 'Halbiere die Zahl:'}
+            </span>
+            <div className="text-4xl sm:text-5xl font-black text-indigo-950 font-mono">
+              {exercise.promptNumber}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <label className="text-base font-bold text-slate-700">Dein Ergebnis:</label>
+          <input
+            type="number"
+            value={typedAnswer}
+            onChange={(e) => setTypedAnswer(e.target.value)}
+            disabled={disabled || (hasChecked && isCorrect)}
+            placeholder="?"
+            className="w-36 px-4 py-3 text-center text-3xl font-black bg-slate-50 focus:bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-2xl outline-none"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCheck}
+          disabled={disabled || !typedAnswer.trim() || (hasChecked && isCorrect)}
+          className={`px-8 py-3.5 rounded-2xl font-black text-base shadow-md active:scale-95 transition-all flex items-center gap-2 ${
+            hasChecked && isCorrect
+              ? 'bg-emerald-600 text-white'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+          }`}
+        >
+          <Check className="w-5 h-5" />
+          <span>{hasChecked && isCorrect ? 'Ergebnis stimmt! 🎉' : 'Ergebnis prüfen'}</span>
+        </button>
+      </div>
+
+      <MathScratchpad
+        label="✍️ Stift-Rechenweg (HUION H1161)"
+        placeholder="Rechne z. B.: 300 verdoppeln = 600, 20 verdoppeln = 40..."
+        onApplyRecognizedText={(text) => {
+          const match = text.match(/\b\d+\b/);
+          if (match && !typedAnswer) {
+            setTypedAnswer(match[0]);
+          }
+        }}
+      />
+
+      {hasChecked && !isCorrect && (
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center">
+          ❌ Tipp: Zerlege die Zahl erst in Hunderter und Zehner und berechne beide Teile einzeln!
+        </div>
+      )}
+    </div>
+  );
+};

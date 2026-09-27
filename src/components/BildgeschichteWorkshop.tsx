@@ -661,16 +661,14 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                           isRecognizing={!!sceneIsRecognizing[scene.id]}
                           onRecognizeRequest={async (strokes) => {
                             setSceneIsRecognizing((prev) => ({ ...prev, [scene.id]: true }));
-                            const rec = await recognizeHandwritingStrokes(strokes, {
-                              expectedSentence: scene.description,
-                              expectedVocabulary: scene.suggestedWords,
-                              exerciseType: 'bildgeschichte_scene',
-                            });
+                            const rec = await recognizeHandwritingStrokes(strokes);
                             setSceneIsRecognizing((prev) => ({ ...prev, [scene.id]: false }));
-                            setSceneRecognized((prev) => ({
-                              ...prev,
-                              [scene.id]: rec.text || scene.description,
-                            }));
+                            if (rec.text) {
+                              setSceneRecognized((prev) => ({
+                                ...prev,
+                                [scene.id]: rec.text,
+                              }));
+                            }
                           }}
                         />
 
@@ -876,15 +874,11 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                       isRecognizing={fullStoryIsRecognizing}
                       onRecognizeRequest={async (strokes) => {
                         setFullStoryIsRecognizing(true);
-                        const rec = await recognizeHandwritingStrokes(strokes, {
-                          expectedSentence: scenes.map((s) => s.description).join(' '),
-                          expectedVocabulary: words.map((w) => w.cleanWord),
-                          exerciseType: 'bildgeschichte_full',
-                        });
+                        const rec = await recognizeHandwritingStrokes(strokes);
                         setFullStoryIsRecognizing(false);
-                        setFullStoryRecognized(
-                          rec.text || scenes.map((s) => s.description).join(' ')
-                        );
+                        if (rec.text) {
+                          setFullStoryRecognized(rec.text);
+                        }
                       }}
                     />
 

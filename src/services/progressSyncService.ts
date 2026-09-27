@@ -23,6 +23,7 @@ export interface PersistedUserProgress {
   claimedRewards?: number[];
   completedExerciseRecords?: any[];
   storyData?: Record<string, string>;
+  mathProgress?: any;
   lastSavedAt?: number;
 }
 

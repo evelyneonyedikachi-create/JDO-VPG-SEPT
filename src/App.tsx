@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   DayOfWeek,
   DifficultyLevel,
@@ -49,8 +49,14 @@ import {
   calculateWeeklyOverview,
   determineNextRecommendedTask,
 } from './services/progressService';
+import { MatheTrainingWorkspace } from './components/math/MatheTrainingWorkspace';
+import { MathProgressState } from './types/math';
+import {
+  loadMathProgressFromStorage,
+  calculateDailyMathSummary,
+} from './services/mathProgressService';
 
-type MainView = 'heute' | 'woerter' | 'ueben' | 'bildgeschichte' | 'sterne' | 'games';
+type MainView = 'heute' | 'woerter' | 'mathe' | 'ueben' | 'bildgeschichte' | 'sterne' | 'games';
 
 function getTodayDayOfWeek(): DayOfWeek {
   const day = new Date().getDay(); // 0 is Sunday, 1 is Monday ...
@@ -118,35 +124,7 @@ export default function App() {
 
   // Points tracking (per day, capped per week at 100 max, and cumulative for long-term reward ladder)
   const todayKey = new Date().toISOString().slice(0, 10);
-  const [pointsState, setPointsState] = useState<{
-    pointsToday: number;
-    pointsWeek: number; // strictly capped at 100 max
-    cumulativePoints: number; // separate cumulative counter for reward ladder (1000 Pkt = Pizza + Fanta)
-    lastDate: string;
-  }>(() => {
-    try {
-      const saved = localStorage.getItem('jd_points_state_v3');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.lastDate !== todayKey) {
-          return {
-            pointsToday: 0,
-            pointsWeek: Math.min(100, parsed.pointsWeek || 0),
-            cumulativePoints: parsed.cumulativePoints || 420,
-            lastDate: todayKey,
-          };
-        }
-        return {
-          ...parsed,
-          pointsWeek: Math.min(100, parsed.pointsWeek || 0),
-          cumulativePoints: parsed.cumulativePoints || 420,
-        };
-      }
-      return { pointsToday: 24, pointsWeek: 65, cumulativePoints: 420, lastDate: todayKey };
-    } catch {
-      return { pointsToday: 24, pointsWeek: 65, cumulativePoints: 420, lastDate: todayKey };
-    }
-  });
+  const currentWeekId = curriculum.id || 'week_1';
 
   // Claimed / received rewards tracker (level numbers, e.g. [1, 2])
   // Claiming a reward NEVER deducts points. Points accumulate permanently as lifetime points.
@@ -170,7 +148,8 @@ export default function App() {
     });
   };
 
-  // Completed exercise records (id, day, pointsEarned, completedAt)
+  // Completed exercise records (id, taskId, day, weekId, pointsEarned, completedAt)
+  // CRITICAL REQUIREMENT 3: Single Source of Truth for score and progress!
   const [completedRecords, setCompletedRecords] = useState<CompletedExerciseRecord[]>(() => {
     try {
       const saved = localStorage.getItem('jd_completed_records');
@@ -180,11 +159,42 @@ export default function App() {
     }
   });
 
+  // Dynamically derived score from persisted completed task records (Bug 3: Never resets after refresh!)
+  const pointsState = useMemo(() => {
+    const weekRecords = completedRecords.filter(
+      (r) => !r.weekId || r.weekId === currentWeekId
+    );
+    const pointsWeek = Math.min(100, weekRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0));
+
+    const todayRecords = completedRecords.filter((r) => r.day === activeDay);
+    const pointsToday = todayRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
+
+    const allRecordsPoints = completedRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
+    const cumulativePoints = 400 + allRecordsPoints;
+
+    return {
+      pointsToday,
+      pointsWeek,
+      cumulativePoints,
+      lastDate: todayKey,
+    };
+  }, [completedRecords, currentWeekId, activeDay, todayKey]);
+
   const handleRecordCompletedExercise = (record: CompletedExerciseRecord) => {
+    const canonicalRecord: CompletedExerciseRecord = {
+      ...record,
+      taskId: record.taskId || record.id,
+      weekId: record.weekId || currentWeekId,
+      pointsEarned: record.pointsEarned ?? 4,
+      completedAt: record.completedAt || Date.now(),
+    };
+
     setCompletedRecords((prev) => {
-      const exists = prev.some((r) => r.id === record.id && r.day === record.day);
+      const exists = prev.some(
+        (r) => (r.id === canonicalRecord.id || r.taskId === canonicalRecord.id) && r.day === canonicalRecord.day
+      );
       if (exists) return prev;
-      const updated = [...prev, record];
+      const updated = [...prev, canonicalRecord];
       try {
         localStorage.setItem('jd_completed_records', JSON.stringify(updated));
       } catch {}
@@ -193,18 +203,15 @@ export default function App() {
   };
 
   const handleAwardPoints = (points: number, _reason: string) => {
-    setPointsState((prev) => {
-      const updated = {
-        pointsToday: prev.pointsToday + points,
-        pointsWeek: Math.min(100, prev.pointsWeek + points), // STRICT 100 PTS WEEKLY CAP
-        cumulativePoints: (prev.cumulativePoints || 0) + points, // ACCUMULATES FOR LONG-TERM REWARDS
-        lastDate: todayKey,
-      };
-      try {
-        localStorage.setItem('jd_points_state_v3', JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    const bonusRecord: CompletedExerciseRecord = {
+      id: `bonus_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      taskId: `bonus_${Date.now()}`,
+      day: activeDay,
+      weekId: currentWeekId,
+      pointsEarned: points,
+      completedAt: Date.now(),
+    };
+    handleRecordCompletedExercise(bonusRecord);
   };
 
   // Skipped exercises weekly queue
@@ -246,6 +253,11 @@ export default function App() {
       return null;
     }
   });
+
+  // Math progress state (Requirement 21: separate from German 100-point reward ladder)
+  const [mathProgress, setMathProgress] = useState<MathProgressState>(() =>
+    loadMathProgressFromStorage()
+  );
 
   const handleSavePauseSession = (state: PausedSessionState | null) => {
     setPausedSession(state);
@@ -363,13 +375,15 @@ export default function App() {
         }
         if (typeof remote.starsCount === 'number') setStarsCount(remote.starsCount);
         if (typeof remote.streakDays === 'number') setStreakDays(remote.streakDays);
-        if (remote.pointsState) setPointsState(remote.pointsState);
         if (Array.isArray(remote.skippedExercises)) setSkippedExercises(remote.skippedExercises);
         if (remote.pausedSession !== undefined) setPausedSession(remote.pausedSession);
         if (Array.isArray(remote.miniExamHistory)) setMiniExamHistory(remote.miniExamHistory);
         if (Array.isArray(remote.mistakes)) setMistakes(remote.mistakes);
         if (Array.isArray(remote.claimedRewards)) setClaimedRewards(remote.claimedRewards);
         if (Array.isArray(remote.completedExerciseRecords)) setCompletedRecords(remote.completedExerciseRecords);
+        if (remote.mathProgress && typeof remote.mathProgress === 'object') {
+          setMathProgress(remote.mathProgress);
+        }
       }
       isInitialRemoteLoadDone.current = true;
     });
@@ -392,6 +406,7 @@ export default function App() {
         mistakes,
         claimedRewards,
         completedExerciseRecords: completedRecords,
+        mathProgress,
       },
       'jedidiah'
     );
@@ -406,6 +421,7 @@ export default function App() {
     mistakes,
     claimedRewards,
     completedRecords,
+    mathProgress,
   ]);
 
   // Modals
@@ -514,6 +530,20 @@ export default function App() {
               }`}
             >
               📚 Lernwörter
+            </button>
+
+            <button
+              onClick={() => {
+                playChime('click');
+                setCurrentView('mathe');
+              }}
+              className={`px-3.5 lg:px-4 py-2 lg:py-2.5 rounded-2xl text-sm sm:text-base font-black transition-all ${
+                currentView === 'mathe'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+              }`}
+            >
+              ➕ Mathe
             </button>
 
             <button
@@ -658,6 +688,12 @@ export default function App() {
             📚 Wörter
           </button>
           <button
+            onClick={() => setCurrentView('mathe')}
+            className={`px-3 py-1 rounded-lg shrink-0 ${currentView === 'mathe' ? 'bg-purple-600 text-white' : 'text-slate-700'}`}
+          >
+            ➕ Mathe
+          </button>
+          <button
             onClick={() => setCurrentView('ueben')}
             className={`px-3 py-1 rounded-lg shrink-0 ${currentView === 'ueben' ? 'bg-indigo-600 text-white' : 'text-slate-700'}`}
           >
@@ -729,14 +765,27 @@ export default function App() {
                   daysProgress={daysProgress}
                   weeklyOverview={weeklyOverview}
                   nextTask={nextTask}
+                  mathSummary={calculateDailyMathSummary(activeDay, mathProgress.completedRecords)}
+                  mathProgress={mathProgress}
                   onSelectDay={(day) => setActiveDay(day)}
                   onStartToday={() => setCurrentView('ueben')}
+                  onStartMathToday={() => setCurrentView('mathe')}
                   onGoToWords={() => setCurrentView('woerter')}
                   onGoToBildgeschichte={() => setCurrentView('bildgeschichte')}
                   onOpenWorksheet={() => openPrintForDay(activeDay)}
                   onOpenRewards={() => setCurrentView('sterne')}
                   onOpenMiniExam={() => setShowMiniExam(true)}
                   onOpenTaskDirectly={handleOpenTaskDirectly}
+                />
+              )}
+
+              {/* VIEW: MATHE (Daily Maths Practice 3. / 4. Klasse) */}
+              {currentView === 'mathe' && (
+                <MatheTrainingWorkspace
+                  currentDay={activeDay}
+                  onSelectDay={(day) => setActiveDay(day)}
+                  mathProgress={mathProgress}
+                  onUpdateMathProgress={(updated) => setMathProgress(updated)}
                 />
               )}
 

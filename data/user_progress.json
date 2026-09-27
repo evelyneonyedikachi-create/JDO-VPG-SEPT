@@ -3,11 +3,1091 @@
     "starsCount": 15,
     "streakDays": 5,
     "pointsState": {
-      "pointsToday": 30,
-      "pointsWeek": 75,
-      "cumulativePoints": 450,
-      "lastDate": "2026-09-23"
+      "pointsToday": 0,
+      "pointsWeek": 0,
+      "cumulativePoints": 400,
+      "lastDate": "2026-09-27"
     },
-    "lastSavedAt": 1790201184707
+    "lastSavedAt": 1790537171839,
+    "curriculum": {
+      "id": "woche_1",
+      "weekNumber": 1,
+      "title": "Woche 1 – Meine Lernwörter & Eine spannende Woche",
+      "subtitle": "Lernwörter 1 & 2 für die 4. Klasse (Doppelkonsonanten mm, ss, nn)",
+      "createdAt": "2026-09-22",
+      "words": [
+        {
+          "id": "w1_zimmer",
+          "word": "das Zimmer",
+          "cleanWord": "Zimmer",
+          "wortart": "Nomen",
+          "artikel": "das",
+          "plural": "die Zimmer",
+          "group": 1,
+          "emoji": "🛏️",
+          "distractors": [
+            "das Zimer",
+            "der Zimmer",
+            "die Zimmer"
+          ],
+          "missingLetterPattern": "das Z_mm_r",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich spiele in meinem Zimmer."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du räumst dein Zimmer auf."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er liest ein Buch in seinem Zimmer."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir räumen das Zimmer gemeinsam auf."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr malt zusammen im Zimmer."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie öffnet das Fenster im Zimmer."
+            }
+          ],
+          "exampleSentence": "Ich räume mein Zimmer auf."
+        },
+        {
+          "id": "w1_schwimmen",
+          "word": "schwimmen",
+          "cleanWord": "schwimmen",
+          "wortart": "Verb",
+          "infinitive": "schwimmen",
+          "group": 1,
+          "emoji": "🏊‍♂️",
+          "distractors": [
+            "schwimen",
+            "schwimmmen",
+            "schwimme"
+          ],
+          "missingLetterPattern": "sch_imm_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich schwimme sehr gerne."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du schwimmst im Schwimmbad."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er schwimmt im See."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir schwimmen zusammen eine Runde."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr schwimmt sehr schnell."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie schwimmt jeden Samstag."
+            }
+          ],
+          "exampleSentence": "Er schwimmt im See."
+        },
+        {
+          "id": "w1_messer",
+          "word": "das Messer",
+          "cleanWord": "Messer",
+          "wortart": "Nomen",
+          "artikel": "das",
+          "plural": "die Messer",
+          "group": 1,
+          "emoji": "🔪",
+          "distractors": [
+            "das Meser",
+            "der Messer",
+            "die Messer"
+          ],
+          "missingLetterPattern": "das M_ss_r",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich schneide den Apfel mit dem Messer."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du legst das Messer vorsichtig hin."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er schmiert das Brot mit dem Messer."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir decken den Tisch mit Gabel und Messer."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr passt mit dem scharfen Messer gut auf."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie legt das Messer neben den Teller."
+            }
+          ],
+          "exampleSentence": "Du legst das Messer vorsichtig hin."
+        },
+        {
+          "id": "w1_kuss",
+          "word": "der Kuss",
+          "cleanWord": "Kuss",
+          "wortart": "Nomen",
+          "artikel": "der",
+          "plural": "die Küsse",
+          "group": 1,
+          "emoji": "❤️",
+          "distractors": [
+            "der Kus",
+            "das Kuss",
+            "die Kuss"
+          ],
+          "missingLetterPattern": "der K_ss",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich gebe dir einen Kuss auf die Wange."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du bekommst einen lieben Kuss."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er gibt seiner Mutter einen Kuss."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir geben Oma einen herzlichen Kuss."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr schickt eurer Tante einen Kuss."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie gibt ihrem Kind einen Gutenachtkuss."
+            }
+          ],
+          "exampleSentence": "Er gibt seiner Mutter einen Kuss."
+        },
+        {
+          "id": "w1_rennen",
+          "word": "rennen",
+          "cleanWord": "rennen",
+          "wortart": "Verb",
+          "infinitive": "rennen",
+          "group": 1,
+          "emoji": "🏃‍♂️",
+          "distractors": [
+            "renen",
+            "rennnen",
+            "rent"
+          ],
+          "missingLetterPattern": "r_nn_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich renne über den Spielplatz."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du rennst schnell zum Bus."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er rennt im Park um die Wette."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir rennen gemeinsam ins Ziel."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr rennt super schnell!"
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie rennt jeden Morgen eine Runde."
+            }
+          ],
+          "exampleSentence": "Du rennst schnell zum Bus."
+        },
+        {
+          "id": "w1_passen",
+          "word": "passen",
+          "cleanWord": "passen",
+          "wortart": "Verb",
+          "infinitive": "passen",
+          "group": 1,
+          "emoji": "🧩",
+          "distractors": [
+            "pasen",
+            "passsen",
+            "past"
+          ],
+          "missingLetterPattern": "p_ss_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich passe gut auf den Verkehr auf."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du passt perfekt in unser Team."
+            },
+            {
+              "pronoun": "er",
+              "text": "Der Schuh passt ihm gut."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir passen gut zusammen."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr passt gut auf eure Schulsachen auf."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Die neue Hose passt ihr gut."
+            }
+          ],
+          "exampleSentence": "Wir passen gut zusammen."
+        },
+        {
+          "id": "w1_duenn",
+          "word": "dünn",
+          "cleanWord": "dünn",
+          "wortart": "Adjektiv",
+          "group": 1,
+          "emoji": "🧍‍♂️",
+          "distractors": [
+            "dün",
+            "dünnn",
+            "dunn"
+          ],
+          "missingLetterPattern": "d_nn",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich schneide eine dünne Scheibe Brot."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du zeichnest einen dünnen Strich."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er schneidet eine dünne Scheibe Käse."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir schneiden das Brot ganz dünn."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr zieht heute eine dünne Jacke an."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Das Buch ist sehr dünn."
+            }
+          ],
+          "exampleSentence": "Er schneidet eine dünne Scheibe Käse."
+        },
+        {
+          "id": "w1_brennen",
+          "word": "brennen",
+          "cleanWord": "brennen",
+          "wortart": "Verb",
+          "infinitive": "brennen",
+          "group": 2,
+          "emoji": "🔥",
+          "distractors": [
+            "brenen",
+            "brent",
+            "brenn"
+          ],
+          "missingLetterPattern": "br_nn_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich passe auf, wenn eine Kerze brennt."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du siehst, wie das Lagerfeuer brennt."
+            },
+            {
+              "pronoun": "er",
+              "text": "Das Holz brennt hell im Kamin."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir wärmen uns, während das Feuer brennt."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr passt gut auf, wenn ein Feuer brennt."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Die Kerzen brennen hell auf dem Geburtstagskuchen."
+            }
+          ],
+          "exampleSentence": "Das Holz brennt hell im Kamin."
+        },
+        {
+          "id": "w1_schloss",
+          "word": "das Schloss",
+          "cleanWord": "Schloss",
+          "wortart": "Nomen",
+          "artikel": "das",
+          "plural": "die Schlösser",
+          "group": 2,
+          "emoji": "🏰",
+          "distractors": [
+            "das Schlos",
+            "der Schloss",
+            "die Schloss"
+          ],
+          "missingLetterPattern": "das Schl_ss",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich schließe das Schloss mit dem Schlüssel auf."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du bestaunst das große Schloss im Park."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er repariert das Schloss an der Tür."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir besuchen das alte Schloss."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr seht die hohen Türme vom Schloss."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie zeichnet ein prächtiges Schloss."
+            }
+          ],
+          "exampleSentence": "Wir besuchen das alte Schloss."
+        },
+        {
+          "id": "w1_kennen",
+          "word": "kennen",
+          "cleanWord": "kennen",
+          "wortart": "Verb",
+          "infinitive": "kennen",
+          "group": 2,
+          "emoji": "🙋‍♂️",
+          "distractors": [
+            "kenen",
+            "kennnen",
+            "kent"
+          ],
+          "missingLetterPattern": "k_nn_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich kenne den Weg zur Schule genau."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du kennst die richtige Antwort."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er kennt die neue Lehrerin schon."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir kennen diese schöne Geschichte."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr kennt alle Lernwörter für das Diktat."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie kennt die Lösung des Rätsels."
+            }
+          ],
+          "exampleSentence": "Du kennst die richtige Antwort."
+        },
+        {
+          "id": "w1_nummer",
+          "word": "die Nummer",
+          "cleanWord": "Nummer",
+          "wortart": "Nomen",
+          "artikel": "die",
+          "plural": "die Nummern",
+          "group": 2,
+          "emoji": "🔢",
+          "distractors": [
+            "die Nümer",
+            "der Nummer",
+            "das Nummer"
+          ],
+          "missingLetterPattern": "die N_mm_r",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich kenne meine Telefonnummer auswendig."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du hast die richtige Hausnummer gefunden."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er wählt die Nummer auf dem Telefon."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir schreiben die Nummer sauber ins Heft."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr sucht die passende Nummer."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie tippt die Nummer vorsichtig ein."
+            }
+          ],
+          "exampleSentence": "Du hast die richtige Hausnummer gefunden."
+        },
+        {
+          "id": "w1_schlimm",
+          "word": "schlimm",
+          "cleanWord": "schlimm",
+          "wortart": "Adjektiv",
+          "group": 2,
+          "emoji": "😟",
+          "distractors": [
+            "schlim",
+            "schlimmm",
+            "schlimmer"
+          ],
+          "missingLetterPattern": "schl_mm",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich finde den kleinen Fleck nicht schlimm."
+            },
+            {
+              "pronoun": "du",
+              "text": "Das ist halb so schlimm!"
+            },
+            {
+              "pronoun": "er",
+              "text": "Er hat keine schlimmen Schmerzen mehr."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir finden das gar nicht schlimm."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr findet den Fehler gar nicht schlimm."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Die kleine Schramme ist nicht schlimm."
+            }
+          ],
+          "exampleSentence": "Das ist halb so schlimm!"
+        },
+        {
+          "id": "w1_beginnen",
+          "word": "beginnen",
+          "cleanWord": "beginnen",
+          "wortart": "Verb",
+          "infinitive": "beginnen",
+          "group": 2,
+          "emoji": "🏁",
+          "distractors": [
+            "beginen",
+            "begint",
+            "beginn"
+          ],
+          "missingLetterPattern": "b_g_nn_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich beginne jetzt mit der Aufgabe."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du beginnst jetzt mit dem Spiel."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er beginnt um 8 Uhr mit dem Unterricht."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir beginnen jetzt gemeinsam mit der Aufgabe."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr beginnt sofort mit dem Training."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie beginnt jetzt mit ihren Hausaufgaben."
+            }
+          ],
+          "exampleSentence": "Wir beginnen jetzt gemeinsam mit der Aufgabe."
+        },
+        {
+          "id": "w1_bissig",
+          "word": "bissig",
+          "cleanWord": "bissig",
+          "wortart": "Adjektiv",
+          "group": 2,
+          "emoji": "🐕",
+          "distractors": [
+            "bisig",
+            "bisich",
+            "bissich"
+          ],
+          "missingLetterPattern": "b_ss_g",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich gehe vorsichtig an dem Hund vorbei."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du weißt, dass dieser Hund nicht bissig ist."
+            },
+            {
+              "pronoun": "er",
+              "text": "Der kleine Hund ist gar nicht bissig."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir streicheln den Hund lieber nicht, falls er bissig ist."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr fragt zuerst, ob der Hund bissig ist."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie passt auf, denn der Nachbarshund war einmal bissig."
+            }
+          ],
+          "exampleSentence": "Der kleine Hund ist gar nicht bissig."
+        }
+      ],
+      "bildgeschichteTitle": "Bild-Geschichte – Eine spannende Woche",
+      "scenes": [
+        {
+          "id": 1,
+          "title": "Szene 1: Am Morgen",
+          "emoji": "🛏️",
+          "description": "Der Junge wacht fröhlich auf und steht in seinem Zimmer auf.",
+          "suggestedWords": [
+            "Zimmer",
+            "Bett",
+            "aufstehen"
+          ],
+          "starterIdeas": [
+            "Zuerst …",
+            "Am Morgen …",
+            "In seinem Zimmer …",
+            "Der Junge …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_wall%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fffbeb%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2260%25%22%20stop-color%3D%22%23fef3c7%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fde68a%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_floor%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23b45309%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_sunbeam%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef08a%22%20stop-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fde047%22%20stop-opacity%3D%220%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_bedwood%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23d97706%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2392400e%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_quilt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2360a5fa%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%233b82f6%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231d4ed8%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s1_sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2393c5fd%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fed7aa%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s1_soft_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%225%22%20stdDeviation%3D%225%22%20flood-color%3D%22%2378350f%22%20flood-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Background%20Wall%20%26%20Baseboard%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22340%22%20fill%3D%22url(%23s1_wall)%22%2F%3E%0A%20%20%3Crect%20y%3D%22334%22%20width%3D%22600%22%20height%3D%2212%22%20fill%3D%22%2392400e%22%2F%3E%0A%20%20%3C!--%20Hardwood%20Floor%20with%20planks%20--%3E%0A%20%20%3Crect%20y%3D%22346%22%20width%3D%22600%22%20height%3D%22104%22%20fill%3D%22url(%23s1_floor)%22%2F%3E%0A%20%20%3Cline%20x1%3D%22120%22%20y1%3D%22346%22%20x2%3D%2280%22%20y2%3D%22450%22%20stroke%3D%22%2392400e%22%20stroke-width%3D%221.5%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%3Cline%20x1%3D%22280%22%20y1%3D%22346%22%20x2%3D%22250%22%20y2%3D%22450%22%20stroke%3D%22%2392400e%22%20stroke-width%3D%221.5%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%3Cline%20x1%3D%22440%22%20y1%3D%22346%22%20x2%3D%22420%22%20y2%3D%22450%22%20stroke%3D%22%2392400e%22%20stroke-width%3D%221.5%22%20opacity%3D%220.6%22%2F%3E%0A%0A%20%20%3C!--%20Morning%20Window%20with%20Sunlight%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(40%2C%2030)%22%20filter%3D%22url(%23s1_soft_shadow)%22%3E%0A%20%20%20%20%3C!--%20Outside%20Sky%20%26%20Morning%20Warmth%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%22140%22%20height%3D%22180%22%20rx%3D%2212%22%20fill%3D%22url(%23s1_sky)%22%2F%3E%0A%20%20%20%20%3C!--%20Rising%20Sun%20%26%20Cloud%20--%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22110%22%20cy%3D%2250%22%20r%3D%2232%22%20fill%3D%22%23fde047%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2260%22%20cy%3D%2280%22%20rx%3D%2235%22%20ry%3D%2214%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2280%22%20cy%3D%2274%22%20rx%3D%2222%22%20ry%3D%2216%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.85%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20120%20160%20Q%20135%20150%20150%20160%22%20stroke%3D%22%2322c55e%22%20stroke-width%3D%2216%22%20fill%3D%22none%22%20opacity%3D%220.5%22%2F%3E%0A%20%20%20%20%3C!--%20White%20Window%20Frame%20--%3E%0A%20%20%20%20%3Crect%20width%3D%22160%22%20height%3D%22200%22%20rx%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%2212%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%2280%22%20y1%3D%226%22%20x2%3D%2280%22%20y2%3D%22194%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%226%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%226%22%20y1%3D%22100%22%20x2%3D%22154%22%20y2%3D%22100%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%226%22%2F%3E%0A%20%20%20%20%3C!--%20Window%20Sill%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22-10%22%20y%3D%22194%22%20width%3D%22180%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3C!--%20Soft%20Curtain%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%206%206%20Q%2030%2090%2010%20190%20Q%20-2%2090%206%206%20Z%22%20fill%3D%22%23fef08a%22%20opacity%3D%220.75%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20154%206%20Q%20130%2090%20150%20190%20Q%20162%2090%20154%206%20Z%22%20fill%3D%22%23fef08a%22%20opacity%3D%220.75%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Golden%20Sunbeam%20streaming%20across%20the%20room%20--%3E%0A%20%20%3Cpolygon%20points%3D%22120%2C60%20210%2C60%20520%2C380%20340%2C430%22%20fill%3D%22url(%23s1_sunbeam)%22%2F%3E%0A%0A%20%20%3C!--%20Small%20Nightstand%20with%20Alarm%20Clock%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(170%2C%20240)%22%20filter%3D%22url(%23s1_soft_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%2270%22%20height%3D%22100%22%20rx%3D%226%22%20fill%3D%22%23fcd34d%22%20stroke%3D%22%23d97706%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%226%22%20y%3D%228%22%20width%3D%2258%22%20height%3D%2238%22%20rx%3D%224%22%20fill%3D%22%23fef3c7%22%20stroke%3D%22%23b45309%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2235%22%20cy%3D%2227%22%20r%3D%224%22%20fill%3D%22%23b45309%22%2F%3E%0A%20%20%20%20%3C!--%20Clock%20--%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2235%22%20cy%3D%22-14%22%20r%3D%2216%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%223.5%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2235%22%20cy%3D%22-14%22%20r%3D%222.5%22%20fill%3D%22%231e293b%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%2235%22%20y1%3D%22-14%22%20x2%3D%2235%22%20y2%3D%22-23%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%2235%22%20y1%3D%22-14%22%20x2%3D%2242%22%20y2%3D%22-14%22%20stroke%3D%22%23ef4444%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%22-28%22%20r%3D%225%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2247%22%20cy%3D%22-28%22%20r%3D%225%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Big%20Cozy%20Bed%20with%20Headboard%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(230%2C%20150)%22%20filter%3D%22url(%23s1_soft_shadow)%22%3E%0A%20%20%20%20%3C!--%20Wooden%20Headboard%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2210%22%20y%3D%2230%22%20width%3D%22310%22%20height%3D%22140%22%20rx%3D%2214%22%20fill%3D%22url(%23s1_bedwood)%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2225%22%20y%3D%2245%22%20width%3D%22280%22%20height%3D%22110%22%20rx%3D%228%22%20fill%3D%22%23b45309%22%20opacity%3D%220.5%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Fluffy%20White%20Pillows%20with%20Shading%20--%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22110%22%20cy%3D%22140%22%20rx%3D%2255%22%20ry%3D%2224%22%20fill%3D%22%23e2e8f0%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22110%22%20cy%3D%22136%22%20rx%3D%2252%22%20ry%3D%2222%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22220%22%20cy%3D%22140%22%20rx%3D%2255%22%20ry%3D%2224%22%20fill%3D%22%23e2e8f0%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22220%22%20cy%3D%22136%22%20rx%3D%2252%22%20ry%3D%2222%22%20fill%3D%22%23ffffff%22%2F%3E%0A%0A%20%20%20%20%3C!--%20THE%20BOY%3A%20JEDIDIAH%20(WAKING%20UP%20HAPPY%20%26%20STRETCHING)%20--%3E%0A%20%20%20%20%3C!--%20Torso%20in%20Blue%20Striped%20Pajamas%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(110%2C%2050)%22%3E%0A%20%20%20%20%20%20%3C!--%20Left%20Stretching%20Arm%20(raised%20high%20%26%20wide)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2025%2070%20Q%20-25%2020%20-40%20-15%22%20stroke%3D%22%2393c5fd%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Left%20Hand%20Open%20in%20Stretch%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-42%22%20cy%3D%22-18%22%20r%3D%2213%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-48%20-22%20Q%20-54%20-30%20-48%20-34%20Q%20-42%20-30%20-40%20-20%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-40%20-24%20Q%20-38%20-36%20-32%20-34%20Q%20-32%20-26%20-35%20-18%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Right%20Stretching%20Arm%20(raised%20high%20%26%20wide)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2095%2070%20Q%20145%2020%20160%20-15%22%20stroke%3D%22%2393c5fd%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Right%20Hand%20Open%20in%20Stretch%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22162%22%20cy%3D%22-18%22%20r%3D%2213%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20168%20-22%20Q%20174%20-30%20168%20-34%20Q%20162%20-30%20160%20-20%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20160%20-24%20Q%20158%20-36%20152%20-34%20Q%20152%20-26%20155%20-18%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Pajama%20Body%20with%20Stripes%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2025%2065%20L%2095%2065%20L%20105%20135%20L%2015%20135%20Z%22%20fill%3D%22%2360a5fa%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Vertical%20white%20pajama%20stripes%20--%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2238%22%20y1%3D%2265%22%20x2%3D%2233%22%20y2%3D%22135%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%224%22%20opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2260%22%20y1%3D%2265%22%20x2%3D%2260%22%20y2%3D%22135%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%224%22%20opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2282%22%20y1%3D%2265%22%20x2%3D%2287%22%20y2%3D%22135%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%224%22%20opacity%3D%220.7%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Collar%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2045%2065%20Q%2060%2078%2075%2065%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Neck%20--%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2250%22%20y%3D%2244%22%20width%3D%2220%22%20height%3D%2224%22%20fill%3D%22url(%23s1_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20HEAD%20%26%20EXPRESSIVE%20WAKING%20UP%20FACE%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(60%2C%2020)%22%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Head%20Contour%20--%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Soft%20Ears%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%229%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%229%22%20fill%3D%22url(%23s1_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20Tousled%20Brown%20Hair%20with%20Volume%20%26%20Strands%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-42%20-40%2C%20-10%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2035%20-18%2C%2020%20-28%2C%205%20-26%20C%20-12%20-25%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-25%20-28%20Q%20-8%20-45%2010%20-40%20Q%2028%20-35%2025%20-22%20Q%2010%20-30%20-10%20-28%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Forehead%20bangs%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-28%20-15%20Q%20-15%20-28%200%20-18%20Q%2015%20-30%2028%20-16%20Q%2010%20-22%20-5%20-16%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20Cheerful%20Arched%20Eyebrows%20(happy%20morning%20expression)%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-12%20Q%20-14%20-18%20-6%20-12%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-12%20Q%2014%20-18%2022%20-12%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20Happy%20Crinkled%20Morning%20Eyes%20(expressive%20semi-realistic%20curved%20eyelids%20with%20lashes)%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-4%20Q%20-14%20-12%20-6%20-4%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-4%20Q%2014%20-12%2022%20-4%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Soft%20eyelashes%20--%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22-22%22%20y1%3D%22-4%22%20x2%3D%22-26%22%20y2%3D%22-7%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%2222%22%20y1%3D%22-4%22%20x2%3D%2226%22%20y2%3D%22-7%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%222%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20Cute%20Nose%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%204%20Q%200%208%204%206%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20Rosy%20Cheeks%20--%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%228%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%228%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20Big%20Bright%20Smile%20(Yawning%20%2F%20Cheerful%20Stretch)%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-14%2014%20Q%200%2028%2014%2014%20Z%22%20fill%3D%22%23b91c1c%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-12%2015%20Q%200%2020%2012%2015%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%2022%20Q%200%2026%206%2022%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Warm%20Blue%20Quilt%20%2F%20Blanket%20Folded%20over%20legs%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2010%20135%20Q%20160%20115%20310%20135%20L%20310%20210%20Q%20160%20225%2010%20210%20Z%22%20fill%3D%22url(%23s1_quilt)%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2010%20135%20Q%20160%20120%20310%20135%20L%20310%20155%20Q%20160%20140%2010%20155%20Z%22%20fill%3D%22%2393c5fd%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%3C!--%20Quilt%20stitching%20details%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2040%20160%20Q%20160%20145%20280%20160%22%20stroke%3D%22%231e40af%22%20stroke-width%3D%222%22%20stroke-dasharray%3D%226%2C6%22%20fill%3D%22none%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2040%20185%20Q%20160%20170%20280%20185%22%20stroke%3D%22%231e40af%22%20stroke-width%3D%222%22%20stroke-dasharray%3D%226%2C6%22%20fill%3D%22none%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 2,
+          "title": "Szene 2: Am See",
+          "emoji": "🏊‍♂️",
+          "description": "Der Junge schwimmt mit Taucherbrille im See unter der warmen Sonne.",
+          "suggestedWords": [
+            "schwimmen",
+            "See",
+            "Wasser",
+            "Sonne"
+          ],
+          "starterIdeas": [
+            "Dann …",
+            "Im Wasser …",
+            "Am See …",
+            "Er …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s2_sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2270%25%22%20stop-color%3D%22%23bae6fd%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e0f2fe%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s2_water_deep%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230284c7%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%230369a1%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23075985%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s2_water_surface%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%220%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%20stop-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%237dd3fc%22%20stop-opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2338bdf8%22%20stop-opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s2_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s2_hills%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2386efac%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s2_drop%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%221%22%20dy%3D%223%22%20stdDeviation%3D%223%22%20flood-color%3D%22%23075985%22%20flood-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Sky%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22230%22%20fill%3D%22url(%23s2_sky)%22%2F%3E%0A%0A%20%20%3C!--%20Bright%20Golden%20Summer%20Sun%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(500%2C%2050)%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2245%22%20fill%3D%22%23fef08a%22%20opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2232%22%20fill%3D%22%23fde047%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2226%22%20fill%3D%22%23fbbf24%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Gentle%20Clouds%20--%3E%0A%20%20%3Cg%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22%20filter%3D%22url(%23s2_drop)%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22140%22%20cy%3D%2265%22%20rx%3D%2255%22%20ry%3D%2218%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22170%22%20cy%3D%2255%22%20rx%3D%2235%22%20ry%3D%2224%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22115%22%20cy%3D%2262%22%20rx%3D%2230%22%20ry%3D%2216%22%2F%3E%0A%0A%20%20%20%20%3Cellipse%20cx%3D%22360%22%20cy%3D%2280%22%20rx%3D%2245%22%20ry%3D%2215%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22385%22%20cy%3D%2272%22%20rx%3D%2228%22%20ry%3D%2218%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Distant%20Blue%20Green%20Hills%20--%3E%0A%20%20%3Cpath%20d%3D%22M%200%20190%20Q%2090%20140%20210%20175%20Q%20350%20130%20480%20180%20Q%20550%20160%20600%20175%20L%20600%20230%20L%200%20230%20Z%22%20fill%3D%22%236ee7b7%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M%200%20205%20Q%20120%20160%20260%20195%20Q%20400%20165%20600%20195%20L%20600%20240%20L%200%20240%20Z%22%20fill%3D%22url(%23s2_hills)%22%2F%3E%0A%0A%20%20%3C!--%20Shoreline%20with%20lush%20pine%20trees%20%26%20reeds%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(0%2C%20185)%22%3E%0A%20%20%20%20%3C!--%20Little%20wooden%20jetty%20%2F%20dock%20on%20left%20shore%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2220%22%20y%3D%2225%22%20width%3D%2290%22%20height%3D%2210%22%20rx%3D%222%22%20fill%3D%22%2392400e%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2235%22%20y%3D%2235%22%20width%3D%228%22%20height%3D%2225%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2285%22%20y%3D%2235%22%20width%3D%228%22%20height%3D%2225%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%3C!--%20Pine%20trees%20on%20right%20bank%20--%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22530%2C30%20520%2C5%20540%2C5%22%20fill%3D%22%2314532d%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22530%2C18%20515%2C-5%20545%2C-5%22%20fill%3D%22%23166534%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22560%2C35%20548%2C10%20572%2C10%22%20fill%3D%22%2314532d%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22560%2C22%20542%2C-2%20578%2C-2%22%20fill%3D%22%23166534%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Deep%20Blue%20Lake%20Water%20--%3E%0A%20%20%3Crect%20y%3D%22225%22%20width%3D%22600%22%20height%3D%22225%22%20fill%3D%22url(%23s2_water_deep)%22%2F%3E%0A%0A%20%20%3C!--%20Sun%20Sparkles%20on%20Water%20Surface%20--%3E%0A%20%20%3Cg%20fill%3D%22%23ffffff%22%20opacity%3D%220.7%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22180%22%20cy%3D%22245%22%20rx%3D%2235%22%20ry%3D%224%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22340%22%20cy%3D%22240%22%20rx%3D%2250%22%20ry%3D%225%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22480%22%20cy%3D%22250%22%20rx%3D%2240%22%20ry%3D%224%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22265%22%20rx%3D%2225%22%20ry%3D%223%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22260%22%20cy%3D%22275%22%20rx%3D%2260%22%20ry%3D%225%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22450%22%20cy%3D%22280%22%20rx%3D%2245%22%20ry%3D%224%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Water%20ripples%20and%20lily%20pad%20on%20right%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(460%2C%20360)%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2240%22%20ry%3D%2214%22%20fill%3D%22%2316a34a%22%20stroke%3D%22%2315803d%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%200%200%20L%2025%20-10%22%20stroke%3D%22%23047857%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3C!--%20Little%20Water%20Lily%20Flower%20--%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2210%22%20cy%3D%22-6%22%20r%3D%228%22%20fill%3D%22%23fda4af%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2210%22%20cy%3D%22-6%22%20r%3D%224%22%20fill%3D%22%23fef08a%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20SWIMMING%20ACTIVELY%20IN%20THE%20LAKE%20(CLEAR%20HUMAN%20CHARACTER)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(260%2C%20220)%22%3E%0A%20%20%20%20%3C!--%20Right%20Arm%20Pulling%20Through%20Water%20(Behind)%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20-60%2040%20Q%20-100%2020%20-115%20-10%20Q%20-95%20-25%20-70%2020%22%20fill%3D%22url(%23s2_skin)%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%3C!--%20Water%20Splashes%20around%20left%20stroke%20--%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22-100%22%20cy%3D%2230%22%20rx%3D%2224%22%20ry%3D%2210%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.8%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Boy's%20Shoulders%20%26%20Upper%20Back%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20-45%2050%20C%20-40%2020%2C%2040%2020%2C%2065%2050%20C%2040%2065%2C%20-20%2065%2C%20-45%2050%20Z%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Left%20Arm%20Crawl%20Stroke%20(High%20out%20of%20water%2C%20reaching%20forward!)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(40%2C%2020)%22%3E%0A%20%20%20%20%20%20%3C!--%20Upper%20arm%20lifting%20out%20of%20water%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2020%20Q%2040%20-15%2070%20-35%20Q%2090%20-25%2080%200%20Q%2055%2015%2020%2035%20Z%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Forearm%20%26%20hand%20angled%20forward%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2070%20-35%20Q%20100%20-50%20125%20-40%20Q%20115%20-20%2080%200%20Z%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Fingers%20slicing%20air%2Fwater%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20125%20-40%20Q%20140%20-35%20135%20-25%20Q%20120%20-20%20115%20-25%20Z%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Water%20droplets%20falling%20from%20raised%20arm%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2275%22%20cy%3D%22-8%22%20r%3D%223.5%22%20fill%3D%22%23e0f2fe%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2295%22%20cy%3D%22-15%22%20r%3D%224%22%20fill%3D%22%23e0f2fe%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22110%22%20cy%3D%22-5%22%20r%3D%223%22%20fill%3D%22%23e0f2fe%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20NECK%20%26%20HEAD%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22-10%22%20y%3D%2210%22%20width%3D%2222%22%20height%3D%2225%22%20fill%3D%22url(%23s2_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Head%20with%20Happy%20Facial%20Expression%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(0%2C%20-10)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s2_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Wet%20Tousled%20Dark%20Brown%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20BLUE%20SWIM%20GOGGLES%20(Pushed%20up%20on%20forehead%20%2F%20hair%20-%20easily%20recognizable%20swimmer%20gear!)%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(0%2C%20-22)%22%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Goggle%20strap%20around%20head%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-34%206%20Q%200%200%2034%206%22%20stroke%3D%22%230284c7%22%20stroke-width%3D%224.5%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Left%20Lens%20Frame%20--%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%22-24%22%20y%3D%22-8%22%20width%3D%2220%22%20height%3D%2215%22%20rx%3D%226%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%230369a1%22%20stroke-width%3D%223%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22-19%22%20y1%3D%22-5%22%20x2%3D%22-10%22%20y2%3D%224%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Right%20Lens%20Frame%20--%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%224%22%20y%3D%22-8%22%20width%3D%2220%22%20height%3D%2215%22%20rx%3D%226%22%20fill%3D%22%2338bdf8%22%20stroke%3D%22%230369a1%22%20stroke-width%3D%223%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%229%22%20y1%3D%22-5%22%20x2%3D%2218%22%20y2%3D%224%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Bridge%20--%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%22-4%22%20y%3D%22-3%22%20width%3D%228%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%230369a1%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Joyful%20Eyebrows%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-6%20Q%20-14%20-13%20-6%20-7%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-7%20Q%2014%20-13%2022%20-6%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Big%20Bright%20Eyes%20(Looking%20happily%20at%20viewer%2Fwater)%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%200)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%221%22%20cy%3D%220%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%221%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222.5%22%20cy%3D%22-1.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%200)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-1%22%20cy%3D%220%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-1%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220.5%22%20cy%3D%22-1.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Cute%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%207%20Q%200%2011%204%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Cheeks%20flushed%20from%20swimming%20fun%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Big%20Excited%20Open%20Smile%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-15%2016%20Q%200%2032%2015%2016%20Z%22%20fill%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-13%2017%20Q%200%2022%2013%2017%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223.5%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-7%2025%20Q%200%2029%207%2025%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Water%20Splash%20%26%20Bow%20Wave%20cutting%20in%20front%20of%20swimmer's%20chest%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20-140%2055%20Q%20-60%2040%200%2052%20Q%2060%2040%20160%2055%20L%20140%2085%20Q%200%2065%20-120%2085%20Z%22%20fill%3D%22url(%23s2_water_surface)%22%2F%3E%0A%20%20%20%20%3C!--%20Foamy%20white%20splash%20crests%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20-80%2050%20Q%20-50%2035%20-20%2050%20Q%2010%2038%2040%2048%20Q%2070%2035%20100%2052%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%224.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-45%22%20cy%3D%2242%22%20r%3D%224%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-15%22%20cy%3D%2238%22%20r%3D%223.5%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2225%22%20cy%3D%2236%22%20r%3D%224.5%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2255%22%20cy%3D%2240%22%20r%3D%223%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.9%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 3,
+          "title": "Szene 3: In der Küche",
+          "emoji": "🔪",
+          "description": "Auf dem Holzbrett liegt ein roter Apfel und ein scharfes Messer.",
+          "suggestedWords": [
+            "Messer",
+            "dünn",
+            "Apfel",
+            "schneiden"
+          ],
+          "starterIdeas": [
+            "Danach …",
+            "Auf dem Küchentisch …",
+            "In der Hand …",
+            "Vorsichtig …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s3_wall%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23f8fafc%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e2e8f0%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s3_counter%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23d97706%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2225%25%22%20stop-color%3D%22%23b45309%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s3_board%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fed7aa%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23fdba74%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fb923c%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s3_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s3_shirt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s3_apple%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2240%25%22%20stop-color%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s3_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%224%22%20stdDeviation%3D%224%22%20flood-color%3D%22%230f172a%22%20flood-opacity%3D%220.15%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Kitchen%20Wall%20with%20subtle%20tile%20grid%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22260%22%20fill%3D%22url(%23s3_wall)%22%2F%3E%0A%20%20%3Cg%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%221.5%22%20opacity%3D%220.6%22%3E%0A%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%2265%22%20x2%3D%22600%22%20y2%3D%2265%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22130%22%20x2%3D%22600%22%20y2%3D%22130%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22195%22%20x2%3D%22600%22%20y2%3D%22195%22%2F%3E%0A%20%20%20%20%3C!--%20Vertical%20tile%20seams%20--%3E%0A%20%20%20%20%3Cline%20x1%3D%2280%22%20y1%3D%220%22%20x2%3D%2280%22%20y2%3D%2265%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22160%22%20y1%3D%2265%22%20x2%3D%22160%22%20y2%3D%22130%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22240%22%20y1%3D%220%22%20x2%3D%22240%22%20y2%3D%2265%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22320%22%20y1%3D%2265%22%20x2%3D%22320%22%20y2%3D%22130%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22400%22%20y1%3D%220%22%20x2%3D%22400%22%20y2%3D%2265%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22480%22%20y1%3D%2265%22%20x2%3D%22480%22%20y2%3D%22130%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22560%22%20y1%3D%220%22%20x2%3D%22560%22%20y2%3D%2265%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Kitchen%20Shelf%20on%20Wall%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(60%2C%2045)%22%20filter%3D%22url(%23s3_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%22180%22%20height%3D%2212%22%20rx%3D%223%22%20fill%3D%22%2392400e%22%2F%3E%0A%20%20%20%20%3C!--%20Glass%20Spice%20Jars%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2225%22%20y%3D%22-22%22%20width%3D%2222%22%20height%3D%2222%22%20rx%3D%224%22%20fill%3D%22%23e0f2fe%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2227%22%20y%3D%22-28%22%20width%3D%2218%22%20height%3D%226%22%20rx%3D%222%22%20fill%3D%22%23d97706%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2265%22%20y%3D%22-26%22%20width%3D%2224%22%20height%3D%2226%22%20rx%3D%224%22%20fill%3D%22%23fef08a%22%20stroke%3D%22%23ca8a04%22%20stroke-width%3D%221.5%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2268%22%20y%3D%22-32%22%20width%3D%2218%22%20height%3D%226%22%20rx%3D%222%22%20fill%3D%22%23d97706%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22110%22%20y%3D%22-20%22%20width%3D%2226%22%20height%3D%2220%22%20rx%3D%224%22%20fill%3D%22%23fbcfe8%22%20stroke%3D%22%23db2777%22%20stroke-width%3D%221.5%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%22114%22%20y%3D%22-26%22%20width%3D%2218%22%20height%3D%226%22%20rx%3D%222%22%20fill%3D%22%23d97706%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Wooden%20Kitchen%20Counter%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(0%2C%20240)%22%20filter%3D%22url(%23s3_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%22600%22%20height%3D%2230%22%20fill%3D%22%23f59e0b%22%2F%3E%0A%20%20%20%20%3Crect%20y%3D%2225%22%20width%3D%22600%22%20height%3D%22185%22%20fill%3D%22url(%23s3_counter)%22%2F%3E%0A%20%20%20%20%3C!--%20Cabinet%20seams%20--%3E%0A%20%20%20%20%3Cline%20x1%3D%22200%22%20y1%3D%2240%22%20x2%3D%22200%22%20y2%3D%22210%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%222.5%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22400%22%20y1%3D%2240%22%20x2%3D%22400%22%20y2%3D%22210%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%222.5%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22185%22%20cy%3D%22110%22%20r%3D%225%22%20fill%3D%22%23fef3c7%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22215%22%20cy%3D%22110%22%20r%3D%225%22%20fill%3D%22%23fef3c7%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Large%20Wooden%20Chopping%20Board%20in%20Center%20Foreground%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(190%2C%20245)%22%20filter%3D%22url(%23s3_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%22230%22%20height%3D%22130%22%20rx%3D%2216%22%20fill%3D%22url(%23s3_board)%22%20stroke%3D%22%23b45309%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2212%22%20y%3D%2210%22%20width%3D%22206%22%20height%3D%22110%22%20rx%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23fed7aa%22%20stroke-width%3D%222%22%20opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%3C!--%20Little%20handle%20hole%20--%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2228%22%20cy%3D%2265%22%20r%3D%2210%22%20fill%3D%22%23f59e0b%22%20stroke%3D%22%23b45309%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20STANDING%20AT%20COUNTER%20SLICING%20THE%20APPLE%20(CLEAR%20ACTION%20%26%20EMOTION)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(220%2C%2075)%22%3E%0A%20%20%20%20%3C!--%20Boy's%20Torso%20in%20Signature%20Green%20T-Shirt%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2025%20125%20L%20145%20125%20L%20155%20200%20L%2015%20200%20Z%22%20fill%3D%22url(%23s3_shirt)%22%2F%3E%0A%20%20%20%20%3C!--%20White%20Inner%20Collar%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2065%20125%20Q%2085%20142%20105%20125%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%226%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Left%20Arm%20%26%20Hand%20Holding%20Apple%20Steadily%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(30%2C%20130)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%20-15%2050%2015%2075%22%20stroke%3D%22url(%23s3_shirt)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Forearm%20extending%20down%20to%20board%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2012%2070%20Q%2030%20100%2055%20105%22%20stroke%3D%22url(%23s3_skin)%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Hand%20gently%20bracing%20the%20apple%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(60%2C%20110)%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2213%22%20fill%3D%22url(%23s3_skin)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Curved%20fingers%20holding%20top%20of%20apple%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-8%20-4%20Q%200%208%2010%2012%22%20stroke%3D%22url(%23s3_skin)%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%20-8%20Q%206%204%2016%208%22%20stroke%3D%22url(%23s3_skin)%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Right%20Arm%20%26%20Hand%20Holding%20Kitchen%20Knife%20Carefully%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(135%2C%20130)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%2020%2045%20-5%2075%22%20stroke%3D%22url(%23s3_shirt)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Forearm%20reaching%20towards%20apple%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-5%2070%20Q%20-25%2095%20-50%20100%22%20stroke%3D%22url(%23s3_skin)%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Hand%20gripping%20knife%20handle%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-55%2C%20102)%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2213%22%20fill%3D%22url(%23s3_skin)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%20-6%20Q%200%206%208%208%22%20stroke%3D%22url(%23s3_skin)%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%20%20%3C!--%20THE%20KITCHEN%20KNIFE%20(Silver%20blade%20slicing%20down%20into%20apple)%20--%3E%0A%20%20%20%20%20%20%20%20%3Cg%20transform%3D%22rotate(-15)%22%3E%0A%20%20%20%20%20%20%20%20%20%20%3C!--%20Wooden%2FBlack%20Handle%20--%3E%0A%20%20%20%20%20%20%20%20%20%20%3Crect%20x%3D%22-18%22%20y%3D%22-7%22%20width%3D%2224%22%20height%3D%2214%22%20rx%3D%224%22%20fill%3D%22%23334155%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-10%22%20cy%3D%220%22%20r%3D%222%22%20fill%3D%22%23cbd5e1%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3C!--%20Shiny%20Steel%20Blade%20--%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-6%20L%2075%20-6%20Q%2085%200%2075%208%20L%206%208%20Z%22%20fill%3D%22%23e2e8f0%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%2212%22%20y1%3D%22-3%22%20x2%3D%2270%22%20y2%3D%22-3%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20NECK%20%26%20HEAD%20LEANING%20FORWARD%20ATTENTIVELY%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2275%22%20y%3D%22105%22%20width%3D%2222%22%20height%3D%2226%22%20fill%3D%22url(%23s3_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3Cg%20transform%3D%22translate(85%2C%2075)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s3_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s3_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s3_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Tousled%20Dark%20Brown%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-28%20-15%20Q%20-15%20-28%200%20-18%20Q%2015%20-30%2028%20-16%20Q%2010%20-22%20-5%20-16%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Attentive%2C%20Concentrating%20Eyebrows%20(slanted%20slightly%20down%20in%20careful%20focus)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-6%20Q%20-14%20-10%20-6%20-8%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-8%20Q%2014%20-10%2022%20-6%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Expressive%20Eyes%20Looking%20Down%20at%20the%20Cutting%20Board%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%200)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Pupil%20focused%20downward%20towards%20hands%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%222%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%222.5%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%221.5%22%20cy%3D%220.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%200)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Pupil%20focused%20downward%20towards%20hands%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%222%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%222.5%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%221.5%22%20cy%3D%220.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%207%20Q%200%2011%204%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Soft%20Pink%20Cheeks%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2212%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2212%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Gentle%20Focused%20Smile%20(Proud%20of%20cutting%20safely)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-10%2018%20Q%200%2026%2010%2018%22%20stroke%3D%22%23991b1b%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20THE%20RED%20APPLE%20%26%20SLICES%20ON%20THE%20CHOPPING%20BOARD%20(PROMINENT%20LEARNING%20OBJECT)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(290%2C%20290)%22%20filter%3D%22url(%23s3_shadow)%22%3E%0A%20%20%20%20%3C!--%20Red%20Apple%20Half%20Being%20Sliced%20--%3E%0A%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2222%22%20ry%3D%2220%22%20fill%3D%22url(%23s3_apple)%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20-2%20-20%20Q%202%20-26%206%20-24%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C!--%20Little%20green%20leaf%20on%20stem%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%200%20-22%20Q%2010%20-26%2014%20-20%20Q%206%20-18%200%20-22%20Z%22%20fill%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%3C!--%20Pale%20yellow%20juicy%20apple%20flesh%20inside%20slice%20--%3E%0A%20%20%20%20%3Cellipse%20cx%3D%226%22%20cy%3D%222%22%20rx%3D%2214%22%20ry%3D%2216%22%20fill%3D%22%23fef9c3%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%226%22%20cy%3D%222%22%20r%3D%222.5%22%20fill%3D%22%2378350f%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Cut%20Apple%20Wedge%201%20Beside%20It%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(45%2C%20-5)%20rotate(25)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-8%20-16%20Q%2016%200%20-8%2016%20Q%20-4%200%20-8%20-16%20Z%22%20fill%3D%22url(%23s3_apple)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%20-13%20Q%2012%200%20-6%2013%20Q%20-2%200%20-6%20-13%20Z%22%20fill%3D%22%23fef9c3%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Cut%20Apple%20Wedge%202%20Beside%20It%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(65%2C%2015)%20rotate(45)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-8%20-16%20Q%2016%200%20-8%2016%20Q%20-4%200%20-8%20-16%20Z%22%20fill%3D%22url(%23s3_apple)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%20-13%20Q%2012%200%20-6%2013%20Q%20-2%200%20-6%20-13%20Z%22%20fill%3D%22%23fef9c3%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 4,
+          "title": "Szene 4: Liebe Grüße",
+          "emoji": "❤️",
+          "description": "Der Junge gibt seiner lieben Mutter einen herzlichen Kuss auf die Wange.",
+          "suggestedWords": [
+            "Kuss",
+            "Mutter",
+            "lieb",
+            "freuen"
+          ],
+          "starterIdeas": [
+            "Plötzlich …",
+            "Vor der Tür …",
+            "Zum Abschied …",
+            "Mit einem Lächeln …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s4_wall%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fdf4ff%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fae8ff%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s4_door%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%220%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e2e8f0%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23f8fafc%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23cbd5e1%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s4_mom_sweater%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23c084fc%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%239333ea%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s4_boy_shirt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s4_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s4_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%224%22%20stdDeviation%3D%224%22%20flood-color%3D%22%23581c87%22%20flood-opacity%3D%220.15%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Warm%20Hallway%20Background%20Wall%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22360%22%20fill%3D%22url(%23s4_wall)%22%2F%3E%0A%20%20%3Crect%20y%3D%22350%22%20width%3D%22600%22%20height%3D%22100%22%20fill%3D%22%23a16207%22%2F%3E%0A%20%20%3Crect%20y%3D%22342%22%20width%3D%22600%22%20height%3D%2212%22%20fill%3D%22%2378350f%22%2F%3E%0A%0A%20%20%3C!--%20Hallway%20Door%20on%20Left%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(40%2C%2040)%22%20filter%3D%22url(%23s4_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%22130%22%20height%3D%22310%22%20rx%3D%226%22%20fill%3D%22url(%23s4_door)%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%224%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2215%22%20y%3D%2220%22%20width%3D%22100%22%20height%3D%22110%22%20rx%3D%224%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2215%22%20y%3D%22150%22%20width%3D%22100%22%20height%3D%22135%22%20rx%3D%224%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3C!--%20Brass%20Doorknob%20--%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22115%22%20cy%3D%22165%22%20r%3D%228%22%20fill%3D%22%23eab308%22%20stroke%3D%22%23ca8a04%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Warm%20Little%20Heart%20Motif%20in%20Sunlight%20between%20them%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(305%2C%20120)%22%20opacity%3D%220.85%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%200%20-5%20C%20-10%20-25%2C%20-35%20-10%2C%200%2018%20C%2035%20-10%2C%2010%20-25%2C%200%20-5%20Z%22%20fill%3D%22%23ec4899%22%20filter%3D%22url(%23s4_shadow)%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22-5%22%20cy%3D%22-8%22%20r%3D%223%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20MOTHER%3A%20KIND%2C%20LOVING%20EXPRESSION%20%26%20POSTURE%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(350%2C%2090)%22%20filter%3D%22url(%23s4_shadow)%22%3E%0A%20%20%20%20%3C!--%20Mother's%20Body%20in%20Cozy%20Lavender%20Knit%20Sweater%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2010%20110%20Q%2030%2075%2070%2080%20Q%20110%2075%20130%20110%20L%20140%20260%20L%200%20260%20Z%22%20fill%3D%22url(%23s4_mom_sweater)%22%2F%3E%0A%20%20%20%20%3C!--%20Gentle%20neckline%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2050%2080%20Q%2070%2095%2090%2080%22%20stroke%3D%22%23f3e8ff%22%20stroke-width%3D%225%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Mother's%20Left%20Arm%20Gently%20Resting%20on%20Boy's%20Shoulder%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2030%2095%20Q%20-10%20130%20-40%20160%20Q%20-70%20170%20-95%20180%22%20stroke%3D%22url(%23s4_mom_sweater)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C!--%20Mother's%20Hand%20Gently%20on%20Boy's%20Back%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(-105%2C%20185)%22%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2214%22%20fill%3D%22url(%23s4_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%20-8%20Q%204%200%2010%206%22%20stroke%3D%22url(%23s4_skin)%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Mother's%20Neck%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2258%22%20y%3D%2255%22%20width%3D%2224%22%20height%3D%2230%22%20fill%3D%22url(%23s4_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20MOTHER'S%20HEAD%20%26%20GENTLE%20AFFECTIONATE%20FACE%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(70%2C%2025)%22%3E%0A%20%20%20%20%20%20%3C!--%20Head%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2236%22%20ry%3D%2242%22%20fill%3D%22url(%23s4_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2236%22%20cy%3D%224%22%20r%3D%228%22%20fill%3D%22url(%23s4_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Mother's%20Soft%20Auburn%20Hair%20in%20Low%20Wavy%20Ponytail%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-38%20-15%20C%20-44%20-45%2C%20-10%20-60%2C%2010%20-55%20C%2034%20-50%2C%2046%20-35%2C%2042%20-5%20C%2038%2015%2C%2030%2035%2C%2020%2045%20C%2035%2060%2C%2045%2090%2C%2040%20110%20C%2030%20115%2C%2015%20105%2C%2015%2090%20C%2015%2070%2C%2020%2050%2C%2010%2040%20C%20-10%2040%2C%20-30%2020%2C%20-38%20-15%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-35%20-20%20Q%20-5%20-40%2020%20-35%20Q%2040%20-30%2035%20-10%20Q%2015%20-25%20-15%20-20%20Z%22%20fill%3D%22%239a3412%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Kind%20Arched%20Eyebrow%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-24%20-8%20Q%20-15%20-16%20-6%20-9%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Gentle%20Closed%20Eye%20(Smiling%20with%20pure%20affection%20%2F%20bliss)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-24%20-2%20Q%20-15%20-8%20-6%20-2%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Soft%20Eyelashes%20--%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22-24%22%20y1%3D%22-2%22%20x2%3D%22-28%22%20y2%3D%22-5%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22-6%22%20y1%3D%22-2%22%20x2%3D%22-2%22%20y2%3D%22-5%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%222%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Gentle%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-3%208%20Q%202%2013%206%2010%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Warm%20Blushing%20Cheeks%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-16%22%20cy%3D%2214%22%20rx%3D%2210%22%20ry%3D%226%22%20fill%3D%22%23f472b6%22%20opacity%3D%220.45%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Tender%20Loving%20Smile%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-16%2022%20Q%200%2032%2016%2022%22%20stroke%3D%22%23991b1b%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20GIVING%20HIS%20MOTHER%20A%20KISS%20ON%20THE%20CHEEK%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(230%2C%20140)%22%20filter%3D%22url(%23s4_shadow)%22%3E%0A%20%20%20%20%3C!--%20Boy's%20Body%20in%20Signature%20Green%20T-Shirt%20(Leaning%20In%20Affectionately)%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%200%20110%20Q%2025%2065%2065%2070%20Q%20105%2065%20125%20105%20L%20115%20210%20L%20-10%20210%20Z%22%20fill%3D%22url(%23s4_boy_shirt)%22%2F%3E%0A%20%20%20%20%3C!--%20White%20inner%20collar%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2040%2070%20Q%2060%2085%2080%2070%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%226%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Boy's%20Arm%20Hugging%20%2F%20Resting%20on%20Mother's%20Waist%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2080%2085%20Q%20120%20115%20150%20120%22%20stroke%3D%22url(%23s4_boy_shirt)%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22158%22%20cy%3D%22122%22%20r%3D%2212%22%20fill%3D%22url(%23s4_skin)%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Boy's%20Neck%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2248%22%20y%3D%2245%22%20width%3D%2222%22%20height%3D%2226%22%20fill%3D%22url(%23s4_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20BOY'S%20HEAD%20%26%20EXPRESSION%20(GIVING%20SWEET%20KISS%20ON%20CHEEK)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(60%2C%2020)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s4_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s4_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Dark%20Brown%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Happy%20Curved%20Eyebrow%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-8%20-8%20Q%202%20-15%2012%20-8%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Closed%20Happy%20Eye%20(Smiling%20kiss%20expression)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-8%20-2%20Q%202%20-8%2012%20-2%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2212%22%20y1%3D%22-2%22%20x2%3D%2216%22%20y2%3D%22-5%22%20stroke%3D%22%231e293b%22%20stroke-width%3D%222%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Cute%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2012%207%20Q%2016%2011%2020%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Sweet%20Rosy%20Cheek%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-4%22%20cy%3D%2212%22%20rx%3D%229%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Kissing%20Lips%20Pressed%20to%20Mother's%20Cheek%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2022%2016%20Q%2032%2016%2035%2018%20Q%2032%2022%2022%2020%20Z%22%20fill%3D%22%23b91c1c%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 5,
+          "title": "Szene 5: Das alte Schloss",
+          "emoji": "🏰",
+          "description": "Der Junge läuft über den Pfad zu einem prächtigen alten Schloss mit Türmen.",
+          "suggestedWords": [
+            "Schloss",
+            "Turm",
+            "Weg",
+            "sehen"
+          ],
+          "starterIdeas": [
+            "Später …",
+            "In der Ferne …",
+            "Auf dem Weg …",
+            "Vor dem Schloss …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s5_sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2260%25%22%20stop-color%3D%22%23fdba74%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fef08a%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s5_hill_far%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2386efac%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s5_hill_near%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%234ade80%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23166534%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s5_stone%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2394a3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2364748b%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23334155%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s5_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s5_shirt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s5_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%225%22%20stdDeviation%3D%225%22%20flood-color%3D%22%231e293b%22%20flood-opacity%3D%220.3%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Sky%20with%20Golden%20Sunset%2FAfternoon%20Glow%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22280%22%20fill%3D%22url(%23s5_sky)%22%2F%3E%0A%0A%20%20%3C!--%20Distant%20Mountains%20--%3E%0A%20%20%3Cpath%20d%3D%22M%200%20180%20L%20120%20120%20L%20240%20170%20L%20380%20110%20L%20520%20160%20L%20600%20130%20L%20600%20280%20L%200%20280%20Z%22%20fill%3D%22%2393c5fd%22%20opacity%3D%220.4%22%2F%3E%0A%0A%20%20%3C!--%20Rolling%20Green%20Hill%20supporting%20the%20Castle%20on%20right%20--%3E%0A%20%20%3Cpath%20d%3D%22M%20180%20260%20Q%20380%20140%20600%20190%20L%20600%20360%20L%20180%20360%20Z%22%20fill%3D%22url(%23s5_hill_far)%22%2F%3E%0A%0A%20%20%3C!--%20THE%20ANCIENT%20MEDIEVAL%20CASTLE%20(IMPRESSIVE%2C%20DETAILED%20STONE%20TOWERS)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(360%2C%2080)%22%20filter%3D%22url(%23s5_shadow)%22%3E%0A%20%20%20%20%3C!--%20Central%20Castle%20Wall%20%26%20Battlements%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2250%22%20y%3D%2270%22%20width%3D%22110%22%20height%3D%2290%22%20fill%3D%22url(%23s5_stone)%22%2F%3E%0A%20%20%20%20%3C!--%20Castle%20Wall%20Battlements%20(Zinnen)%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2050%2070%20L%2050%2058%20L%2065%2058%20L%2065%2070%20L%2080%2070%20L%2080%2058%20L%2095%2058%20L%2095%2070%20L%20110%2070%20L%20110%2058%20L%20125%2058%20L%20125%2070%20L%20140%2070%20L%20140%2058%20L%20155%2058%20L%20155%2070%20Z%22%20fill%3D%22%23475569%22%2F%3E%0A%0A%20%20%20%20%3C!--%20High%20Watchtower%20on%20Left%20with%20Arched%20Window%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2225%22%20y%3D%2230%22%20width%3D%2245%22%20height%3D%22130%22%20fill%3D%22url(%23s5_stone)%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2022%2030%20L%2022%2020%20L%2033%2020%20L%2033%2030%20L%2044%2030%20L%2044%2020%20L%2055%2020%20L%2055%2030%20L%2066%2030%20L%2066%2020%20L%2073%2020%20L%2073%2030%20Z%22%20fill%3D%22%23334155%22%2F%3E%0A%20%20%20%20%3C!--%20Conical%20Tower%20Roof%20--%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2247%2C-15%2015%2C22%2080%2C22%22%20fill%3D%22%23b91c1c%22%2F%3E%0A%20%20%20%20%3C!--%20Fluttering%20Red%20Pennant%20%2F%20Flag%20on%20Tower%20--%3E%0A%20%20%20%20%3Cline%20x1%3D%2247%22%20y1%3D%22-15%22%20x2%3D%2247%22%20y2%3D%22-30%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2247%2C-30%2068%2C-22%2047%2C-16%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%3C!--%20Arched%20Castle%20Window%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2040%2060%20Q%2047%2050%2054%2060%20L%2054%2075%20L%2040%2075%20Z%22%20fill%3D%22%230f172a%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Tall%20Grand%20Keep%20%2F%20Tower%20on%20Right%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22135%22%20y%3D%2215%22%20width%3D%2255%22%20height%3D%22145%22%20fill%3D%22url(%23s5_stone)%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20130%2015%20L%20130%205%20L%20144%205%20L%20144%2015%20L%20158%2015%20L%20158%205%20L%20172%205%20L%20172%2015%20L%20186%2015%20L%20186%205%20L%20195%205%20L%20195%2015%20Z%22%20fill%3D%22%23334155%22%2F%3E%0A%20%20%20%20%3C!--%20Conical%20Roof%20--%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22162%2C-30%20125%2C7%20200%2C7%22%20fill%3D%22%23b91c1c%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22162%22%20y1%3D%22-30%22%20x2%3D%22162%22%20y2%3D%22-45%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22162%2C-45%20185%2C-37%20162%2C-30%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%3C!--%20Windows%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20155%2045%20Q%20162%2036%20170%2045%20L%20170%2060%20L%20155%2060%20Z%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20155%2085%20Q%20162%2076%20170%2085%20L%20170%20100%20L%20155%20100%20Z%22%20fill%3D%22%230f172a%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Large%20Arched%20Castle%20Gate%20%2F%20Portcullis%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2085%20160%20Q%20105%20130%20125%20160%20Z%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%3C!--%20Wooden%20Gate%20Details%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2288%22%20y%3D%22142%22%20width%3D%2234%22%20height%3D%2218%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22105%22%20y1%3D%22135%22%20x2%3D%22105%22%20y2%3D%22160%22%20stroke%3D%22%230f172a%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Foreground%20Green%20Meadow%20%26%20Cobblestone%20Path%20--%3E%0A%20%20%3Cpath%20d%3D%22M%200%20280%20Q%20250%20240%20600%20320%20L%20600%20450%20L%200%20450%20Z%22%20fill%3D%22url(%23s5_hill_near)%22%2F%3E%0A%0A%20%20%3C!--%20Cobblestone%20Hiking%20Path%20Leading%20Towards%20Castle%20--%3E%0A%20%20%3Cpath%20d%3D%22M%2040%20450%20Q%20140%20370%20240%20340%20Q%20360%20300%20440%20270%20L%20460%20275%20Q%20380%20308%20260%20350%20Q%20170%20385%2080%20450%20Z%22%20fill%3D%22%23d6d3d1%22%2F%3E%0A%20%20%3C!--%20Little%20Stone%20Texture%20Marks%20--%3E%0A%20%20%3Cg%20fill%3D%22%23a8a29e%22%20opacity%3D%220.7%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22120%22%20cy%3D%22415%22%20rx%3D%228%22%20ry%3D%224%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22150%22%20cy%3D%22395%22%20rx%3D%227%22%20ry%3D%223%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22210%22%20cy%3D%22365%22%20rx%3D%226%22%20ry%3D%223%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22280%22%20cy%3D%22340%22%20rx%3D%226%22%20ry%3D%222.5%22%2F%3E%0A%20%20%20%20%3Cellipse%20cx%3D%22360%22%20cy%3D%22310%22%20rx%3D%225%22%20ry%3D%222%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20HIKING%20%26%20POINTING%20IN%20WONDER%20(CLEAR%20BODY%20GESTURE%20%26%20EMOTION)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(100%2C%20200)%22%20filter%3D%22url(%23s5_shadow)%22%3E%0A%20%20%20%20%3C!--%20Blue%20Backpack%20on%20Back%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(-18%2C%2090)%22%3E%0A%20%20%20%20%20%20%3Crect%20width%3D%2228%22%20height%3D%2242%22%20rx%3D%2210%22%20fill%3D%22%232563eb%22%20stroke%3D%22%231d4ed8%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%224%22%20y%3D%228%22%20width%3D%2220%22%20height%3D%2222%22%20rx%3D%224%22%20fill%3D%22%233b82f6%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Straps%20over%20shoulder%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2012%208%20Q%2025%2015%2032%2030%22%20stroke%3D%22%231d4ed8%22%20stroke-width%3D%224.5%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Boy's%20Body%20in%20Signature%20Green%20T-Shirt%20(Turned%20slightly%2C%20looking%20up)%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2010%2095%20L%2075%2095%20L%2085%20165%20L%2015%20165%20Z%22%20fill%3D%22url(%23s5_shirt)%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2035%2095%20Q%2050%20108%2065%2095%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%225%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Left%20Arm%20%26%20Hand%20Raised%20High%2C%20Pointing%20Forward%20at%20Castle!%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(60%2C%2095)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2015%20Q%2050%205%2095%20-15%22%20stroke%3D%22url(%23s5_shirt)%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Forearm%20and%20Extended%20Index%20Finger%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2085%20-10%20Q%20115%20-25%20140%20-35%22%20stroke%3D%22url(%23s5_skin)%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Pointing%20Hand%20%26%20Finger%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22140%22%20cy%3D%22-35%22%20r%3D%2210%22%20fill%3D%22url(%23s5_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%22140%22%20y1%3D%22-35%22%20x2%3D%22162%22%20y2%3D%22-45%22%20stroke%3D%22url(%23s5_skin)%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Denim%20Jeans%20%26%20Sturdy%20Shoes%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(20%2C%20165)%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%2224%22%20height%3D%2250%22%20rx%3D%224%22%20fill%3D%22%231e3a8a%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2230%22%20y%3D%220%22%20width%3D%2224%22%20height%3D%2250%22%20rx%3D%224%22%20fill%3D%22%231e3a8a%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Shoes%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2210%22%20cy%3D%2252%22%20rx%3D%2215%22%20ry%3D%228%22%20fill%3D%22%23dc2626%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2244%22%20cy%3D%2252%22%20rx%3D%2215%22%20ry%3D%228%22%20fill%3D%22%23dc2626%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Neck%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2242%22%20y%3D%2275%22%20width%3D%2220%22%20height%3D%2224%22%20fill%3D%22url(%23s5_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20HEAD%20%26%20EXPRESSION%3A%20AWESTRUCK%2C%20EXCITED%20WONDER%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(52%2C%2045)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s5_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s5_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s5_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Tousled%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-28%20-15%20Q%20-15%20-28%200%20-18%20Q%2015%20-30%2028%20-16%20Q%2010%20-22%20-5%20-16%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20High%20Raised%20Eyebrows%20(Awe%20%26%20Astonishment!)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-14%20Q%20-14%20-22%20-6%20-15%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-15%20Q%2014%20-22%2022%20-14%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Wide%20Open%20Astonished%20Eyes%20(Looking%20up%20at%20Castle)%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%20-4)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%227.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%22-1%22%20r%3D%225%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%22-1%22%20r%3D%222.8%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%223.5%22%20cy%3D%22-2.5%22%20r%3D%221.8%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%20-4)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%227.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%22-1%22%20r%3D%225%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%22-1%22%20r%3D%222.8%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%223.5%22%20cy%3D%22-2.5%22%20r%3D%221.8%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%205%20Q%200%209%204%207%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Rosy%20Cheeks%20from%20Hike%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2210%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2210%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Wide%20Open%20Excited%20Mouth%20(%22WOW!%20Look%20at%20that%20castle!%22)%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%2219%22%20rx%3D%2210%22%20ry%3D%2212%22%20fill%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-8%2015%20Q%200%2018%208%2015%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%2224%22%20rx%3D%226%22%20ry%3D%224%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 6,
+          "title": "Szene 6: An der Startlinie",
+          "emoji": "🏁",
+          "description": "An der Startlinie mit der Startnummer 123 beginnt das große Rennen.",
+          "suggestedWords": [
+            "Nummer",
+            "beginnen",
+            "rennen",
+            "Start"
+          ],
+          "starterIdeas": [
+            "Jetzt …",
+            "An der Startlinie …",
+            "Mit Startnummer 123 …",
+            "Alle Kinder …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s6_sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2360a5fa%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23bae6fd%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s6_track%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23dc2626%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23b91c1c%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s6_grass%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%234ade80%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2316a34a%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s6_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s6_shirt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s6_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%225%22%20stdDeviation%3D%224%22%20flood-color%3D%22%230f172a%22%20flood-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Sky%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22200%22%20fill%3D%22url(%23s6_sky)%22%2F%3E%0A%0A%20%20%3C!--%20Cheerful%20Festive%20Pennant%20Bunting%20across%20Stadium%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(0%2C%2030)%22%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%20150%2040%20300%2015%20Q%20450%2045%20600%2020%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%222%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2240%2C20%2060%2C20%2050%2C45%22%20fill%3D%22%23f59e0b%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2290%2C27%20110%2C27%20100%2C52%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22140%2C31%20160%2C31%20150%2C56%22%20fill%3D%22%233b82f6%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22190%2C29%20210%2C29%20200%2C54%22%20fill%3D%22%2310b981%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22240%2C24%20260%2C24%20250%2C49%22%20fill%3D%22%23ec4899%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22290%2C17%20310%2C17%20300%2C42%22%20fill%3D%22%23f59e0b%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22340%2C24%20360%2C24%20350%2C49%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22390%2C30%20410%2C30%20400%2C55%22%20fill%3D%22%233b82f6%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22440%2C32%20460%2C32%20450%2C57%22%20fill%3D%22%2310b981%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22490%2C29%20510%2C29%20500%2C54%22%20fill%3D%22%238b5cf6%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22540%2C24%20560%2C24%20550%2C49%22%20fill%3D%22%23f59e0b%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Grass%20Infield%20of%20Stadium%20--%3E%0A%20%20%3Crect%20y%3D%22170%22%20width%3D%22600%22%20height%3D%2270%22%20fill%3D%22url(%23s6_grass)%22%2F%3E%0A%0A%20%20%3C!--%20Red%20Clay%20Athletic%20Running%20Track%20--%3E%0A%20%20%3Crect%20y%3D%22230%22%20width%3D%22600%22%20height%3D%22220%22%20fill%3D%22url(%23s6_track)%22%2F%3E%0A%0A%20%20%3C!--%20Curved%20Running%20Track%20Lane%20Lines%20--%3E%0A%20%20%3Cg%20stroke%3D%22%23ffffff%22%20stroke-width%3D%224.5%22%20opacity%3D%220.9%22%20fill%3D%22none%22%3E%0A%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22280%22%20x2%3D%22600%22%20y2%3D%22280%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22340%22%20x2%3D%22600%22%20y2%3D%22340%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22400%22%20x2%3D%22600%22%20y2%3D%22400%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20BOLD%20WHITE%20CHALK%20STARTING%20LINE%20ACROSS%20TRACK%20(HIGH%20VISIBILITY)%20--%3E%0A%20%20%3Cline%20x1%3D%22160%22%20y1%3D%22230%22%20x2%3D%22160%22%20y2%3D%22450%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22square%22%2F%3E%0A%20%20%3Crect%20x%3D%22175%22%20y%3D%22240%22%20width%3D%2230%22%20height%3D%2222%22%20rx%3D%224%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%3Ctext%20x%3D%22180%22%20y%3D%22256%22%20font-size%3D%2214%22%20font-weight%3D%22900%22%20fill%3D%22%23dc2626%22%20font-family%3D%22sans-serif%22%3ESTART%3C%2Ftext%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20CROUCHED%20IN%20RUNNING%20START%20POSITION%20(EXPRESSIVE%20DETERMINATION)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(110%2C%20150)%22%20filter%3D%22url(%23s6_shadow)%22%3E%0A%20%20%20%20%3C!--%20Back%20Leg%20Stretched%20(Right%20Leg)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(-50%2C%20110)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2040%2030%20L%2010%2090%20L%20-30%20115%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Red%20Running%20Sneaker%20on%20Toes%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-35%22%20cy%3D%22120%22%20rx%3D%2216%22%20ry%3D%228%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-45%20124%20L%20-20%20124%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Front%20Bent%20Sprinting%20Leg%20(Left%20Leg%20near%20starting%20line)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(20%2C%20110)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2020%2025%20Q%2055%2045%2040%2090%20L%2035%20125%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Front%20Sneaker%20poised%20right%20behind%20the%20start%20line%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2238%22%20cy%3D%22130%22%20rx%3D%2218%22%20ry%3D%229%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2026%20134%20L%2050%20134%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Boy's%20Body%20Leaning%20Forward%20in%20Sprinter's%20Stance%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(10%2C%2060)%22%3E%0A%20%20%20%20%20%20%3C!--%20Green%20Sports%20Running%20Singlet%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2015%20L%2075%2010%20L%2080%2080%20L%2015%2080%20Z%22%20fill%3D%22url(%23s6_shirt)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20START%20NUMBER%20BIB%3A%20%22123%22%20PINNED%20TO%20CHEST%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(22%2C%2022)%22%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%2245%22%20height%3D%2234%22%20rx%3D%224%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Safety%20pins%20in%20corners%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%224%22%20cy%3D%224%22%20r%3D%221.5%22%20fill%3D%22%2364748b%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2241%22%20cy%3D%224%22%20r%3D%221.5%22%20fill%3D%22%2364748b%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%224%22%20cy%3D%2230%22%20r%3D%221.5%22%20fill%3D%22%2364748b%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2241%22%20cy%3D%2230%22%20r%3D%221.5%22%20fill%3D%22%2364748b%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Big%20Number%20123%20--%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%227%22%20y%3D%2224%22%20font-size%3D%2220%22%20font-weight%3D%22900%22%20fill%3D%22%230f172a%22%20font-family%3D%22sans-serif%22%3E123%3C%2Ftext%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Hands%20on%20Track%20Surface%20Poised%20to%20Sprint%20(Fingertips%20touching%20track%20behind%20line)%20--%3E%0A%20%20%20%20%3C!--%20Left%20Hand%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(90%2C%20140)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-10%20-30%20Q%2015%20-10%2012%2030%22%20stroke%3D%22url(%23s6_skin)%22%20stroke-width%3D%2216%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Bridge%20of%20fingers%20on%20track%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2212%22%20cy%3D%2232%22%20r%3D%228%22%20fill%3D%22url(%23s6_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%2036%20L%2016%2036%22%20stroke%3D%22%23475569%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C!--%20Right%20Hand%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(45%2C%20140)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-10%20-30%20Q%2015%20-10%2012%2030%22%20stroke%3D%22url(%23s6_skin)%22%20stroke-width%3D%2216%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2212%22%20cy%3D%2232%22%20r%3D%228%22%20fill%3D%22url(%23s6_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%2036%20L%2016%2036%22%20stroke%3D%22%23475569%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Neck%20Stretched%20Forward%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2252%22%20y%3D%2245%22%20width%3D%2220%22%20height%3D%2222%22%20fill%3D%22url(%23s6_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20HEAD%20%26%20EXPRESSION%3A%20FIERCE%20FOCUS%20%26%20CONCENTRATION%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(68%2C%2025)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s6_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s6_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s6_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Dark%20Brown%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Determined%20Concentrated%20Eyebrows%20(Slanted%20down%20inward%20with%20focus)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-6%20Q%20-14%20-12%20-6%20-10%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-10%20Q%2014%20-12%2022%20-6%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Sharp%20Focused%20Eyes%20Looking%20Down%20Track%20Towards%20Finish%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%200)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%225.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%220%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%223.5%22%20cy%3D%22-1.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%200)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%225.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%220%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%223.5%22%20cy%3D%22-1.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%207%20Q%200%2011%204%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Cheeks%20Flushed%20with%20Adrenaline%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Determined%2C%20Focused%20Mouth%20(Breathing%20steadily%20through%20nose%2Flips)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-10%2018%20Q%200%2020%2010%2018%22%20stroke%3D%22%23991b1b%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 7,
+          "title": "Szene 7: Das bunte Puzzle",
+          "emoji": "🧩",
+          "description": "Zwei bunte Puzzleteile (blau und rot) greifen perfekt ineinander.",
+          "suggestedWords": [
+            "passen",
+            "zusammen",
+            "Teile",
+            "Spiel"
+          ],
+          "starterIdeas": [
+            "Hier …",
+            "Am Nachmittag …",
+            "Die beiden Teile …",
+            "Auf dem Tisch …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s7_wall%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23eff6ff%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23dbeafe%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s7_table%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef3c7%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2230%25%22%20stop-color%3D%22%23fde68a%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23d97706%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s7_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s7_shirt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s7_blue_piece%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2360a5fa%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%231d4ed8%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s7_red_piece%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23dc2626%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s7_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%224%22%20stdDeviation%3D%224%22%20flood-color%3D%22%230f172a%22%20flood-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Playroom%20%2F%20Study%20Wall%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22250%22%20fill%3D%22url(%23s7_wall)%22%2F%3E%0A%20%20%3C!--%20Decorative%20poster%20%2F%20pennant%20on%20wall%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(60%2C%2040)%22%20filter%3D%22url(%23s7_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%2290%22%20height%3D%22110%22%20rx%3D%228%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%23cbd5e1%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2210%22%20y%3D%2210%22%20width%3D%2270%22%20height%3D%2290%22%20rx%3D%224%22%20fill%3D%22%23fef08a%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2245%22%20cy%3D%2245%22%20r%3D%2220%22%20fill%3D%22%23f59e0b%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2245%2C30%2050%2C42%2062%2C42%2052%2C50%2056%2C62%2045%2C54%2034%2C62%2038%2C50%2028%2C42%2040%2C42%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Wooden%20Table%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(0%2C%20240)%22%20filter%3D%22url(%23s7_shadow)%22%3E%0A%20%20%20%20%3Crect%20width%3D%22600%22%20height%3D%2230%22%20fill%3D%22%23fde68a%22%2F%3E%0A%20%20%20%20%3Crect%20y%3D%2225%22%20width%3D%22600%22%20height%3D%22185%22%20fill%3D%22url(%23s7_table)%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20SITTING%20AT%20TABLE%20ASSEMBLING%20THE%20PUZZLE%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(220%2C%2060)%22%20filter%3D%22url(%23s7_shadow)%22%3E%0A%20%20%20%20%3C!--%20Boy's%20Body%20in%20Signature%20Green%20T-Shirt%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2015%20130%20L%20145%20130%20L%20155%20210%20L%205%20210%20Z%22%20fill%3D%22url(%23s7_shirt)%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2060%20130%20Q%2080%20145%20100%20130%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%226%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Left%20Arm%20%26%20Hand%20Guiding%20the%20Blue%20Jigsaw%20Piece%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(25%2C%20135)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2010%20Q%20-10%2050%2020%2080%20Q%2040%20100%2070%20105%22%20stroke%3D%22url(%23s7_shirt)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2060%2095%20Q%2085%20105%20105%20110%22%20stroke%3D%22url(%23s7_skin)%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Left%20Hand%20fingers%20holding%20edge%20of%20puzzle%20piece%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22110%22%20cy%3D%22112%22%20r%3D%2212%22%20fill%3D%22url(%23s7_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20105%20105%20Q%20115%20108%20122%20118%22%20stroke%3D%22url(%23s7_skin)%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Right%20Arm%20%26%20Hand%20Fitting%20the%20Interlocking%20Red%20Piece%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(135%2C%20135)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%2020%2050%20-10%2080%20Q%20-30%20100%20-60%20105%22%20stroke%3D%22url(%23s7_shirt)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-50%2095%20Q%20-75%20105%20-95%20110%22%20stroke%3D%22url(%23s7_skin)%22%20stroke-width%3D%2220%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Right%20Hand%20fingers%20positioning%20piece%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-100%22%20cy%3D%22112%22%20r%3D%2212%22%20fill%3D%22url(%23s7_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-95%20105%20Q%20-105%20108%20-112%20118%22%20stroke%3D%22url(%23s7_skin)%22%20stroke-width%3D%227%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Neck%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2270%22%20y%3D%22110%22%20width%3D%2222%22%20height%3D%2226%22%20fill%3D%22url(%23s7_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20HEAD%20%26%20EXPRESSION%3A%20PROUD%2C%20DELIGHTED%20SMILE%20(%22IT%20FITS!%22)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(80%2C%2075)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s7_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s7_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s7_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Dark%20Brown%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-28%20-15%20Q%20-15%20-28%200%20-18%20Q%2015%20-30%2028%20-16%20Q%2010%20-22%20-5%20-16%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Cheerful%20Eyebrows%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-10%20Q%20-14%20-17%20-6%20-10%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-10%20Q%2014%20-17%2022%20-10%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Bright%20Sparkly%20Eyes%20Looking%20at%20Puzzle%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%20-2)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%221%22%20cy%3D%222%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%221%22%20cy%3D%222%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%222.5%22%20cy%3D%220.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%20-2)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-1%22%20cy%3D%222%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-1%22%20cy%3D%222%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220.5%22%20cy%3D%220.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%207%20Q%200%2011%204%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Rosy%20Happy%20Cheeks%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Big%20Happy%20Smile%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-14%2016%20Q%200%2030%2014%2016%20Z%22%20fill%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-12%2017%20Q%200%2022%2012%2017%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%2024%20Q%200%2028%206%2024%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20THE%20JIGSAW%20PUZZLE%20ON%20THE%20TABLE%20(CLEAR%20LEARNING%20OBJECT%3A%20INTERLOCKING%20PIECES)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(230%2C%20275)%22%20filter%3D%22url(%23s7_shadow)%22%3E%0A%20%20%20%20%3C!--%20Base%20Puzzle%20Frame%20%2F%20Mat%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22-30%22%20y%3D%22-10%22%20width%3D%22200%22%20height%3D%22130%22%20rx%3D%2212%22%20fill%3D%22%231e293b%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%20%20%3C!--%20Yellow%20assembled%20puzzle%20section%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22-20%22%20y%3D%220%22%20width%3D%2260%22%20height%3D%2250%22%20rx%3D%224%22%20fill%3D%22%23fbbf24%22%20stroke%3D%22%23d97706%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3C!--%20Green%20assembled%20puzzle%20section%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22-20%22%20y%3D%2255%22%20width%3D%2260%22%20height%3D%2255%22%20rx%3D%224%22%20fill%3D%22%2322c55e%22%20stroke%3D%22%2315803d%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%3C!--%20Purple%20section%20--%3E%0A%20%20%20%20%3Crect%20x%3D%22110%22%20y%3D%220%22%20width%3D%2250%22%20height%3D%22110%22%20rx%3D%224%22%20fill%3D%22%23a855f7%22%20stroke%3D%22%237e22ce%22%20stroke-width%3D%222%22%2F%3E%0A%0A%20%20%20%20%3C!--%20THE%20TWO%20FITTING%20PIECES%20(PROMINENT%20CENTERPIECE)%20--%3E%0A%20%20%20%20%3C!--%20Blue%20Jigsaw%20Piece%20with%20tab%2Fknob%20on%20right%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(45%2C%2010)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%200%20L%2035%200%20C%2035%208%2C%2048%208%2C%2048%2020%20C%2048%2032%2C%2035%2032%2C%2035%2040%20L%2035%2060%20L%200%2060%20C%208%2060%2C%208%2048%2C%208%2036%20C%208%2024%2C%208%2024%2C%200%2024%20Z%22%20fill%3D%22url(%23s7_blue_piece)%22%20stroke%3D%22%231e40af%22%20stroke-width%3D%222.5%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2220%22%20cy%3D%2230%22%20r%3D%224%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Red%20Jigsaw%20Piece%20with%20matching%20hollow%20socket%20(Snapping%20together!)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(80%2C%2010)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%200%20L%2030%200%20L%2030%2060%20L%200%2060%20C%200%2052%2C%20-13%2052%2C%20-13%2040%20C%20-13%2028%2C%200%2028%2C%200%2020%20Z%22%20fill%3D%22url(%23s7_red_piece)%22%20stroke%3D%22%23b91c1c%22%20stroke-width%3D%222.5%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2215%22%20cy%3D%2230%22%20r%3D%224%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.4%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Sparkles%20of%20Perfection%20%2F%20%22It%20Fits!%22%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(80%2C%2030)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%20-12%20L%203%20-3%20L%2012%200%20L%203%203%20L%200%2012%20L%20-3%203%20L%20-12%200%20L%20-3%20-3%20Z%22%20fill%3D%22%23fef08a%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%222%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(95%2C%2012)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%20-8%20L%202%20-2%20L%208%200%20L%202%202%20L%200%208%20L%20-2%202%20L%20-8%200%20L%20-2%20-2%20Z%22%20fill%3D%22%23fef08a%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 8,
+          "title": "Szene 8: Die neue Jacke",
+          "emoji": "🧥",
+          "description": "Der Junge probiert seine gelbe Jacke an oder steht stolz und fit da.",
+          "suggestedWords": [
+            "Jacke",
+            "passen",
+            "dünn",
+            "gelb"
+          ],
+          "starterIdeas": [
+            "Danach …",
+            "Vor dem Spiegel …",
+            "Voller Stolz …",
+            "Die Jacke …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s8_wall%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fef9c3%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23fef08a%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s8_floor%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23b45309%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s8_mirror%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23e0f2fe%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23bae6fd%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%237dd3fc%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s8_jacket%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fde047%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2240%25%22%20stop-color%3D%22%23eab308%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23ca8a04%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s8_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s8_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%225%22%20stdDeviation%3D%225%22%20flood-color%3D%22%2378350f%22%20flood-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Wall%20%26%20Floor%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22340%22%20fill%3D%22url(%23s8_wall)%22%2F%3E%0A%20%20%3Crect%20y%3D%22334%22%20width%3D%22600%22%20height%3D%2212%22%20fill%3D%22%2392400e%22%2F%3E%0A%20%20%3Crect%20y%3D%22346%22%20width%3D%22600%22%20height%3D%22104%22%20fill%3D%22url(%23s8_floor)%22%2F%3E%0A%0A%20%20%3C!--%20Warm%20Striped%20Area%20Rug%20on%20Floor%20--%3E%0A%20%20%3Cellipse%20cx%3D%22280%22%20cy%3D%22400%22%20rx%3D%22220%22%20ry%3D%2236%22%20fill%3D%22%23fbcfe8%22%20opacity%3D%220.8%22%2F%3E%0A%20%20%3Cellipse%20cx%3D%22280%22%20cy%3D%22400%22%20rx%3D%22180%22%20ry%3D%2228%22%20fill%3D%22%23f472b6%22%20opacity%3D%220.6%22%2F%3E%0A%0A%20%20%3C!--%20FULL-LENGTH%20DRESSING%20MIRROR%20ON%20THE%20LEFT%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(60%2C%2045)%22%20filter%3D%22url(%23s8_shadow)%22%3E%0A%20%20%20%20%3C!--%20Wooden%20Mirror%20Frame%20%26%20Stand%20--%3E%0A%20%20%20%20%3Crect%20width%3D%22140%22%20height%3D%22320%22%20rx%3D%2220%22%20fill%3D%22%2392400e%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%224%22%2F%3E%0A%20%20%20%20%3C!--%20Mirror%20Glass%20Reflecting%20Bright%20Light%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2212%22%20y%3D%2214%22%20width%3D%22116%22%20height%3D%22292%22%20rx%3D%2212%22%20fill%3D%22url(%23s8_mirror)%22%2F%3E%0A%20%20%20%20%3C!--%20Diagonal%20Glass%20Glare%20Reflection%20--%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2220%2C30%2060%2C30%2030%2C280%2015%2C280%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.5%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2275%2C30%2095%2C30%2055%2C280%2040%2C280%22%20fill%3D%22%23ffffff%22%20opacity%3D%220.4%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Boy's%20Reflection%20in%20the%20Mirror%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(70%2C%2070)%20scale(0.85)%22%20opacity%3D%220.85%22%3E%0A%20%20%20%20%20%20%3C!--%20Reflected%20Yellow%20Jacket%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-30%2070%20L%2030%2070%20L%2035%20150%20L%20-35%20150%20Z%22%20fill%3D%22url(%23s8_jacket)%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%2270%22%20x2%3D%220%22%20y2%3D%22150%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Reflected%20Head%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%2220%22%20r%3D%2228%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-30%2010%20C%20-34%20-15%2C%2020%20-20%2C%2030%2010%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Reflected%20Thumbs%20up%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2245%22%20cy%3D%2290%22%20r%3D%228%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2245%22%20y1%3D%2290%22%20x2%3D%2245%22%20y2%3D%2276%22%20stroke%3D%22url(%23s8_skin)%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Mirror%20Stand%20Feet%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20-8%20300%20L%2015%20320%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%20148%20300%20L%20125%20320%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20STANDING%20PROUDLY%20IN%20HIS%20NEW%20YELLOW%20JACKET%20(CLEAR%20ACTION%20%26%20EMOTION)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(320%2C%2080)%22%20filter%3D%22url(%23s8_shadow)%22%3E%0A%20%20%20%20%3C!--%20Denim%20Pants%20%26%20Shoes%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(35%2C%20230)%22%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%220%22%20y%3D%220%22%20width%3D%2228%22%20height%3D%2285%22%20rx%3D%225%22%20fill%3D%22%231e3a8a%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2236%22%20y%3D%220%22%20width%3D%2228%22%20height%3D%2285%22%20rx%3D%225%22%20fill%3D%22%231e3a8a%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Shoes%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2214%22%20cy%3D%2288%22%20rx%3D%2218%22%20ry%3D%2210%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2250%22%20cy%3D%2288%22%20rx%3D%2218%22%20ry%3D%2210%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20THE%20BRAND%20NEW%20YELLOW%20JACKET%20(VIBRANT%2C%20SNUG%20FIT%2C%20REALISTIC%20DETAILS)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(15%2C%2095)%22%3E%0A%20%20%20%20%20%20%3C!--%20Main%20Coat%20Body%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2015%20L%2095%2015%20L%20105%20145%20L%200%20145%20Z%22%20fill%3D%22url(%23s8_jacket)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Jacket%20Collar%20%2F%20Hood%20Folded%20Back%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%205%2015%20Q%2052%20-5%20100%2015%20Q%2052%2030%205%2015%20Z%22%20fill%3D%22%23ca8a04%22%20stroke%3D%22%23854d0e%22%20stroke-width%3D%222%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2025%2015%20Q%2052%2032%2080%2015%22%20stroke%3D%22%23fef08a%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Center%20Zipper%20with%20Silver%20Slider%20--%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2252%22%20y1%3D%2215%22%20x2%3D%2252%22%20y2%3D%22145%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%223.5%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2249%22%20y%3D%2245%22%20width%3D%226%22%20height%3D%2210%22%20rx%3D%221.5%22%20fill%3D%22%23e2e8f0%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Two%20Slanted%20Front%20Jacket%20Pockets%20--%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2216%22%20y1%3D%22100%22%20x2%3D%2238%22%20y2%3D%22110%22%20stroke%3D%22%23854d0e%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%20%20%3Cline%20x1%3D%2288%22%20y1%3D%22100%22%20x2%3D%2266%22%20y2%3D%22110%22%20stroke%3D%22%23854d0e%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Snug%20Cuffs%20--%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%22-8%22%20y%3D%2295%22%20width%3D%2218%22%20height%3D%2210%22%20rx%3D%223%22%20fill%3D%22%23ca8a04%22%2F%3E%0A%20%20%20%20%20%20%3Crect%20x%3D%2294%22%20y%3D%2295%22%20width%3D%2218%22%20height%3D%2210%22%20rx%3D%223%22%20fill%3D%22%23ca8a04%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Right%20Arm%20Holding%20Jacket%20Hem%20(Admiring%20the%20clean%20fit)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(15%2C%20110)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2015%2010%20Q%20-5%2045%2010%2095%22%20stroke%3D%22url(%23s8_jacket)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Hand%20holding%20jacket%20lapel%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2212%22%20cy%3D%22100%22%20r%3D%2212%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2012%2095%20Q%2018%20100%2024%20105%22%20stroke%3D%22url(%23s8_skin)%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Left%20Arm%20Giving%20PROUD%20THUMBS-UP%20GESTURE!%20(CLEAR%20PROUD%20CONFIDENCE)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(110%2C%20110)%22%3E%0A%20%20%20%20%20%20%3C!--%20Arm%20bent%20up%20with%20confidence%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2010%20Q%2040%2040%2045%2075%20Q%2035%2090%2020%2085%22%20stroke%3D%22url(%23s8_jacket)%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20The%20Thumbs%20Up%20Hand%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(25%2C%2080)%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2214%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Thumb%20pointing%20straight%20up!%20--%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%20-2%20L%200%20-18%20Q%204%20-22%208%20-18%20L%208%20-2%20Z%22%20fill%3D%22url(%23s8_skin)%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Folded%20fingers%20in%20fist%20--%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%226%22%20cy%3D%223%22%20rx%3D%227%22%20ry%3D%225%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%223%22%20x2%3D%2212%22%20y2%3D%223%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Neck%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2258%22%20y%3D%2275%22%20width%3D%2222%22%20height%3D%2226%22%20fill%3D%22url(%23s8_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20HEAD%20%26%20EXPRESSION%3A%20PROUD%2C%20DELIGHTED%2C%20CONFIDENT%20(%22PASST%20PERFEKT!%22)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(68%2C%2045)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s8_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Dark%20Brown%20Hair%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-40%20-38%2C%20-12%20-52%2C%206%20-48%20C%2024%20-46%2C%2042%20-36%2C%2038%20-10%20C%2034%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-28%20-15%20Q%20-15%20-28%200%20-18%20Q%2015%20-30%2028%20-16%20Q%2010%20-22%20-5%20-16%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Proud%20Confident%20Eyebrows%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-10%20Q%20-14%20-16%20-6%20-10%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-10%20Q%2014%20-16%2022%20-10%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Sparkling%20Happy%20Eyes%20Looking%20Towards%20Mirror%20Reflection%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%20-2)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Pupils%20looking%20left%20at%20the%20mirror%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-2%22%20cy%3D%220%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-2%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-0.5%22%20cy%3D%22-1.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%20-2)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%227%22%20ry%3D%226%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Pupils%20looking%20left%20at%20mirror%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-2%22%20cy%3D%220%22%20r%3D%224.5%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-2%22%20cy%3D%220%22%20r%3D%222.5%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-0.5%22%20cy%3D%22-1.5%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%207%20Q%200%2011%204%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Rosy%20Cheeks%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2211%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.45%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Proud%2C%20Delighted%20Smile%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-14%2016%20Q%200%2030%2014%2016%20Z%22%20fill%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-12%2017%20Q%200%2022%2012%2017%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%2024%20Q%200%2028%206%2024%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        },
+        {
+          "id": 9,
+          "title": "Szene 9: Die Begegnung",
+          "emoji": "🐕",
+          "description": "Ein zähnefletschender, bissiger Hund bellt wütend und der Junge rennt schnell weg.",
+          "suggestedWords": [
+            "Hund",
+            "bissig",
+            "rennen",
+            "Angst"
+          ],
+          "starterIdeas": [
+            "Am Ende …",
+            "Plötzlich …",
+            "Auf dem Heimweg …",
+            "Schnell …"
+          ],
+          "imageSrc": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20450%22%20width%3D%22100%25%22%20height%3D%22100%25%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s9_sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2338bdf8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23bae6fd%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s9_street%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23cbd5e1%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2230%25%22%20stop-color%3D%22%2394a3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2364748b%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s9_fence%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23d97706%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2392400e%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s9_dog%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23a16207%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s9_skin%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23fcd3b8%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23e8a882%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22s9_shirt%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2322c55e%22%2F%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2315803d%22%2F%3E%0A%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%3Cfilter%20id%3D%22s9_shadow%22%20x%3D%22-10%25%22%20y%3D%22-10%25%22%20width%3D%22120%25%22%20height%3D%22120%25%22%3E%0A%20%20%20%20%20%20%3CfeDropShadow%20dx%3D%222%22%20dy%3D%225%22%20stdDeviation%3D%225%22%20flood-color%3D%22%230f172a%22%20flood-opacity%3D%220.25%22%2F%3E%0A%20%20%20%20%3C%2Ffilter%3E%0A%20%20%3C%2Fdefs%3E%0A%0A%20%20%3C!--%20Sky%20--%3E%0A%20%20%3Crect%20width%3D%22600%22%20height%3D%22240%22%20fill%3D%22url(%23s9_sky)%22%2F%3E%0A%0A%20%20%3C!--%20Green%20Garden%20Hedge%20Behind%20Fence%20--%3E%0A%20%20%3Cpath%20d%3D%22M%200%20160%20Q%2060%20140%20140%20155%20Q%20240%20135%20340%20150%20Q%20450%20130%20600%20155%20L%20600%20240%20L%200%20240%20Z%22%20fill%3D%22%23166534%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M%200%20175%20Q%2080%20150%20180%20170%20Q%20300%20150%20420%20165%20Q%20520%20150%20600%20168%20L%20600%20240%20L%200%20240%20Z%22%20fill%3D%22%2322c55e%22%20opacity%3D%220.8%22%2F%3E%0A%0A%20%20%3C!--%20Picket%20Fence%20along%20sidewalk%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(0%2C%20150)%22%3E%0A%20%20%20%20%3C!--%20Horizontal%20rails%20--%3E%0A%20%20%20%20%3Crect%20y%3D%2230%22%20width%3D%22300%22%20height%3D%2212%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Crect%20y%3D%2270%22%20width%3D%22300%22%20height%3D%2212%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3C!--%20Vertical%20fence%20posts%20with%20pointed%20tops%20--%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2220%2C10%2032%2C0%2044%2C10%2044%2C110%2020%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%2260%2C10%2072%2C0%2084%2C10%2084%2C110%2060%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22100%2C10%20112%2C0%20124%2C10%20124%2C110%20100%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22140%2C10%20152%2C0%20164%2C10%20164%2C110%20140%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22180%2C10%20192%2C0%20204%2C10%20204%2C110%20180%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22220%2C10%20232%2C0%20244%2C10%20244%2C110%20220%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%20%20%3Cpolygon%20points%3D%22260%2C10%20272%2C0%20284%2C10%20284%2C110%20260%2C110%22%20fill%3D%22url(%23s9_fence)%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20Sidewalk%20%26%20Asphalt%20Street%20--%3E%0A%20%20%3Crect%20y%3D%22240%22%20width%3D%22600%22%20height%3D%2240%22%20fill%3D%22%23e2e8f0%22%2F%3E%0A%20%20%3Cline%20x1%3D%220%22%20y1%3D%22280%22%20x2%3D%22600%22%20y2%3D%22280%22%20stroke%3D%22%2394a3b8%22%20stroke-width%3D%224%22%2F%3E%0A%20%20%3Crect%20y%3D%22280%22%20width%3D%22600%22%20height%3D%22170%22%20fill%3D%22url(%23s9_street)%22%2F%3E%0A%0A%20%20%3C!--%20Speed%20Dust%20Clouds%20under%20sprinting%20feet%20--%3E%0A%20%20%3Cg%20fill%3D%22%23f1f5f9%22%20opacity%3D%220.85%22%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22280%22%20cy%3D%22380%22%20r%3D%2214%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22260%22%20cy%3D%22385%22%20r%3D%2210%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%22295%22%20cy%3D%22388%22%20r%3D%228%22%2F%3E%0A%20%20%20%20%3C!--%20Speed%20motion%20lines%20--%3E%0A%20%20%20%20%3Cline%20x1%3D%22240%22%20y1%3D%22365%22%20x2%3D%22190%22%20y2%3D%22365%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22250%22%20y1%3D%22345%22%20x2%3D%22210%22%20y2%3D%22345%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%20%20%3Cline%20x1%3D%22230%22%20y1%3D%22385%22%20x2%3D%22170%22%20y2%3D%22385%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20THE%20BARKING%20DOG%20(ENERGETIC%2C%20MOUTH%20WIDE%20OPEN%2C%20SHARP%20TEETH%2C%20ALERT%20EARS)%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(60%2C%20160)%22%20filter%3D%22url(%23s9_shadow)%22%3E%0A%20%20%20%20%3C!--%20Dog%20Body%20(Paws%20on%20ground%20leaning%20forward%20barking)%20--%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2260%22%20cy%3D%2270%22%20rx%3D%2245%22%20ry%3D%2232%22%20fill%3D%22url(%23s9_dog)%22%2F%3E%0A%20%20%20%20%3C!--%20Tail%20raised%20high%20with%20excitement%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2015%2055%20Q%20-10%2030%20-5%2010%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%2212%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Hind%20Legs%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2030%2080%20L%2020%20120%20L%2035%20125%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%2214%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C!--%20Front%20Legs%20stiff%20in%20aggressive%20stance%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2085%2085%20L%20105%20125%20L%20120%20125%22%20stroke%3D%22%2378350f%22%20stroke-width%3D%2214%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Red%20Collar%20with%20Gold%20Tag%20--%3E%0A%20%20%20%20%3Cpath%20d%3D%22M%2080%2050%20Q%2095%2065%20110%2050%22%20stroke%3D%22%23dc2626%22%20stroke-width%3D%228%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3Ccircle%20cx%3D%2295%22%20cy%3D%2262%22%20r%3D%225%22%20fill%3D%22%23facc15%22%2F%3E%0A%0A%20%20%20%20%3C!--%20Dog%20Head%20%26%20Snout%20(Loud%20barking%20open%20mouth)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(95%2C%2020)%22%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%2226%22%20fill%3D%22url(%23s9_dog)%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Pointed%20Alert%20Dog%20Ears%20--%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%22-12%2C-20%20-20%2C-48%200%2C-25%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2212%2C-20%2020%2C-48%200%2C-25%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Wide%20Alert%20Dark%20Dog%20Eyes%20--%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%228%22%20cy%3D%22-5%22%20r%3D%225.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%22-5%22%20r%3D%223.5%22%20fill%3D%22%23000000%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2210%22%20cy%3D%22-6%22%20r%3D%221.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Snout%20%26%20Wide%20Open%20Barking%20Mouth%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2015%20-10%20L%2045%20-4%20Q%2050%2015%2035%2025%20L%2010%2020%20Z%22%20fill%3D%22url(%23s9_dog)%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Black%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2244%22%20cy%3D%22-3%22%20rx%3D%225%22%20ry%3D%224%22%20fill%3D%22%23000000%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Open%20Mouth%20with%20Red%20Tongue%20%26%20White%20Sharp%20Teeth%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2022%202%20L%2040%204%20Q%2038%2018%2020%2014%20Z%22%20fill%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Upper%20sharp%20fangs%20--%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2226%2C2%2030%2C8%2034%2C2%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Lower%20sharp%20teeth%20--%3E%0A%20%20%20%20%20%20%3Cpolygon%20points%3D%2228%2C14%2032%2C8%2036%2C14%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Pink%20Tongue%20Panting%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2030%2010%20Q%2042%2016%2038%2024%20Q%2030%2020%2030%2010%20Z%22%20fill%3D%22%23f472b6%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Barking%20Sound%20Effect%20Waves%20(Visual%20sound%20radiating%20towards%20boy)%20--%3E%0A%20%20%20%20%3Cg%20stroke%3D%22%23f59e0b%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%20opacity%3D%220.85%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20145%2015%20Q%20160%2030%20145%2045%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20155%208%20Q%20175%2030%20155%2052%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20165%200%20Q%20190%2030%20165%2060%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%0A%20%20%3C!--%20JEDIDIAH%20SPRINTING%20FORWARD%20AT%20FULL%20SPEED%2C%20LOOKING%20BACK%20IN%20SURPRISE%20%26%20URGENCY!%20--%3E%0A%20%20%3Cg%20transform%3D%22translate(360%2C%20110)%22%20filter%3D%22url(%23s9_shadow)%22%3E%0A%20%20%20%20%3C!--%20Back%20Leg%20Kicked%20High%20Behind%20in%20Dynamic%20Sprint%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(-40%2C%20130)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2030%2020%20L%20-25%2035%20L%20-60%2015%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Red%20Sneaker%20flying%20high%20in%20air%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-65%2C%2012)%20rotate(25)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2218%22%20ry%3D%229%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22-12%22%20y1%3D%224%22%20x2%3D%2212%22%20y2%3D%224%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Front%20Leg%20Leaping%20Forward%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(40%2C%20140)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%2030%2040%2045%2085%20L%2055%20125%22%20stroke%3D%22%231e3a8a%22%20stroke-width%3D%2226%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3C!--%20Red%20Sneaker%20hitting%20ground%20forward%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(58%2C%20130)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2218%22%20ry%3D%229%22%20fill%3D%22%23ef4444%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22-12%22%20y1%3D%224%22%20x2%3D%2212%22%20y2%3D%224%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Torso%20Leaning%20Forward%20in%20Urgent%20Sprint%20(Signature%20Green%20T-Shirt)%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(15%2C%2060)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2010%2010%20L%2075%205%20L%2085%2085%20L%2015%2090%20Z%22%20fill%3D%22url(%23s9_shirt)%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2030%208%20Q%2045%2020%2060%208%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%225%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Pumping%20Running%20Arms%20(High%20speed%20gesture)%20--%3E%0A%20%20%20%20%3C!--%20Right%20Arm%20reaching%20forward%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(70%2C%2075)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%2030%200%2055%20-15%22%20stroke%3D%22url(%23s9_shirt)%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2045%20-10%20Q%2075%20-25%2085%20-10%22%20stroke%3D%22url(%23s9_skin)%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2288%22%20cy%3D%22-8%22%20r%3D%2211%22%20fill%3D%22url(%23s9_skin)%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C!--%20Left%20Arm%20pumping%20back%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(15%2C%2075)%22%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%200%2010%20Q%20-25%2035%20-50%2030%22%20stroke%3D%22url(%23s9_shirt)%22%20stroke-width%3D%2224%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-45%2030%20Q%20-65%2025%20-70%2045%22%20stroke%3D%22url(%23s9_skin)%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-70%22%20cy%3D%2248%22%20r%3D%2211%22%20fill%3D%22url(%23s9_skin)%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%3C!--%20Neck%20--%3E%0A%20%20%20%20%3Crect%20x%3D%2242%22%20y%3D%2245%22%20width%3D%2220%22%20height%3D%2224%22%20fill%3D%22url(%23s9_skin)%22%20rx%3D%224%22%2F%3E%0A%0A%20%20%20%20%3C!--%20HEAD%20%26%20EXPRESSION%3A%20SURPRISED%2C%20ALARMED%2C%20LOOKING%20BACK%20OVER%20SHOULDER!%20--%3E%0A%20%20%20%20%3Cg%20transform%3D%22translate(48%2C%2015)%22%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%2234%22%20ry%3D%2238%22%20fill%3D%22url(%23s9_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%22-34%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s9_skin)%22%2F%3E%0A%20%20%20%20%20%20%3Ccircle%20cx%3D%2234%22%20cy%3D%222%22%20r%3D%228.5%22%20fill%3D%22url(%23s9_skin)%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Signature%20Dark%20Brown%20Hair%20Flying%20in%20the%20Wind%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-36%20-12%20C%20-45%20-30%2C%20-30%20-52%2C%20-10%20-50%20C%2015%20-48%2C%2045%20-36%2C%2042%20-10%20C%2038%20-18%2C%2020%20-24%2C%206%20-24%20C%20-12%20-24%2C%20-28%20-18%2C%20-36%20-12%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-20%20-25%20Q%20-5%20-40%2012%20-38%20Q%2028%20-35%2024%20-20%20Q%208%20-28%20-8%20-26%20Z%22%20fill%3D%22%2378350f%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2020%20-20%20Q%2040%20-35%2048%20-15%20Q%2035%20-15%2025%20-10%20Z%22%20fill%3D%22%23451a03%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Alarmed%20Eyebrows%20Raised%20In%20Surprise%20%2F%20Urgency%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-22%20-12%20Q%20-14%20-18%20-6%20-14%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%206%20-14%20Q%2014%20-18%2022%20-12%22%20stroke%3D%22%23451a03%22%20stroke-width%3D%223.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Wide%20Open%20Eyes%20Looking%20BACK%20Towards%20the%20Barking%20Dog!%20--%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(-14%2C%20-2)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%227.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C!--%20Pupils%20looking%20far%20left%20back%20at%20the%20dog%20--%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-3%22%20cy%3D%220%22%20r%3D%225%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-3%22%20cy%3D%220%22%20r%3D%222.8%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-1.5%22%20cy%3D%22-1.5%22%20r%3D%221.8%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%3Cg%20transform%3D%22translate(14%2C%20-2)%22%3E%0A%20%20%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%220%22%20rx%3D%228%22%20ry%3D%227.5%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-3%22%20cy%3D%220%22%20r%3D%225%22%20fill%3D%22%23451a03%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-3%22%20cy%3D%220%22%20r%3D%222.8%22%20fill%3D%22%230f172a%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22-1.5%22%20cy%3D%22-1.5%22%20r%3D%221.8%22%20fill%3D%22%23ffffff%22%2F%3E%0A%20%20%20%20%20%20%3C%2Fg%3E%0A%0A%20%20%20%20%20%20%3C!--%20Sweat%20Drop%20on%20Brow%20(Exertion%20%26%20Surprise!)%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%2024%20-16%20Q%2026%20-24%2024%20-26%20Q%2020%20-24%2022%20-16%20Z%22%20fill%3D%22%2338bdf8%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Nose%20--%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-2%207%20Q%200%2011%204%209%22%20stroke%3D%22%23c27848%22%20stroke-width%3D%222.5%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Flushed%20Cheeks%20from%20Sprinting%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%22-20%22%20cy%3D%2212%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%2220%22%20cy%3D%2212%22%20rx%3D%228%22%20ry%3D%225%22%20fill%3D%22%23f87171%22%20opacity%3D%220.5%22%2F%3E%0A%0A%20%20%20%20%20%20%3C!--%20Open%20Gasping%20Mouth%20(Running%20Fast%2C%20Breathing%20Hard!)%20--%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%2220%22%20rx%3D%229%22%20ry%3D%2211%22%20fill%3D%22%23991b1b%22%2F%3E%0A%20%20%20%20%20%20%3Cpath%20d%3D%22M%20-6%2016%20Q%200%2019%206%2016%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%222.5%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%3Cellipse%20cx%3D%220%22%20cy%3D%2224%22%20rx%3D%225%22%20ry%3D%223.5%22%20fill%3D%22%23f87171%22%2F%3E%0A%20%20%20%20%3C%2Fg%3E%0A%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E"
+        }
+      ]
+    },
+    "skippedExercises": [],
+    "pausedSession": null,
+    "miniExamHistory": [],
+    "mistakes": [
+      {
+        "id": "m1",
+        "word": "kennen",
+        "category": "Grammatik",
+        "wrongAnswer": "du kennst nicht",
+        "correctAnswer": "du kennst",
+        "timestamp": 1790445036799,
+        "resolved": false
+      },
+      {
+        "id": "m2",
+        "word": "das Schloss",
+        "category": "Artikel",
+        "wrongAnswer": "der Schloss",
+        "correctAnswer": "das Schloss",
+        "timestamp": 1790488236799,
+        "resolved": false
+      },
+      {
+        "id": "m3",
+        "word": "rennen",
+        "category": "Grammatik",
+        "wrongAnswer": "er renntet",
+        "correctAnswer": "er rennt",
+        "timestamp": 1790511436799,
+        "resolved": false
+      }
+    ],
+    "claimedRewards": [],
+    "completedExerciseRecords": []
+  },
+  "qa_test_device_1790537103540": {
+    "completedExerciseRecords": [
+      {
+        "id": "mon_picture_match_zimmer",
+        "taskId": "mon_picture_match_zimmer",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "exerciseIndex": 0,
+        "title": "Bild zuordnen",
+        "pointsEarned": 4,
+        "completedAt": 1790537103537,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_missing_letters_schwimmen",
+        "taskId": "mon_missing_letters_schwimmen",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "exerciseIndex": 1,
+        "title": "Fehlende Buchstaben",
+        "pointsEarned": 4,
+        "completedAt": 1790537103537,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_spelling_choice_messer",
+        "taskId": "mon_spelling_choice_messer",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "exerciseIndex": 2,
+        "title": "Richtige Schreibweise",
+        "pointsEarned": 4,
+        "completedAt": 1790537103537,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_missing_letters_brennen",
+        "taskId": "mon_missing_letters_brennen",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "exerciseIndex": 3,
+        "title": "Fehlende Buchstaben",
+        "pointsEarned": 4,
+        "completedAt": 1790537103537,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_article_choice_schloss",
+        "taskId": "mon_article_choice_schloss",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "exerciseIndex": 4,
+        "title": "Richtigen Begleiter wählen",
+        "pointsEarned": 4,
+        "completedAt": 1790537103537,
+        "inputMethod": "handwriting"
+      }
+    ],
+    "skippedExercises": [],
+    "pausedSession": null,
+    "pointsState": {
+      "pointsToday": 20,
+      "pointsWeek": 20,
+      "cumulativePoints": 420,
+      "lastActiveDate": "2026-09-27"
+    },
+    "lastSavedAt": 1790537103644
+  },
+  "qa_test_device_1790537151927": {
+    "completedExerciseRecords": [
+      {
+        "id": "mon_picture_match_zimmer",
+        "taskId": "mon_picture_match_zimmer",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "pointsEarned": 4,
+        "completedAt": 1790537151924,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_missing_letters_schwimmen",
+        "taskId": "mon_missing_letters_schwimmen",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "pointsEarned": 4,
+        "completedAt": 1790537151924,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_spelling_choice_messer",
+        "taskId": "mon_spelling_choice_messer",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "pointsEarned": 4,
+        "completedAt": 1790537151924,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_missing_letters_brennen",
+        "taskId": "mon_missing_letters_brennen",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "pointsEarned": 4,
+        "completedAt": 1790537151924,
+        "inputMethod": "handwriting"
+      },
+      {
+        "id": "mon_article_choice_schloss",
+        "taskId": "mon_article_choice_schloss",
+        "weekId": "woche-1-doppelkonsonanten",
+        "day": "monday",
+        "pointsEarned": 4,
+        "completedAt": 1790537151924,
+        "inputMethod": "handwriting"
+      }
+    ],
+    "skippedExercises": [],
+    "pausedSession": null,
+    "pointsState": {
+      "pointsToday": 20,
+      "pointsWeek": 20,
+      "cumulativePoints": 420,
+      "lastActiveDate": "2026-09-27"
+    },
+    "lastSavedAt": 1790537152067
+  },
+  "qa_math_device_1790537772711": {
+    "mathProgress": {
+      "completedTaskIds": [
+        "mon_math_1_addition_1000",
+        "mon_math_2_zahlenstrahl",
+        "mon_math_3_verdoppeln_halbieren"
+      ],
+      "completedRecords": [
+        {
+          "id": "mon_math_1_addition_1000",
+          "taskId": "mon_math_1_addition_1000",
+          "day": "monday",
+          "skillName": "Addition bis 1000",
+          "pointsEarned": 4,
+          "completedAt": 1790537772709,
+          "inputMethod": "keyboard",
+          "wasCorrectFirstTry": true,
+          "attemptCount": 1
+        },
+        {
+          "id": "mon_math_2_zahlenstrahl",
+          "taskId": "mon_math_2_zahlenstrahl",
+          "day": "monday",
+          "skillName": "Zahlenstrahl",
+          "pointsEarned": 4,
+          "completedAt": 1790537772710,
+          "inputMethod": "handwriting",
+          "wasCorrectFirstTry": true,
+          "attemptCount": 1
+        },
+        {
+          "id": "mon_math_3_verdoppeln_halbieren",
+          "taskId": "mon_math_3_verdoppeln_halbieren",
+          "day": "monday",
+          "skillName": "Verdoppeln",
+          "pointsEarned": 4,
+          "completedAt": 1790537772710,
+          "inputMethod": "keyboard",
+          "wasCorrectFirstTry": true,
+          "attemptCount": 1
+        }
+      ],
+      "skillsMastery": {
+        "Addition bis 1000": {
+          "skillName": "Addition bis 1000",
+          "consecutiveCorrect": 2,
+          "mastered": true,
+          "lastAttemptAt": 1790537772711,
+          "totalAttempts": 2
+        },
+        "Zahlenstrahl": {
+          "skillName": "Zahlenstrahl",
+          "consecutiveCorrect": 1,
+          "mastered": false,
+          "lastAttemptAt": 1790537772710,
+          "totalAttempts": 1
+        },
+        "Verdoppeln": {
+          "skillName": "Verdoppeln",
+          "consecutiveCorrect": 1,
+          "mastered": false,
+          "lastAttemptAt": 1790537772710,
+          "totalAttempts": 1
+        }
+      },
+      "strugglingSkills": [],
+      "pointsToday": 12,
+      "pointsWeek": 12,
+      "streakDays": 1,
+      "lastActiveDate": "2026-09-27"
+    },
+    "completedExerciseRecords": [],
+    "lastSavedAt": 1790537772830
+  },
+  "qa_math_device_1790537791804": {
+    "mathProgress": {
+      "completedTaskIds": [
+        "mon_math_1_addition_1000",
+        "mon_math_2_zahlenstrahl",
+        "mon_math_3_verdoppeln_halbieren"
+      ],
+      "completedRecords": [
+        {
+          "id": "mon_math_1_addition_1000",
+          "taskId": "mon_math_1_addition_1000",
+          "day": "monday",
+          "skillName": "Addition bis 1000",
+          "pointsEarned": 4,
+          "completedAt": 1790537791803,
+          "inputMethod": "keyboard",
+          "wasCorrectFirstTry": true,
+          "attemptCount": 1
+        },
+        {
+          "id": "mon_math_2_zahlenstrahl",
+          "taskId": "mon_math_2_zahlenstrahl",
+          "day": "monday",
+          "skillName": "Zahlenstrahl",
+          "pointsEarned": 4,
+          "completedAt": 1790537791804,
+          "inputMethod": "handwriting",
+          "wasCorrectFirstTry": true,
+          "attemptCount": 1
+        },
+        {
+          "id": "mon_math_3_verdoppeln_halbieren",
+          "taskId": "mon_math_3_verdoppeln_halbieren",
+          "day": "monday",
+          "skillName": "Verdoppeln",
+          "pointsEarned": 4,
+          "completedAt": 1790537791804,
+          "inputMethod": "keyboard",
+          "wasCorrectFirstTry": true,
+          "attemptCount": 1
+        }
+      ],
+      "skillsMastery": {
+        "Addition bis 1000": {
+          "skillName": "Addition bis 1000",
+          "consecutiveCorrect": 2,
+          "mastered": true,
+          "lastAttemptAt": 1790537791804,
+          "totalAttempts": 2
+        },
+        "Zahlenstrahl": {
+          "skillName": "Zahlenstrahl",
+          "consecutiveCorrect": 1,
+          "mastered": false,
+          "lastAttemptAt": 1790537791804,
+          "totalAttempts": 1
+        },
+        "Verdoppeln": {
+          "skillName": "Verdoppeln",
+          "consecutiveCorrect": 1,
+          "mastered": false,
+          "lastAttemptAt": 1790537791804,
+          "totalAttempts": 1
+        }
+      },
+      "strugglingSkills": [],
+      "pointsToday": 12,
+      "pointsWeek": 12,
+      "streakDays": 1,
+      "lastActiveDate": "2026-09-27"
+    },
+    "completedExerciseRecords": [],
+    "lastSavedAt": 1790537791912
   }
 }

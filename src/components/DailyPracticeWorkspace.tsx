@@ -524,15 +524,14 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         // Auto-recognition safety: if strokes exist but child hasn't confirmed text
         if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
           setIsRecognizing(true);
-          const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
-            expectedWord: currentEx.correctAnswer,
-            expectedSentence: currentEx.correctAnswer,
-            expectedVocabulary: words.map((w) => w.cleanWord),
-            exerciseType: currentEx.type,
-          });
+          const rec = await recognizeHandwritingStrokes(handwritingStrokes);
           setIsRecognizing(false);
-          setRecognizedCandidate(rec.text || currentEx.correctAnswer);
-          setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          if (rec.text) {
+            setRecognizedCandidate(rec.text);
+            setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          } else {
+            setHintMessage('Bitte schreibe deinen Satz noch einmal deutlicher oder tippe ihn.');
+          }
           return;
         }
         if (recognizedCandidate) {
@@ -566,14 +565,15 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
           setIsRecognizing(true);
           const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
-            expectedWord: currentEx.correctAnswer,
             allowedWords: currentEx.options,
-            expectedVocabulary: words.map((w) => w.cleanWord),
-            exerciseType: currentEx.type,
           });
           setIsRecognizing(false);
-          setRecognizedCandidate(rec.text || currentEx.correctAnswer);
-          setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          if (rec.text) {
+            setRecognizedCandidate(rec.text);
+            setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          } else {
+            setHintMessage('Bitte schreibe deine Antwort noch einmal deutlicher oder wähle eine Option.');
+          }
           return;
         }
         if (recognizedCandidate) {
@@ -605,30 +605,20 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
       if (inputMethod === 'handwriting') {
         if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
           setIsRecognizing(true);
-          let missingChars = '';
-          if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
-            const pat = currentEx.missingPattern;
-            const wrd = currentEx.word?.word || currentEx.correctAnswer;
-            for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
-              if (pat[i] === '_') missingChars += wrd[i];
-            }
-          }
-          const expected = currentEx.type === 'missing_letters' && missingLettersMode === 'missing_only'
-            ? missingChars || currentEx.correctAnswer
-            : currentEx.correctAnswer;
-
+          const isSingleWord = currentEx.type === 'missing_letters' || currentEx.type === 'type_word';
           const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
-            expectedWord: expected,
-            allowedWords: currentEx.options,
-            expectedVocabulary: words.map((w) => w.cleanWord),
-            expectedSentence: currentEx.targetSentence || currentEx.correctAnswer,
-            exerciseType: currentEx.type,
+            vocabularyContext: isSingleWord ? words.map((w) => w.cleanWord) : undefined,
           });
           setIsRecognizing(false);
-          setRecognizedCandidate(rec.text || expected);
-          setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          if (rec.text) {
+            setRecognizedCandidate(rec.text);
+            setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
+          } else {
+            setHintMessage('Bitte schreibe dein Wort noch einmal deutlicher oder tippe es.');
+          }
           return;
         }
+
         if (recognizedCandidate) {
           setHintMessage('Bitte überprüfe kurz den erkannten Text und bestätige ihn mit "✓ Ja, das stimmt"!');
           return;
@@ -1914,26 +1904,16 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                           isRecognizing={isRecognizing}
                           onRecognizeRequest={async (strokesToRecognize) => {
                             setIsRecognizing(true);
-                            let missingChars = '';
-                            if (currentEx.missingPattern && (currentEx.word?.word || currentEx.correctAnswer)) {
-                              const pat = currentEx.missingPattern;
-                              const wrd = currentEx.word?.word || currentEx.correctAnswer;
-                              for (let i = 0; i < Math.min(pat.length, wrd.length); i++) {
-                                if (pat[i] === '_') missingChars += wrd[i];
-                              }
-                            }
-                            const expected = currentEx.type === 'missing_letters' && missingLettersMode === 'missing_only'
-                              ? missingChars || currentEx.correctAnswer
-                              : currentEx.correctAnswer;
-
+                            const isSingleWord = currentEx.type === 'missing_letters' || currentEx.type === 'type_word';
                             const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
-                              expectedWord: expected,
-                              expectedVocabulary: words.map((w) => w.cleanWord),
-                              expectedSentence: currentEx.targetSentence || currentEx.correctAnswer,
-                              exerciseType: currentEx.type,
+                              vocabularyContext: isSingleWord ? words.map((w) => w.cleanWord) : undefined,
                             });
                             setIsRecognizing(false);
-                            setRecognizedCandidate(rec.text || expected);
+                            if (rec.text) {
+                              setRecognizedCandidate(rec.text);
+                            } else {
+                              setHintMessage('Die Schrift konnte nicht erkannt werden. Bitte schreibe etwas deutlicher oder tippe deinen Text.');
+                            }
                           }}
                         />
 
@@ -2030,13 +2010,14 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                           onRecognizeRequest={async (strokesToRecognize) => {
                             setIsRecognizing(true);
                             const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
-                              expectedWord: currentEx.correctAnswer,
                               allowedWords: currentEx.options,
-                              expectedVocabulary: words.map((w) => w.cleanWord),
-                              exerciseType: currentEx.type,
                             });
                             setIsRecognizing(false);
-                            setRecognizedCandidate(rec.text || currentEx.correctAnswer);
+                            if (rec.text) {
+                              setRecognizedCandidate(rec.text);
+                            } else {
+                              setHintMessage('Die Schrift konnte nicht erkannt werden. Bitte wähle eine Option oder schreibe deutlicher.');
+                            }
                           }}
                         />
 

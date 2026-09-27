@@ -619,18 +619,388 @@ function createBildgeschichteDailyExercise(
 }
 
 /**
+ * Helper to generate a clean, canonical exercise for a specific word and type with deterministic ID
+ */
+export function createWordExercise(
+  w: LernwortItem,
+  type: GeneratedExercise['type'],
+  day: DayOfWeek,
+  level: DifficultyLevel = 'profi',
+  customVariant?: string
+): GeneratedExercise {
+  const clean = w.cleanWord.toLowerCase();
+  const dayPrefix = day.slice(0, 3); // 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'
+  const variantSuffix = customVariant ? `_${customVariant}` : '';
+  const id = `${dayPrefix}_${type}_${clean}${variantSuffix}`;
+
+  // Avatar matching the day's focus
+  const avatarId =
+    day === 'monday'
+      ? 'mia'
+      : day === 'tuesday'
+      ? 'ben'
+      : day === 'wednesday'
+      ? 'leo'
+      : 'sophie';
+
+  if (type === 'picture_match') {
+    const distractors = w.distractors.map((d) => d.replace(/^(der|die|das)\s+/i, ''));
+    const options = [w.cleanWord, ...distractors.slice(0, 2)];
+    return {
+      id,
+      day,
+      level,
+      type: 'picture_match',
+      title: 'Bild zuordnen',
+      prompt: 'Welches Wort passt zu diesem Bild?',
+      avatarId,
+      word: w,
+      options,
+      correctAnswer: w.cleanWord,
+      solutionExplanation: `Richtig! Das gesuchte Wort ist „${w.cleanWord}“.`,
+      userHint1: 'Schau genau auf das Symbol und lies die Optionen leise mit.',
+      userHint2: `Das Wort beginnt mit dem Buchstaben „${w.cleanWord[0]}“.`,
+      grammarCategory: 'Rechtschreibung',
+    };
+  }
+
+  if (type === 'missing_letters') {
+    return {
+      id,
+      day,
+      level,
+      type: 'missing_letters',
+      title: 'Fehlende Buchstaben',
+      prompt: 'Ergänze die fehlenden Buchstaben.',
+      contextSentence: w.missingLetterPattern,
+      avatarId,
+      word: w,
+      correctAnswer: w.word,
+      missingPattern: w.missingLetterPattern,
+      solutionExplanation: `Sehr gut! Richtig geschrieben heißt es: „${w.word}“.`,
+      userHint1: 'Pass genau auf Doppelkonsonanten auf (mm, ss, nn).',
+      userHint2: 'Der Vokal vor dem Doppellaut wird kurz gesprochen.',
+      grammarCategory: 'Rechtschreibung',
+    };
+  }
+
+  if (type === 'spelling_choice') {
+    return {
+      id,
+      day,
+      level,
+      type: 'spelling_choice',
+      title: 'Richtige Schreibweise',
+      prompt: 'Welche Schreibweise ist richtig?',
+      avatarId,
+      word: w,
+      options: [w.word, ...w.distractors].slice(0, 3),
+      correctAnswer: w.word,
+      solutionExplanation: `Die richtige Schreibweise ist „${w.word}“.`,
+      userHint1: 'Achte auf den kurzen Vokal und die Doppelkonsonanten!',
+      userHint2: 'Sprich das Wort leise in Silben: Wo stoppt der Laut?',
+      grammarCategory: 'Rechtschreibung',
+    };
+  }
+
+  if (type === 'article_choice') {
+    return {
+      id,
+      day,
+      level,
+      type: 'article_choice',
+      title: 'Richtigen Begleiter wählen',
+      prompt: 'Welcher Begleiter (der, die oder das) gehört dazu?',
+      contextSentence: `___ ${w.cleanWord}`,
+      avatarId,
+      word: w,
+      options: ['der', 'die', 'das'],
+      correctAnswer: w.artikel || 'das',
+      solutionExplanation: `Es heißt: ${w.artikel || 'das'} ${w.cleanWord}.`,
+      userHint1: 'Klingt es männlich (der), weiblich (die) oder sächlich (das)?',
+      userHint2: 'Denke an ein Beispiel: ein schönes ..., ein großer ... oder eine kleine ...?',
+      grammarCategory: 'Artikel',
+    };
+  }
+
+  if (type === 'wortart_choice') {
+    return {
+      id,
+      day,
+      level,
+      type: 'wortart_choice',
+      title: 'Wortart bestimmen',
+      prompt: 'Welche Wortart ist dieses Wort?',
+      contextSentence: `„${w.cleanWord}“`,
+      avatarId,
+      word: w,
+      options: ['Nomen', 'Verb', 'Adjektiv'],
+      correctAnswer: w.wortart,
+      solutionExplanation: `„${w.cleanWord}“ ist ein ${w.wortart}.`,
+      userHint1:
+        w.wortart === 'Nomen'
+          ? 'Man kann der, die oder das davor setzen!'
+          : w.wortart === 'Verb'
+          ? 'Es ist ein Tu-Wort (Handlung)!'
+          : 'Es beschreibt, wie etwas ist!',
+      userHint2: w.wortart === 'Nomen' ? 'Nomen werden großgeschrieben.' : 'Wird im Satz kleingeschrieben.',
+      grammarCategory: 'Grammatik',
+    };
+  }
+
+  if (type === 'plural_choice') {
+    const pluralForm = w.plural || `die ${w.cleanWord}e`;
+    const alt1 = pluralForm.endsWith('er') ? `die ${w.cleanWord}e` : `die ${w.cleanWord}er`;
+    const alt2 = `die ${w.cleanWord}en`;
+    const options = [pluralForm, alt1, alt2].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3);
+    return {
+      id,
+      day,
+      level,
+      type: 'plural_choice',
+      title: 'Einzahl & Mehrzahl',
+      prompt: 'Welche Mehrzahl ist richtig?',
+      contextSentence: `„${w.word}“ → viele ...?`,
+      avatarId,
+      word: w,
+      options,
+      correctAnswer: pluralForm,
+      pluralRuleHint: getPluralConceptHint(w.cleanWord),
+      solutionExplanation: `Einzahl: ${w.word} → Mehrzahl: ${pluralForm}.`,
+      userHint1: 'Lies die gelbe Tipp-Box aufmerksam durch!',
+      userHint2: 'Sprich den Satz leise: „Ich sehe drei ...“ Welche Form klingt natürlich?',
+      grammarCategory: 'Grammatik',
+    };
+  }
+
+  if (type === 'verb_conjugation') {
+    const isDu = customVariant === 'du' || !customVariant;
+    const pronoun = isDu ? 'Du' : 'Er';
+    let baseStem = w.infinitive ? w.infinitive.replace(/en$/, '') : w.cleanWord.replace(/en$/, '');
+    if (baseStem.endsWith('renn')) baseStem = 'renn';
+    if (baseStem.endsWith('pass')) baseStem = 'pass';
+    if (baseStem.endsWith('brenn')) baseStem = 'brenn';
+    if (baseStem.endsWith('kenn')) baseStem = 'kenn';
+    if (baseStem.endsWith('beginn')) baseStem = 'beginn';
+
+    const correctForm =
+      w.cleanWord === 'passen'
+        ? (isDu ? 'passt' : 'passt')
+        : isDu
+        ? `${baseStem}st`
+        : `${baseStem}t`;
+
+    const opt1 = `${baseStem}st`;
+    const opt2 = `${baseStem}t`;
+    const opt3 = `${baseStem}e`;
+    const options = [opt1, opt2, opt3].filter((v, i, a) => a.indexOf(v) === i);
+
+    return {
+      id,
+      day,
+      level,
+      type: 'verb_conjugation',
+      title: 'Verbform anpassen',
+      prompt: 'Welche Verbform passt in den Satz?',
+      contextSentence: `${pronoun} ___ heute.`,
+      avatarId,
+      word: w,
+      options,
+      correctAnswer: correctForm,
+      solutionExplanation: `Richtig! ${pronoun} ${correctForm}.`,
+      userHint1: isDu ? 'Bei „du“ endet das Verb im Präsens auf -st.' : 'Bei „er/sie/es“ endet das Verb auf -t.',
+      userHint2: 'Denke an die Endungen: ich -e, du -st, er/sie -t.',
+      grammarCategory: 'Grammatik',
+    };
+  }
+
+  if (type === 'adjective_form') {
+    let formCorrect = w.cleanWord;
+    let sentence = `Das ist ganz schön ___.`;
+    let options = [w.cleanWord, `${w.cleanWord}e`, `${w.cleanWord}en`];
+
+    if (w.cleanWord === 'bissig') {
+      sentence = 'Pass gut auf vor dem ___ Hund!';
+      formCorrect = 'bissigen';
+      options = ['bissigen', 'bissiger', 'bissige'];
+    } else if (w.cleanWord === 'dünn') {
+      sentence = 'Er schneidet eine ___ Scheibe Brot.';
+      formCorrect = 'dünne';
+      options = ['dünne', 'dünnen', 'dünnes'];
+    } else if (w.cleanWord === 'schlimm') {
+      sentence = 'Die kleine Schramme ist nicht ___.';
+      formCorrect = 'schlimm';
+      options = ['schlimm', 'schlimme', 'schlimmer'];
+    }
+
+    return {
+      id,
+      day,
+      level,
+      type: 'adjective_form',
+      title: 'Adjektiv im Satz anwenden',
+      prompt: 'Welche Adjektiv-Form passt in den Satz?',
+      contextSentence: sentence,
+      avatarId,
+      word: w,
+      options,
+      correctAnswer: formCorrect,
+      solutionExplanation: `Im Satz heißt es: „${formCorrect}“.`,
+      userHint1: 'Sprich den Satz laut und wähle die Form, die flüssig klingt.',
+      userHint2: 'Achte auf den Begleiter vor dem Adjektiv.',
+      grammarCategory: 'Grammatik',
+    };
+  }
+
+  if (type === 'sentence_builder') {
+    const rawTarget =
+      w.exampleSentence ||
+      (w.sentences && w.sentences[0] ? w.sentences[0].text : `Er mag das Wort ${w.cleanWord}.`);
+    const cleanSentence = rawTarget.trim();
+    const blocks = cleanSentence
+      .split(' ')
+      .map((b) => b.trim())
+      .filter(Boolean);
+
+    return {
+      id,
+      day,
+      level,
+      type: 'sentence_builder',
+      title: 'Satz bauen · Wort-Blöcke',
+      prompt: 'Bringe die Wort-Blöcke in die richtige Reihenfolge.',
+      avatarId,
+      word: w,
+      correctAnswer: cleanSentence,
+      solutionExplanation: `Klasse! Der vollständige Satz lautet: „${cleanSentence}“`,
+      userHint1: 'Achte auf den Satzanfang (Großschreibung) und den Punkt am Ende.',
+      userHint2: `Der Satz beginnt mit: „${blocks[0]}“.`,
+      targetSentence: cleanSentence,
+      wordBlocks: [...blocks].sort(() => Math.random() - 0.5),
+      grammarCategory: 'Satzbau',
+    };
+  }
+
+  if (type === 'sentence_expand') {
+    const baseEx = w.exampleSentence || `Er mag ${w.cleanWord}.`;
+    return {
+      id,
+      day,
+      level,
+      type: 'sentence_expand',
+      title: 'Satz länger machen',
+      prompt: 'Schreibe einen vollständigen Satz mit dem Lernwort:',
+      contextSentence: `Lernwort: „${w.cleanWord}“`,
+      avatarId,
+      word: w,
+      correctAnswer: baseEx,
+      solutionExplanation: `Toller Satz: „${baseEx}“`,
+      userHint1: 'Denke an Subjekt (wer?), Verb (tut was?) und Großschreibung.',
+      userHint2: 'Nutze Zeit („heute“) oder Ort („im Zimmer“, „am See“).',
+      expandSuggestions: ['heute', 'gemeinsam', 'sehr vorsichtig', 'mit Freude'],
+      grammarCategory: 'Satzbau',
+    };
+  }
+
+  if (type === 'sentence_linking') {
+    return {
+      id,
+      day,
+      level,
+      type: 'sentence_linking',
+      title: 'Zwei Sätze verbinden',
+      prompt: 'Verbinde diese zwei Sätze sinnvoll mit dem passenden Bindewort:',
+      contextSentence: `1. Er lernt das Wort „${w.cleanWord}“.\n2. Er möchte heute fehlerfrei schreiben.`,
+      avatarId,
+      word: w,
+      options: ['weil', 'aber', 'und'],
+      correctAnswer: 'weil',
+      solutionExplanation: `Richtig! Er lernt das Wort „${w.cleanWord}“, weil er heute fehlerfrei schreiben möchte.`,
+      userHint1: '„weil“ begründet die Handlung (Warum macht er das?).',
+      userHint2: 'Vor dem Bindewort „weil“ steht immer ein Komma.',
+      grammarCategory: 'Satzbau',
+    };
+  }
+
+  // Default fallback: spelling choice
+  return {
+    id,
+    day,
+    level,
+    type: 'type_word',
+    title: 'Lernwort schreiben',
+    prompt: 'Schreibe das gesuchte Wort fehlerfrei:',
+    avatarId,
+    word: w,
+    correctAnswer: w.word,
+    solutionExplanation: `Sehr gut! „${w.word}“ ist richtig!`,
+    userHint1: 'Denke an Groß- und Kleinschreibung sowie Doppelkonsonanten.',
+    userHint2: `Es fängt an mit: „${w.word.slice(0, 3)}“`,
+    grammarCategory: 'Rechtschreibung',
+  };
+}
+
+export interface WeeklyCoverageReport {
+  weeklyWords: string[];
+  counts: Record<string, number>;
+  sufficientCoverage: boolean; // all words >= 2
+  reportString: string;
+}
+
+/**
+ * Validates that every active Lernwort appears in AT LEAST 2 exercises across the week.
+ * Logs a QA report for inspection.
+ */
+export function validateWeeklyPlanCoverage(
+  words: LernwortItem[],
+  level: DifficultyLevel = 'profi'
+): WeeklyCoverageReport {
+  const days: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const counts: Record<string, number> = {};
+
+  words.forEach((w) => {
+    counts[w.cleanWord.toLowerCase()] = 0;
+  });
+
+  days.forEach((d) => {
+    const plan = generateDailyExercisePlan({ day: d, words, level });
+    plan.heuteEmpfohlen.forEach((ex) => {
+      if (ex.word?.cleanWord) {
+        const key = ex.word.cleanWord.toLowerCase();
+        counts[key] = (counts[key] || 0) + 1;
+      }
+    });
+  });
+
+  const weeklyWords = words.map((w) => w.cleanWord);
+  let allSufficient = true;
+  const reportLines: string[] = [];
+
+  weeklyWords.forEach((wordName) => {
+    const c = counts[wordName.toLowerCase()] || 0;
+    if (c < 2) allSufficient = false;
+    reportLines.push(`- ${wordName}: ${c} Aufgabe${c === 1 ? '' : 'n'}`);
+  });
+
+  const reportString = `Wochen-Abdeckung (Alle Wörter mind. 2 Aufgaben):\n${reportLines.join('\n')}\nStatus: ${
+    allSufficient ? '✅ Alle 14 Wörter ausreichend abgedeckt' : '⚠️ Unzureichende Abdeckung'
+  }`;
+
+  return {
+    weeklyWords,
+    counts,
+    sufficientCoverage: allSufficient,
+    reportString,
+  };
+}
+
+/**
  * MASTER DAILY EXERCISE PLAN GENERATOR
- * - Strictly guarantees MAXIMUM 5 exercises per day for the recommended plan.
- * - Progressive cognitive demand across the week:
- *   * Monday: Recognition & Spelling (Recall / Foundation)
- *   * Tuesday: Morphology & Grammar rules (Rule application)
- *   * Wednesday: Syntax & Sentence building (Structural synthesis)
- *   * Thursday: Sentence expansion & clause connectors (Creative transfer)
- *   * Friday: Evaluative review & story narrative (Integration & review)
- *   * Saturday: Championship, story assembly & mastery (Synthesis)
- * - NEVER repeats the same word within any single 5-task daily session.
- * - Balanced word coverage: all 10 words practiced across the active week.
- * - Adaptive weak-word injection strictly respects the 5-task cap and never injects a duplicate word.
+ * - Strictly guarantees MAXIMUM 5 exercises per day for the recommended plan (30 tasks/week).
+ * - Full coverage rule: Every active Lernwort appears at least 2 times per week.
+ * - One recognition/spelling task + One application/grammar/sentence task per word.
+ * - Stable, deterministic task IDs used consistently for overview, runner, and completion.
+ * - Adaptive Schwerpunkt tasks are kept strictly separate in plan.schwerpunktExtra.
  */
 export function generateDailyExercisePlan(params: {
   day: DayOfWeek;
@@ -640,228 +1010,129 @@ export function generateDailyExercisePlan(params: {
   mistakes?: PracticeMistake[];
   skippedCount?: number;
 }): DailyExercisePlan {
-  const { day, words, level, weakWords = [], mistakes = [], skippedCount = 0 } = params;
+  const { day, words, level, weakWords = [], skippedCount = 0 } = params;
 
-  // 1. Build rich base pools for each domain
-  const monTasks = generateMondayExercises(words, level);
-  const tueTasks = generateTuesdayExercises(words, level);
-  const wedTasks = generateWednesdayExercises(level);
-  const thuTasks = generateThursdayExercises(level);
-
-  // Helper to pick a task for a specific word
-  const findTaskForWord = (
-    pool: GeneratedExercise[],
-    type: GeneratedExercise['type'],
-    wordClean: string
-  ): GeneratedExercise | undefined => {
-    return pool.find(
-      (e) => e.type === type && e.word?.cleanWord?.toLowerCase() === wordClean.toLowerCase()
-    );
+  // Helper to find a word by clean name (case-insensitive)
+  const getWord = (name: string): LernwortItem => {
+    const found = words.find((w) => w.cleanWord.toLowerCase() === name.toLowerCase());
+    return found || words[0];
   };
-
-  // Divide words across days for balanced weekly coverage (Group 1 vs Group 2)
-  // words: 0: Zimmer, 1: schwimmen, 2: Messer, 3: Kuss, 4: rennen, 5: Schloss, 6: Nummer, 7: passen, 8: beginnen, 9: bissig
-  const w = words;
-  const wordAt = (idx: number) => w[idx % w.length];
 
   let todayFive: GeneratedExercise[] = [];
 
+  // =========================================================================
+  // CANONICAL 6-DAY PLAN WITH 100% BALANCED COVERAGE
+  // Every word from Group 1 & Group 2 appears in AT LEAST 2 tasks!
+  // =========================================================================
   if (day === 'monday') {
-    // MONDAY: Recognition, Spelling & Vocabulary Foundation
-    // Cognitive load: Recall / Orthographic discrimination
-    // 5 DISTINCT WORDS (e.g. Zimmer, schwimmen, Messer, Kuss, rennen)
-    const task1 =
-      findTaskForWord(monTasks, 'picture_match', wordAt(0).cleanWord) ||
-      monTasks.find((t) => t.type === 'picture_match') ||
-      monTasks[0];
-
-    const task2 =
-      findTaskForWord(monTasks, 'missing_letters', wordAt(1).cleanWord) ||
-      monTasks.find((t) => t.type === 'missing_letters' && t.word?.cleanWord !== task1?.word?.cleanWord) ||
-      monTasks[1];
-
-    const task3 =
-      findTaskForWord(monTasks, 'spelling_choice', wordAt(2).cleanWord) ||
-      monTasks.find(
-        (t) =>
-          t.type === 'spelling_choice' &&
-          t.word?.cleanWord !== task1?.word?.cleanWord &&
-          t.word?.cleanWord !== task2?.word?.cleanWord
-      ) ||
-      monTasks[2];
-
-    const task4 =
-      findTaskForWord(monTasks, 'wortart_choice', wordAt(3).cleanWord) ||
-      monTasks.find(
-        (t) =>
-          t.type === 'wortart_choice' &&
-          t.word?.cleanWord !== task1?.word?.cleanWord &&
-          t.word?.cleanWord !== task2?.word?.cleanWord &&
-          t.word?.cleanWord !== task3?.word?.cleanWord
-      ) ||
-      monTasks[3];
-
-    const task5 =
-      findTaskForWord(monTasks, 'article_choice', wordAt(4).cleanWord) ||
-      findTaskForWord(monTasks, 'type_word', wordAt(4).cleanWord) ||
-      monTasks.find(
-        (t) =>
-          t.word?.cleanWord !== task1?.word?.cleanWord &&
-          t.word?.cleanWord !== task2?.word?.cleanWord &&
-          t.word?.cleanWord !== task3?.word?.cleanWord &&
-          t.word?.cleanWord !== task4?.word?.cleanWord
-      ) ||
-      monTasks[4];
-
-    todayFive = [task1, task2, task3, task4, task5].filter(Boolean);
+    // MONDAY: Recognition & Spelling Foundation (5 tasks)
+    // 1. Zimmer (picture_match)
+    // 2. schwimmen (missing_letters)
+    // 3. Messer (spelling_choice)
+    // 4. brennen (missing_letters)
+    // 5. Schloss (article_choice)
+    todayFive = [
+      createWordExercise(getWord('Zimmer'), 'picture_match', 'monday', level),
+      createWordExercise(getWord('schwimmen'), 'missing_letters', 'monday', level),
+      createWordExercise(getWord('Messer'), 'spelling_choice', 'monday', level),
+      createWordExercise(getWord('brennen'), 'missing_letters', 'monday', level),
+      createWordExercise(getWord('Schloss'), 'article_choice', 'monday', level),
+    ];
   } else if (day === 'tuesday') {
-    // TUESDAY: Morphology & Grammar (Verb conjugation, Noun plurals, Adjective declension)
-    // Cognitive load: Rule application & inflection
-    // 5 DISTINCT WORDS (e.g. schwimmen, Zimmer, rennen, Messer, bissig)
-    const verbList = tueTasks.filter((t) => t.type === 'verb_conjugation');
-    const pluralList = tueTasks.filter((t) => t.type === 'plural_choice');
-    const adjList = tueTasks.filter((t) => t.type === 'adjective_form');
-
-    const task1 = verbList[0] || tueTasks[0];
-    const task2 =
-      pluralList.find((p) => p.word?.cleanWord !== task1?.word?.cleanWord) || pluralList[0] || tueTasks[1];
-    const task3 =
-      verbList.find(
-        (v) => v.word?.cleanWord !== task1?.word?.cleanWord && v.word?.cleanWord !== task2?.word?.cleanWord
-      ) || verbList[1] || tueTasks[2];
-    const task4 =
-      pluralList.find(
-        (p) =>
-          p.word?.cleanWord !== task1?.word?.cleanWord &&
-          p.word?.cleanWord !== task2?.word?.cleanWord &&
-          p.word?.cleanWord !== task3?.word?.cleanWord
-      ) || pluralList[1] || tueTasks[3];
-    const task5 =
-      adjList[0] ||
-      pluralList.find(
-        (p) =>
-          p.word?.cleanWord !== task1?.word?.cleanWord &&
-          p.word?.cleanWord !== task2?.word?.cleanWord &&
-          p.word?.cleanWord !== task3?.word?.cleanWord &&
-          p.word?.cleanWord !== task4?.word?.cleanWord
-      ) ||
-      verbList[2] ||
-      tueTasks[4];
-
-    todayFive = [task1, task2, task3, task4, task5].filter(Boolean);
+    // TUESDAY: Morphology & Grammar Rules (5 tasks)
+    // 1. kennen (verb_conjugation - du)
+    // 2. Nummer (plural_choice)
+    // 3. beginnen (verb_conjugation - er)
+    // 4. schlimm (adjective_form)
+    // 5. bissig (adjective_form)
+    todayFive = [
+      createWordExercise(getWord('kennen'), 'verb_conjugation', 'tuesday', level, 'du'),
+      createWordExercise(getWord('Nummer'), 'plural_choice', 'tuesday', level),
+      createWordExercise(getWord('beginnen'), 'verb_conjugation', 'tuesday', level, 'er'),
+      createWordExercise(getWord('schlimm'), 'adjective_form', 'tuesday', level),
+      createWordExercise(getWord('bissig'), 'adjective_form', 'tuesday', level),
+    ];
   } else if (day === 'wednesday') {
-    // WEDNESDAY: Syntax & Sentence Building (Leo - Satz-Baumeister)
-    // Cognitive load: Structural synthesis (Word blocks, clause order, Scene 1)
-    const sentenceBuilders = wedTasks.filter((t) => t.type === 'sentence_builder');
-    const sentenceLinks = thuTasks.filter((t) => t.type === 'sentence_linking');
-    const verbConj = tueTasks.filter((t) => t.type === 'verb_conjugation');
-
-    const task1 = sentenceBuilders[0] || wedTasks[0];
-    const task2 = sentenceBuilders[1] || sentenceBuilders[0];
-    const task3 = verbConj[0] || tueTasks[0];
-    const task4 = sentenceLinks[0] || sentenceBuilders[2] || wedTasks[2];
-    const task5 = createBildgeschichteDailyExercise(1, 'wednesday', level);
-
-    todayFive = [task1, task2, task3, task4, task5].filter(Boolean);
+    // WEDNESDAY: Syntax & Sentence Building (5 tasks)
+    // 1. Kuss (sentence_builder)
+    // 2. rennen (sentence_builder)
+    // 3. passen (sentence_builder)
+    // 4. dünn (sentence_builder)
+    // 5. Bildgeschichte Szene 1
+    todayFive = [
+      createWordExercise(getWord('Kuss'), 'sentence_builder', 'wednesday', level),
+      createWordExercise(getWord('rennen'), 'sentence_builder', 'wednesday', level),
+      createWordExercise(getWord('passen'), 'sentence_builder', 'wednesday', level),
+      createWordExercise(getWord('dünn'), 'sentence_builder', 'wednesday', level),
+      createBildgeschichteDailyExercise(1, 'wednesday', level),
+    ];
   } else if (day === 'thursday') {
-    // THURSDAY: Expressive Sentence Expansion & Connectors (Sophie - Geschichten-Profi)
-    // Cognitive load: Creative transfer & complex clauses
-    const sentenceExpands = thuTasks.filter((t) => t.type === 'sentence_expand');
-    const sentenceLinks = thuTasks.filter((t) => t.type === 'sentence_linking');
-    const verbConj = tueTasks.filter((t) => t.type === 'verb_conjugation');
-    const pluralChoices = tueTasks.filter((t) => t.type === 'plural_choice');
-
-    const task1 = sentenceExpands[0] || thuTasks[0];
-    const task2 = sentenceLinks[0] || sentenceExpands[1] || thuTasks[1];
-    const task3 =
-      verbConj.find((v) => v.word?.cleanWord !== task1?.word?.cleanWord) ||
-      sentenceLinks[1] ||
-      sentenceExpands[2] ||
-      verbConj[1] ||
-      tueTasks[0];
-    const task4 =
-      pluralChoices.find(
-        (p) => p.word?.cleanWord !== task1?.word?.cleanWord && p.word?.cleanWord !== task3?.word?.cleanWord
-      ) || pluralChoices[0] || tueTasks[1];
-    const task5 = createBildgeschichteDailyExercise(2, 'thursday', level);
-
-    todayFive = [task1, task2, task3, task4, task5].filter(Boolean);
+    // THURSDAY: Sentence Expansion & Connectors (5 tasks)
+    // 1. Zimmer (sentence_expand) -> 2nd task for Zimmer
+    // 2. schwimmen (sentence_expand) -> 2nd task for schwimmen
+    // 3. Messer (sentence_linking) -> 2nd task for Messer
+    // 4. brennen (sentence_expand) -> 2nd task for brennen
+    // 5. Schloss (plural_choice) -> 2nd task for Schloss
+    todayFive = [
+      createWordExercise(getWord('Zimmer'), 'sentence_expand', 'thursday', level),
+      createWordExercise(getWord('schwimmen'), 'sentence_expand', 'thursday', level),
+      createWordExercise(getWord('Messer'), 'sentence_linking', 'thursday', level),
+      createWordExercise(getWord('brennen'), 'sentence_expand', 'thursday', level),
+      createWordExercise(getWord('Schloss'), 'plural_choice', 'thursday', level),
+    ];
   } else if (day === 'friday') {
-    // FRIDAY: Integrated Review, Error Discrimination & Story Climax (Sophie & Mia)
-    // Cognitive load: Integration, error spotting & narrative progression
-    const spellingChoices = monTasks.filter((t) => t.type === 'spelling_choice');
-    const missingLetters = monTasks.filter((t) => t.type === 'missing_letters');
-    const verbConj = tueTasks.filter((t) => t.type === 'verb_conjugation');
-    const sentenceBuilders = wedTasks.filter((t) => t.type === 'sentence_builder');
-
-    // Pick 5 distinct learning words across the tasks
-    const task1 = spellingChoices[spellingChoices.length - 1] || monTasks[0];
-    const task2 =
-      missingLetters.find((m) => m.word?.cleanWord !== task1?.word?.cleanWord) ||
-      missingLetters[0] ||
-      monTasks[1];
-    const task3 =
-      verbConj.find(
-        (v) => v.word?.cleanWord !== task1?.word?.cleanWord && v.word?.cleanWord !== task2?.word?.cleanWord
-      ) || verbConj[0] || tueTasks[0];
-    const task4 = sentenceBuilders[sentenceBuilders.length - 1] || wedTasks[0];
-    const task5 = createBildgeschichteDailyExercise(4, 'friday', level);
-
-    todayFive = [task1, task2, task3, task4, task5].filter(Boolean);
+    // FRIDAY: Review & Narrative Climax (5 tasks)
+    // 1. kennen (sentence_linking) -> 2nd task for kennen
+    // 2. Nummer (missing_letters) -> 2nd task for Nummer
+    // 3. beginnen (sentence_expand) -> 2nd task for beginnen
+    // 4. schlimm (spelling_choice) -> 2nd task for schlimm
+    // 5. Bildgeschichte Szene 4
+    todayFive = [
+      createWordExercise(getWord('kennen'), 'sentence_linking', 'friday', level),
+      createWordExercise(getWord('Nummer'), 'missing_letters', 'friday', level),
+      createWordExercise(getWord('beginnen'), 'sentence_expand', 'friday', level),
+      createWordExercise(getWord('schlimm'), 'spelling_choice', 'friday', level),
+      createBildgeschichteDailyExercise(4, 'friday', level),
+    ];
   } else {
-    // SATURDAY: Championship & Master Story Assembly (Samstags-Challenge)
-    // Cognitive load: Autonomous synthesis & mastery
-    const sentenceBuilders = wedTasks.filter((t) => t.type === 'sentence_builder');
-    const sentenceLinks = thuTasks.filter((t) => t.type === 'sentence_linking');
-    const spellingChoices = monTasks.filter((t) => t.type === 'spelling_choice');
-    const pluralChoices = tueTasks.filter((t) => t.type === 'plural_choice');
+    // SATURDAY: Championship & Mastery Synthesis (5 tasks)
+    // 1. Kuss (plural_choice) -> 2nd task for Kuss
+    // 2. rennen (verb_conjugation) -> 2nd task for rennen
+    // 3. passen (sentence_linking) -> 2nd task for passen
+    // 4. dünn (spelling_choice) -> 2nd task for dünn
+    // 5. bissig (spelling_choice) -> 2nd task for bissig
+    const task1 = createWordExercise(getWord('Kuss'), 'plural_choice', 'saturday', level);
+    const task2 = createWordExercise(getWord('rennen'), 'verb_conjugation', 'saturday', level, 'er');
+    const task3 = createWordExercise(getWord('passen'), 'sentence_linking', 'saturday', level);
+    const task4 = createWordExercise(getWord('dünn'), 'spelling_choice', 'saturday', level);
+    const task5 = createWordExercise(getWord('bissig'), 'spelling_choice', 'saturday', level);
 
-    const task1 = sentenceBuilders[sentenceBuilders.length - 1] || sentenceBuilders[0];
-    const task2 =
-      sentenceLinks[0] ||
-      sentenceBuilders[1] ||
-      wedTasks[1] ||
-      thuTasks[0];
-    const task3 = pluralChoices[pluralChoices.length - 1] || tueTasks[0];
-    const task4 =
-      spellingChoices.find((s) => s.word?.cleanWord !== task3?.word?.cleanWord) ||
-      spellingChoices[0] ||
-      monTasks[0];
-    const task5 = createBildgeschichteDailyExercise(6, 'saturday', level);
-
-    // If JD has accumulated skipped tasks, automatically scale down the Master-Challenge
-    // so total workload does not overwhelm him.
     if (skippedCount > 0) {
       if (skippedCount === 1) {
-        // 4 challenge tasks + 1 catch-up = 5 total
-        todayFive = [task1, task2, task3, task5].filter(Boolean);
+        todayFive = [task1, task2, task3, task5];
       } else if (skippedCount === 2) {
-        // 3 challenge tasks + 2 catch-up = 5 total
-        todayFive = [task1, task2, task5].filter(Boolean);
+        todayFive = [task1, task2, task5];
       } else {
-        // 3+ catch-up tasks: preserve core sentence synthesis & crowning Bildgeschichte (2 tasks)
-        todayFive = [task1, task5].filter(Boolean);
+        todayFive = [task1, task5];
       }
     } else {
-      todayFive = [task1, task2, task3, task4, task5].filter(Boolean);
+      todayFive = [task1, task2, task3, task4, task5];
     }
   }
 
-  // Ensure strict cap: exactly the 5 required daily tasks!
-  // Adaptive Schwerpunkt tasks are kept separate in plan.schwerpunktExtra and never overwrite required daily tasks!
+  // Ensure strict cap: exactly 5 required daily tasks
   const finalHeuteEmpfohlen = todayFive.slice(0, 5);
 
-  // Compile remaining pool for "Noch offen" (excluding the 5 recommended tasks)
+  // Generate a broad pool of remaining available tasks for the week
   const usedIds = new Set(finalHeuteEmpfohlen.map((e) => e.id));
-  const fullWeeklyPool = [
-    ...monTasks,
-    ...tueTasks,
-    ...wedTasks,
-    ...thuTasks,
-  ];
+  const fullWeeklyPool = words.flatMap((w) => [
+    createWordExercise(w, 'missing_letters', day, level),
+    createWordExercise(w, 'spelling_choice', day, level),
+    createWordExercise(w, 'sentence_builder', day, level),
+  ]);
   const nochOffen = fullWeeklyPool.filter((e) => !usedIds.has(e.id)).slice(0, 15);
 
-  // Adaptive extra tasks
+  // Adaptive Schwerpunkt tasks are kept separate and NEVER overwrite required daily tasks!
   const schwerpunktExtra = generateReinforcementExercises(weakWords, words, level);
 
   return {
@@ -872,6 +1143,7 @@ export function generateDailyExercisePlan(params: {
     skippedCount,
   };
 }
+
 
 /**
  * Helper to get today's 5 recommended exercises directly

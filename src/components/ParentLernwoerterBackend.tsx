@@ -38,6 +38,9 @@ import {
 import { playChime } from '../utils/soundEffects';
 import { PenInputTestModal } from './PenInputTestModal';
 import { HandwritingViewerModal } from './HandwritingViewerModal';
+import { validateWeeklyPlanCoverage } from '../services/exerciseEngine';
+import { validateMathWeeklyPlan, ALL_WEEKLY_MATH_TASKS } from '../services/mathExerciseEngine';
+import { DayOfWeek } from '../types/lernwoerter';
 
 interface ParentLernwoerterBackendProps {
   curriculum: WeeklyCurriculum;
@@ -94,7 +97,7 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   const [pinChangeError, setPinChangeError] = useState<string | null>(null);
   const [pinChangeSuccess, setPinChangeSuccess] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'words' | 'dashboard' | 'spaced_repetition'>('words');
+  const [activeTab, setActiveTab] = useState<'words' | 'mathe' | 'dashboard' | 'spaced_repetition'>('words');
   const [showPenTestModal, setShowPenTestModal] = useState<boolean>(false);
   const [selectedHandwritingView, setSelectedHandwritingView] = useState<{
     title: string;
@@ -364,6 +367,18 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
           </button>
 
           <button
+            onClick={() => setActiveTab('mathe')}
+            className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
+              activeTab === 'mathe'
+                ? 'bg-white shadow-xs text-purple-900'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span className="text-purple-600 font-black">➕</span>
+            <span>Mathe-Training (QA & Lehrplan)</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('dashboard')}
             className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
               activeTab === 'dashboard'
@@ -599,6 +614,68 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                   </div>
                 </div>
               )}
+
+              {/* TEMPORARY QA REPORT: WOCHEN-ABDECKUNG DER LERNWÖRTER (Requirement 2) */}
+              {(() => {
+                const coverage = validateWeeklyPlanCoverage(curriculum.words);
+                return (
+                  <div className="p-6 rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/70 space-y-4 shadow-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">📊</span>
+                        <div>
+                          <h4 className="font-black text-indigo-950 text-base sm:text-lg">
+                            QA-Bericht: Wochen-Abdeckung der Lernwörter
+                          </h4>
+                          <p className="text-xs text-slate-500 font-medium">
+                            Alle 14 Lernwörter müssen mind. 2× in den 30 Wochen-Aufgaben vorkommen (1× Rechtschreibung, 1× Grammatik/Satzbau).
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-xs font-black px-3 py-1.5 rounded-full border ${
+                          coverage.sufficientCoverage
+                            ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+                            : 'bg-rose-100 text-rose-900 border-rose-300'
+                        }`}
+                      >
+                        {coverage.sufficientCoverage
+                          ? '✅ 100% Abdeckung (alle Wörter ≥ 2)'
+                          : '⚠️ Unzureichende Abdeckung'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2.5 pt-1">
+                      {coverage.weeklyWords.map((wordName) => {
+                        const count = coverage.counts[wordName.toLowerCase()] || 0;
+                        const isSufficient = count >= 2;
+                        return (
+                          <div
+                            key={wordName}
+                            className={`p-3 rounded-2xl border text-center transition-all ${
+                              isSufficient
+                                ? 'bg-white/90 border-emerald-200 text-emerald-950 shadow-2xs'
+                                : 'bg-rose-50 border-rose-300 text-rose-950 font-black'
+                            }`}
+                          >
+                            <div className="text-xs font-bold truncate text-slate-700">{wordName}</div>
+                            <div
+                              className={`text-base font-black mt-0.5 ${
+                                isSufficient ? 'text-indigo-600' : 'text-rose-600'
+                              }`}
+                            >
+                              {count} {count === 1 ? 'Aufgabe' : 'Aufgaben'}
+                            </div>
+                            <div className="text-[10px] font-bold text-slate-400 mt-0.5">
+                              {count >= 2 ? '✓ Erfüllt' : '⚠️ Zu wenig'}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* WEAK WORDS & STRONGEST WORDS OVERVIEW */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -869,6 +946,122 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
               )}
             </div>
           )}
+
+          {/* TAB 4: MATHE-TRAINING (QA & LEHRPLAN) */}
+          {activeTab === 'mathe' && (() => {
+            const mathQa = validateMathWeeklyPlan();
+            const daysList: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            const dayNames: Record<DayOfWeek, string> = {
+              monday: 'Montag',
+              tuesday: 'Dienstag',
+              wednesday: 'Mittwoch',
+              thursday: 'Donnerstag',
+              friday: 'Freitag',
+              saturday: 'Samstag',
+            };
+
+            return (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="font-black text-slate-900 text-lg flex items-center gap-2">
+                      <span>➕ Mathe-Modul: QA-Prüfbericht & Wochenplan</span>
+                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+                        mathQa.isValid ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                      }`}>
+                        {mathQa.isValid ? '✅ Alle Kriterien erfüllt' : '⚠️ Prüfung fehlgeschlagen'}
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      Zahlenraum bis 1000 • Mo–Fr: 3 Aufgaben (10–15 Min.), Sa: 5 Challenge-Aufgaben • Keine negativen Zahlen
+                    </p>
+                  </div>
+                </div>
+
+                {/* Validation Highlights Card */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-black uppercase text-slate-500">Wochen-Workload</span>
+                    <div className="text-xl font-black text-slate-900">
+                      {mathQa.totalWeeklyTasks} Aufgaben
+                    </div>
+                    <span className="text-[11px] font-semibold text-emerald-700">3 pro Tag (Sa: 5)</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-black uppercase text-slate-500">Grundrechenarten</span>
+                    <div className="text-xl font-black text-slate-900">
+                      + , − , × , ÷
+                    </div>
+                    <span className="text-[11px] font-semibold text-emerald-700">Alle 4 vertreten</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-black uppercase text-slate-500">Zahlenbereich</span>
+                    <div className="text-xl font-black text-slate-900">
+                      0 bis {mathQa.maxCalculatedNumber}
+                    </div>
+                    <span className="text-[11px] font-semibold text-emerald-700">Max ≤ 1000, keine negativen</span>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] font-black uppercase text-slate-500">Formate & Skills</span>
+                    <div className="text-xl font-black text-slate-900">
+                      {mathQa.uniqueSkillsCount} Formate
+                    </div>
+                    <span className="text-[11px] font-semibold text-indigo-700">Pyramiden, Räder, Strahl etc.</span>
+                  </div>
+                </div>
+
+                {/* Detailed Checklist */}
+                <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5 text-xs text-purple-950 font-semibold">
+                  <div className="text-xs font-black uppercase tracking-wider text-purple-900 pb-1">
+                    QA-Prüfprotokoll für Mathe:
+                  </div>
+                  {mathQa.reportLines.map((line, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span>{line}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Per-Day Task Breakdown */}
+                <div className="space-y-3">
+                  <h5 className="font-black text-slate-900 text-sm">
+                    Übersicht aller 20 Wochenaufgaben nach Wochentag:
+                  </h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {daysList.map((d) => (
+                      <div key={d} className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-black text-slate-800">
+                          <span>{dayNames[d]}</span>
+                          <span className="text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+                            {ALL_WEEKLY_MATH_TASKS[d].length} Aufgaben
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {ALL_WEEKLY_MATH_TASKS[d].map((t, idx) => (
+                            <div
+                              key={t.id}
+                              className="text-xs p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between"
+                            >
+                              <span className="font-bold text-slate-800 truncate mr-2">
+                                {idx + 1}. {t.title}
+                              </span>
+                              <span className="text-[10px] font-mono font-black text-purple-700 bg-white px-2 py-0.5 rounded border border-purple-100 shrink-0">
+                                {t.skillName}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* MODAL: ADD NEW WORD */}

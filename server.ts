@@ -787,6 +787,97 @@ app.delete('/api/progress/:userId?', (req, res) => {
   res.json({ success: true, userId, message: 'Progress reset on server' });
 });
 
+// ==========================================
+// HANDWRITING TRANSCRIPTION API (STAGE A)
+// Strictly transcribes handwritten text literally.
+// Anti-Leak Rule: Does NOT receive target sentence, model answer, or scene description.
+// ==========================================
+app.post('/api/recognize-handwriting', async (req, res) => {
+  const startTime = Date.now();
+  try {
+    const { image, vocabularyList, mode = 'text' } = req.body;
+
+    if (!image || typeof image !== 'string') {
+      return res.status(400).json({ error: 'Image data URL is required' });
+    }
+
+    // Extract base64 payload
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
+
+    if (!apiKey) {
+      // Offline fallback: cannot infer without vision API, return empty rather than guessing
+      return res.json({
+        text: '',
+        confidence: 0,
+        message: 'No Gemini API key available on server for handwriting recognition.',
+      });
+    }
+
+    let prompt =
+      mode === 'math'
+        ? 'Transcribe only the handwritten numbers, mathematical equations, symbols (<, >, =, +, -, *, x, :, /), units (Euro, Cent, €), or short German words exactly as written. CRITICAL: Do NOT calculate or solve the equation. Do NOT correct mathematical errors. Return only the literal written characters.'
+        : 'Transcribe only the handwritten German text exactly as written. Do not correct, rewrite, expand, infer or paraphrase.';
+
+    if (Array.isArray(vocabularyList) && vocabularyList.length > 0) {
+      prompt += ` Context words: ${vocabularyList.join(', ')}.`;
+    }
+
+    const systemInstruction =
+      mode === 'math'
+        ? 'You are a strict, literal handwriting transcription engine for a 9-10 year old school student solving mathematics. ' +
+          'Transcribe only what is physically written on the page: numbers, digits, symbols (=, +, -, *, x, :, <, >, €), and words. ' +
+          'STRICT RULE: Do NOT calculate the result. If the student writes "72 + 20 = 95", return exactly "72 + 20 = 95". ' +
+          'Never replace wrong numbers with correct answers. Return ONLY the raw transcription without notes or formatting.'
+        : 'You are a strict, literal handwriting transcription engine for a 9-10 year old German student. ' +
+          'Transcribe only the handwritten German text exactly as written. ' +
+          'Do NOT correct grammar. Do NOT fix typos. Do NOT autocomplete. Do NOT expand. Do NOT paraphrase. ' +
+          'Return ONLY the raw transcribed text. Do not wrap in quotes or add notes.';
+
+    const response = await ai.models.generateContent({
+      model: PRIMARY_MODEL,
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              inlineData: {
+                mimeType: 'image/png',
+                data: base64Data,
+              },
+            },
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+      config: {
+        systemInstruction,
+        temperature: 0.1,
+        maxOutputTokens: 120,
+      },
+    });
+
+    const transcribed = (response.text || '')
+      .replace(/^["'„“»«]+|["'„“»«]+$/g, '')
+      .replace(/[\r\n]+/g, ' ')
+      .trim();
+
+    return res.json({
+      text: transcribed,
+      confidence: transcribed ? 0.92 : 0,
+      durationMs: Date.now() - startTime,
+    });
+  } catch (error: any) {
+    console.error('Handwriting recognition error:', error);
+    return res.json({
+      text: '',
+      confidence: 0,
+      error: error?.message || 'Transcription failed',
+    });
+  }
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

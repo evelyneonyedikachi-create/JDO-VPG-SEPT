@@ -17,11 +17,14 @@ import {
   Gift,
   Target,
   CheckCircle2,
+  PlusCircle,
 } from 'lucide-react';
 import { playChime } from '../utils/soundEffects';
 import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
 import { WeeklyProgressPanel } from './WeeklyProgressPanel';
 import { DayProgressSummary, NextRecommendedTask, WeeklyOverviewStats } from '../types/progress';
+import { MathProgressState } from '../types/math';
+import { DayMathSummary } from '../services/mathProgressService';
 
 interface HeuteScreenProps {
   currentDay: DayOfWeek;
@@ -38,8 +41,11 @@ interface HeuteScreenProps {
   daysProgress?: Record<DayOfWeek, DayProgressSummary>;
   weeklyOverview?: WeeklyOverviewStats;
   nextTask?: NextRecommendedTask;
+  mathSummary?: DayMathSummary;
+  mathProgress?: MathProgressState;
   onSelectDay: (day: DayOfWeek) => void;
   onStartToday: () => void;
+  onStartMathToday?: () => void;
   onGoToWords: () => void;
   onGoToBildgeschichte: () => void;
   onOpenWorksheet: () => void;
@@ -63,8 +69,11 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
   daysProgress,
   weeklyOverview,
   nextTask,
+  mathSummary,
+  mathProgress,
   onSelectDay,
   onStartToday,
+  onStartMathToday,
   onGoToWords,
   onGoToBildgeschichte,
   onOpenWorksheet,
@@ -140,6 +149,63 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
+      {/* DUAL SUBJECT TRACKER: DEUTSCH & MATHE */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Deutsch Card */}
+        <button
+          type="button"
+          onClick={() => {
+            playChime('click');
+            onStartToday();
+          }}
+          className="p-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-indigo-100 hover:border-indigo-300 shadow-sm flex items-center justify-between transition-all text-left group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-xl shrink-0">
+              📚
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase text-indigo-600 tracking-wider">
+                Lernwörter & Grammatik
+              </div>
+              <div className="text-base sm:text-lg font-black text-slate-900">
+                Deutsch: {daysProgress ? daysProgress[currentDay]?.completedRequired : 0}/5 geschafft
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-indigo-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+            Öffnen →
+          </span>
+        </button>
+
+        {/* Mathe Card */}
+        <button
+          type="button"
+          onClick={() => {
+            playChime('click');
+            if (onStartMathToday) onStartMathToday();
+          }}
+          className="p-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-purple-100 hover:border-purple-300 shadow-sm flex items-center justify-between transition-all text-left group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl shrink-0">
+              ➕
+            </div>
+            <div>
+              <div className="text-xs font-black uppercase text-purple-600 tracking-wider">
+                Zahlenraum bis 1000
+              </div>
+              <div className="text-base sm:text-lg font-black text-slate-900">
+                Mathe: {mathSummary ? mathSummary.completedRequired : 0}/{mathSummary ? mathSummary.totalRequired : 3} geschafft
+              </div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-purple-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+            Öffnen →
+          </span>
+        </button>
+      </div>
+
       {/* SECTION 7, 5, 4, 3: PROMINENT "ALS NÄCHSTES" & WEEKLY PROGRESS PANEL */}
       {daysProgress && weeklyOverview && nextTask && (
         <WeeklyProgressPanel
@@ -299,6 +365,120 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
           </div>
         </div>
       </div>
+
+      {/* SECTION: ➕ MATHE HEUTE (Requirement 2 & 20) */}
+      {mathSummary && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-purple-200 shadow-md space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-purple-100 pb-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-sm shrink-0">
+                ➕
+              </div>
+              <div>
+                <span className="text-xs font-black uppercase text-purple-600 tracking-wider">
+                  Tägliches Mathe-Training • 3. / 4. Klasse
+                </span>
+                <h3 className="text-2xl font-black text-slate-900">
+                  ➕ Mathe heute ({mathSummary.completedRequired} von {mathSummary.totalRequired} geschafft)
+                </h3>
+                <p className="text-xs sm:text-sm font-semibold text-slate-500">
+                  Dauer: ca. 10–15 Minuten • 3 Pflichtaufgaben täglich (Sa: Wochen-Challenge)
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                playChime('click');
+                if (onStartMathToday) onStartMathToday();
+              }}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-sm shadow-md active:scale-95 transition-all flex items-center gap-2 self-start sm:self-center"
+            >
+              <span>Mathe-Training starten</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Today's 3 tasks list */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            {mathSummary.tasks.map((task, idx) => {
+              const isDone = mathSummary.completedTaskIds.includes(task.id);
+              return (
+                <div
+                  key={task.id}
+                  onClick={() => {
+                    playChime('click');
+                    if (onStartMathToday) onStartMathToday();
+                  }}
+                  className={`p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 group ${
+                    isDone
+                      ? 'bg-emerald-50/70 border-emerald-300 hover:border-emerald-400'
+                      : 'bg-purple-50/30 hover:bg-purple-50 border-purple-200 hover:border-purple-400'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="w-7 h-7 rounded-xl bg-white border border-purple-200 text-purple-900 font-black text-xs flex items-center justify-center shadow-2xs">
+                      {idx + 1}
+                    </span>
+                    {isDone ? (
+                      <span className="text-xs font-black text-emerald-700 flex items-center gap-1 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        Geschafft
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold text-purple-600 bg-white px-2.5 py-0.5 rounded-full border border-purple-200">
+                        Offen
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h5 className="font-black text-base text-slate-900 group-hover:text-purple-700 transition-colors">
+                      {task.title}
+                    </h5>
+                    <p className="text-xs font-semibold text-slate-500 line-clamp-2 mt-0.5">
+                      {task.subtitle}
+                    </p>
+                  </div>
+                  <div className="text-[11px] font-mono text-purple-700 font-bold bg-white/70 px-2 py-1 rounded-lg border border-purple-100 self-start">
+                    {task.skillName}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Skills checklist & "Das üben wir noch" */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs border-t border-slate-100">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-bold text-slate-500">Heutige Kompetenzen:</span>
+              {mathSummary.tasks.map((t) => {
+                const done = mathSummary.completedTaskIds.includes(t.id);
+                return (
+                  <span
+                    key={t.id}
+                    className={`px-3 py-1 rounded-xl font-bold flex items-center gap-1.5 shadow-2xs ${
+                      done
+                        ? 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                        : 'bg-slate-100 text-slate-700 border border-slate-200'
+                    }`}
+                  >
+                    <span>{done ? '✅' : '🟡'}</span>
+                    <span>{t.skillName}</span>
+                  </span>
+                );
+              })}
+            </div>
+
+            {mathProgress && mathProgress.strugglingSkills.length > 0 && (
+              <div className="flex items-center gap-1.5 text-amber-900 font-bold bg-amber-50 px-3.5 py-1.5 rounded-xl border border-amber-300 shadow-2xs">
+                <span>💡 Das üben wir noch:</span>
+                <span className="font-mono">{mathProgress.strugglingSkills.slice(0, 2).join(', ')}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* MOTIVATION: REWARD LADDER & 4-WEEK MINI-EXAM CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

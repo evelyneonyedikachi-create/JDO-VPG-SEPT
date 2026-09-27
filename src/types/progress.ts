@@ -10,7 +10,9 @@ export type TaskVisualStatus =
   | 'repeat'; // 🔁 Freiwillig wiederholen
 
 export interface CompletedExerciseRecord {
-  id: string; // exercise ID
+  id: string; // exercise ID / canonical taskId
+  taskId?: string; // canonical taskId
+  weekId?: string; // week identity (e.g. 'week_1')
   day: DayOfWeek;
   pointsEarned: number;
   completedAt: number;
