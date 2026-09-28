@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RechentabelleExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
@@ -20,12 +20,21 @@ export const RechentabelleView: React.FC<RechentabelleViewProps> = ({
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  useEffect(() => {
+    setGridValues(exercise.rowHeaders.map(() => exercise.colHeaders.map(() => '')));
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
+
   const handleCellChange = (r: number, c: number, val: string) => {
     setGridValues((prev) => {
       const copy = prev.map((row) => [...row]);
       copy[r][c] = val;
       return copy;
     });
+    if (hasChecked && !isCorrect) {
+      setHasChecked(false);
+    }
   };
 
   const handleCheck = () => {

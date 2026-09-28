@@ -1,9 +1,10 @@
 import { DayOfWeek } from '../types/lernwoerter';
-import { CompletedMathRecord, MathExercise, MathProgressState } from '../types/math';
-import { ALL_WEEKLY_MATH_TASKS, generateDailyMathPlan } from './mathExerciseEngine';
+import { CompletedMathRecord, MathExercise, MathProgressState, QuestionHistoryEntry } from '../types/math';
+import { generateDailyMathPlan, getMathExerciseSignature } from './mathExerciseEngine';
 import { queueProgressSync } from './progressSyncService';
 
 const MATH_STORAGE_KEY = 'jd_math_progress_v1';
+const MATH_QUESTION_HISTORY_KEY = 'jd_math_question_history_v1';
 
 export function getInitialMathProgressState(): MathProgressState {
   return {
@@ -11,11 +12,36 @@ export function getInitialMathProgressState(): MathProgressState {
     completedRecords: [],
     skillsMastery: {},
     strugglingSkills: [],
+    recentQuestionHistory: loadStoredQuestionSignatures(),
+    questionHistoryEntries: [],
+    currentWeekNumber: 1,
     pointsToday: 0,
     pointsWeek: 0,
     streakDays: 1,
     lastActiveDate: new Date().toISOString().slice(0, 10),
   };
+}
+
+export function loadStoredQuestionSignatures(): string[] {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return [];
+    const raw = localStorage.getItem(MATH_QUESTION_HISTORY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveStoredQuestionSignatures(signatures: string[]): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(MATH_QUESTION_HISTORY_KEY, JSON.stringify(signatures.slice(-200)));
+    }
+  } catch (e) {
+    console.warn('Failed to save math question history to localStorage:', e);
+  }
 }
 
 export function loadMathProgressFromStorage(): MathProgressState {
@@ -24,13 +50,30 @@ export function loadMathProgressFromStorage(): MathProgressState {
       return getInitialMathProgressState();
     }
     const raw = localStorage.getItem(MATH_STORAGE_KEY);
-    if (!raw) return getInitialMathProgressState();
+    const storedSignatures = loadStoredQuestionSignatures();
+
+    if (!raw) {
+      const init = getInitialMathProgressState();
+      init.recentQuestionHistory = storedSignatures;
+      return init;
+    }
+
     const parsed = JSON.parse(raw);
+    const combinedHistory = Array.from(
+      new Set([
+        ...(Array.isArray(parsed.recentQuestionHistory) ? parsed.recentQuestionHistory : []),
+        ...storedSignatures,
+      ])
+    );
+
     return {
       completedTaskIds: Array.isArray(parsed.completedTaskIds) ? parsed.completedTaskIds : [],
       completedRecords: Array.isArray(parsed.completedRecords) ? parsed.completedRecords : [],
       skillsMastery: parsed.skillsMastery || {},
       strugglingSkills: Array.isArray(parsed.strugglingSkills) ? parsed.strugglingSkills : [],
+      recentQuestionHistory: combinedHistory,
+      questionHistoryEntries: Array.isArray(parsed.questionHistoryEntries) ? parsed.questionHistoryEntries : [],
+      currentWeekNumber: typeof parsed.currentWeekNumber === 'number' ? parsed.currentWeekNumber : 1,
       pointsToday: typeof parsed.pointsToday === 'number' ? parsed.pointsToday : 0,
       pointsWeek: typeof parsed.pointsWeek === 'number' ? parsed.pointsWeek : 0,
       streakDays: typeof parsed.streakDays === 'number' ? parsed.streakDays : 1,
@@ -45,6 +88,9 @@ export function saveMathProgressToStorage(state: MathProgressState): void {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(MATH_STORAGE_KEY, JSON.stringify(state));
+      if (state.recentQuestionHistory) {
+        saveStoredQuestionSignatures(state.recentQuestionHistory);
+      }
     }
     // Also push to persistent server progress endpoint via queueProgressSync
     queueProgressSync({
@@ -66,9 +112,10 @@ export interface DayMathSummary {
 
 export function calculateDailyMathSummary(
   day: DayOfWeek,
-  completedRecords: CompletedMathRecord[]
+  completedRecords: CompletedMathRecord[],
+  weekNumber: number = 1
 ): DayMathSummary {
-  const plan = generateDailyMathPlan({ day });
+  const plan = generateDailyMathPlan({ day, weekNumber });
   const dayCompletedIds = completedRecords
     .filter((r) => r.day === day)
     .map((r) => r.taskId);
@@ -93,13 +140,14 @@ export function calculateDailyMathSummary(
 }
 
 export function calculateAllDaysMathProgress(
-  completedRecords: CompletedMathRecord[]
+  completedRecords: CompletedMathRecord[],
+  weekNumber: number = 1
 ): Record<DayOfWeek, DayMathSummary> {
   const days: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const result = {} as Record<DayOfWeek, DayMathSummary>;
 
   days.forEach((d) => {
-    result[d] = calculateDailyMathSummary(d, completedRecords);
+    result[d] = calculateDailyMathSummary(d, completedRecords, weekNumber);
   });
 
   return result;
@@ -107,6 +155,7 @@ export function calculateAllDaysMathProgress(
 
 /**
  * Records a completed math task:
+ * - Extracts and logs stable question signature for anti-repetition tracking.
  * - Duplicate protection: only awards points if not already completed!
  * - Updates skill mastery (2 consecutive correct -> temporarily mastered).
  * - Persists to local storage & queues server sync.
@@ -133,6 +182,8 @@ export function recordCompletedMathTask(params: {
   // If already completed, do not re-award points
   const pointsAwarded = alreadyCompleted ? 0 : exercise.points || 4;
 
+  const signature = exercise.signature || getMathExerciseSignature(exercise);
+
   const newRecord: CompletedMathRecord = {
     id: exercise.id,
     taskId: exercise.id,
@@ -154,6 +205,21 @@ export function recordCompletedMathTask(params: {
   const updatedTaskIds = alreadyCompleted
     ? currentState.completedTaskIds
     : [...currentState.completedTaskIds, exercise.id];
+
+  // Update question history tracking: move newly completed signature to the end for accurate recency
+  const currentHistory = currentState.recentQuestionHistory || [];
+  const filteredHistory = currentHistory.filter((s) => s !== signature);
+  const updatedHistory = [...filteredHistory, signature].slice(-200);
+
+  const newEntry: QuestionHistoryEntry = {
+    signature,
+    skillName: exercise.skillName,
+    weekNumber: exercise.weekNumber || currentState.currentWeekNumber || 1,
+    completedAt: Date.now(),
+    taskId: exercise.id,
+  };
+
+  const updatedEntries = [...(currentState.questionHistoryEntries || []), newEntry].slice(-200);
 
   // Update skills mastery
   const skill = currentState.skillsMastery[exercise.skillName] || {
@@ -197,6 +263,8 @@ export function recordCompletedMathTask(params: {
     completedRecords: updatedRecords,
     skillsMastery: updatedSkillsMastery,
     strugglingSkills: updatedStrugglingSkills,
+    recentQuestionHistory: updatedHistory,
+    questionHistoryEntries: updatedEntries,
     pointsToday,
     pointsWeek,
     lastActiveDate: todayDate,
@@ -204,4 +272,14 @@ export function recordCompletedMathTask(params: {
 
   saveMathProgressToStorage(updatedState);
   return updatedState;
+}
+
+export function clearMathQuestionHistory(): void {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem(MATH_QUESTION_HISTORY_KEY);
+    }
+  } catch (e) {
+    console.warn('Failed to clear question history from localStorage:', e);
+  }
 }

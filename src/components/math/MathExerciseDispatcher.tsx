@@ -28,37 +28,37 @@ export const MathExerciseDispatcher: React.FC<MathExerciseDispatcherProps> = ({
 }) => {
   switch (exercise.type) {
     case 'zahlenstrahl':
-      return <ZahlenstrahlView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <ZahlenstrahlView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'zahlenmauer':
-      return <ZahlenmauerView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <ZahlenmauerView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'rechenrad':
-      return <RechenradView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <RechenradView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'rechentabelle':
-      return <RechentabelleView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <RechentabelleView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'aufgabenfamilie':
-      return <AufgabenfamilieView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <AufgabenfamilieView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'stellenwert_hze':
-      return <StellenwertHZEView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <StellenwertHZEView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'nachbarzahlen':
-      return <NachbarzahlenView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <NachbarzahlenView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'verdoppeln_halbieren':
-      return <DoublingHalvingView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <DoublingHalvingView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'groessenvergleich':
-      return <GroessenvergleichView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <GroessenvergleichView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'zahlenfolgen':
-      return <ZahlenfolgenView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <ZahlenfolgenView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'halbschriftlich':
-      return <HalbschriftlichView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <HalbschriftlichView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'geldbetrag':
-      return <GeldbetragView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <GeldbetragView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'sachaufgabe':
-      return <SachaufgabeView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <SachaufgabeView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     case 'addition_1000':
     case 'subtraction_1000':
     case 'multiplication_facts':
     case 'division_facts':
     case 'fehlende_zehner_hunderter':
-      return <StandardArithmeticView exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <StandardArithmeticView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
     default:
       return <div>Unbekannter Aufgabentyp</div>;
   }

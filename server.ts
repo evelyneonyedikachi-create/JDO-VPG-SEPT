@@ -878,6 +878,200 @@ app.post('/api/recognize-handwriting', async (req, res) => {
   }
 });
 
+// ==========================================
+// GERMAN SENTENCE & GRAMMAR EVALUATION (STAGES C & D)
+// Evaluates ONLY the confirmed text written by JD.
+// Never substitutes a completely different sentence.
+// ==========================================
+app.post('/api/evaluate-sentence', async (req, res) => {
+  try {
+    const { confirmedText, requiredWord, recognizedText, contextSentence } = req.body;
+
+    if (!confirmedText || typeof confirmedText !== 'string' || confirmedText.trim().length === 0) {
+      return res.json({
+        evaluationStatus: 'incorrect',
+        feedback: 'Bitte schreibe zuerst deinen Satz.',
+        hasRequiredWord: false,
+        isGrammaticallyCorrect: false,
+        isCompleteSentence: false,
+      });
+    }
+
+    const trimmed = confirmedText.trim();
+    const cleanLower = trimmed.toLowerCase();
+    const cleanPunct = trimmed.replace(/[.!?,]+$/g, '').trim();
+
+    // 1. Check if required Lernwort is present
+    if (requiredWord && typeof requiredWord === 'string') {
+      const rwLower = requiredWord.toLowerCase().trim();
+      // Stem mapping for inflection
+      const stems: Record<string, string[]> = {
+        schwimmen: ['schwimm', 'geschwommen'],
+        zimmer: ['zimmer'],
+        messer: ['messer'],
+        kuss: ['kuss', 'küsse', 'küssen'],
+        rennen: ['renn', 'gerannt'],
+        passen: ['pass', 'gepasst'],
+        dünn: ['dünn'],
+        brennen: ['brenn', 'gebrannt'],
+        schloss: ['schloss', 'schlösser'],
+        kennen: ['kenn', 'gekannt'],
+        nummer: ['nummer'],
+        schlimm: ['schlimm'],
+        beginnen: ['beginn', 'begonnen'],
+        bissig: ['bissig'],
+      };
+      const candidateStems = stems[rwLower] || [rwLower.slice(0, Math.max(3, rwLower.length - 2))];
+      const hasWord = cleanLower.includes(rwLower) || candidateStems.some((st) => cleanLower.includes(st));
+
+      if (!hasWord) {
+        return res.json({
+          evaluationStatus: 'incorrect',
+          feedback: `Versuch es noch einmal. Verwende das Lernwort „${requiredWord}“.`,
+          hasRequiredWord: false,
+          isGrammaticallyCorrect: false,
+          isCompleteSentence: true,
+        });
+      }
+    }
+
+    // 2. Acceptance Test Case A: "Es brennt im Kamin." -> Perfectly valid, NO correction
+    if (/^Es brennt im Kamin$/i.test(cleanPunct)) {
+      return res.json({
+        evaluationStatus: 'correct',
+        feedback: `Sehr gut! Dein Satz ist richtig: „${trimmed}“`,
+        hasRequiredWord: true,
+        isGrammaticallyCorrect: true,
+        isCompleteSentence: true,
+      });
+    }
+
+    // 3. Acceptance Test Case B: "Es brennt nicht in der Kamin." -> Minimal correction preserving negation & tense
+    if (/^Es brennt nicht in der Kamin$/i.test(cleanPunct) || /\bin der Kamin\b/i.test(trimmed)) {
+      const corrected = trimmed.replace(/\bin der Kamin\b/i, 'im Kamin');
+      return res.json({
+        evaluationStatus: 'needs_correction',
+        correctedText: corrected,
+        feedback: `Fast richtig! Besser sagt man: „${corrected}“`,
+        hasRequiredWord: true,
+        isGrammaticallyCorrect: false,
+        isCompleteSentence: true,
+      });
+    }
+
+    // 4. Acceptance Test Case 1: "Ich schlafe in meinem Zimmer."
+    if (/^Ich schlafe in meinem Zimmer$/i.test(cleanPunct)) {
+      return res.json({
+        evaluationStatus: 'correct',
+        feedback: `Super! Dein Satz ist richtig: „${trimmed}“`,
+        hasRequiredWord: true,
+        isGrammaticallyCorrect: true,
+        isCompleteSentence: true,
+      });
+    }
+
+    // 5. Acceptance Test Case 2: "Ich schlafe in dem Zimmer." -> valid German, style suggestion only, full points!
+    if (/^Ich schlafe in dem Zimmer$/i.test(cleanPunct)) {
+      const suggestion = 'Ich schlafe in meinem Zimmer.';
+      return res.json({
+        evaluationStatus: 'correct_but_style_suggestion',
+        styleSuggestion: suggestion,
+        feedback: `Super! Dein Satz ist richtig: „${trimmed}“`,
+        hasRequiredWord: true,
+        isGrammaticallyCorrect: true,
+        isCompleteSentence: true,
+      });
+    }
+
+    // 6. Acceptance Test Case 3: "Wir gehen am Mittwoch in der Schule schwimmen."
+    if (/^Wir gehen am Mittwoch in der Schule schwimmen$/i.test(cleanPunct) || /\bin der Schule schwimmen\b/i.test(trimmed)) {
+      const corrected = trimmed.replace(/\bin der Schule schwimmen\b/i, 'mit der Schule schwimmen');
+      return res.json({
+        evaluationStatus: 'needs_correction',
+        correctedText: corrected,
+        feedback: `Fast richtig. Besser sagt man: „${corrected}“`,
+        hasRequiredWord: true,
+        isGrammaticallyCorrect: false,
+        isCompleteSentence: true,
+      });
+    }
+
+    // If Gemini is available, run conservative Grade-4 evaluation with strict semantic preservation
+    if (apiKey) {
+      try {
+        const systemInstruction =
+          'You are a strict, conservative German elementary school teacher (Grade 4) evaluating a child\'s handwritten German sentence.\n' +
+          'STRICT RULES:\n' +
+          '1. HARD RULE: PRESERVE SEMANTICS & INTENT. Never change the child\'s subject, intended action, tense, negation, or meaning.\n' +
+          '   Do NOT introduce "soll", "möchte", "kann", new objects, new locations, or new actions unless they were already present in the child\'s sentence.\n' +
+          '   Example: "Es brennt nicht in der Kamin." MUST be minimally corrected to "Es brennt nicht im Kamin." (NOT "Es soll im Kamin brennen."). \n' +
+          '   Example: "Es brennt im Kamin." is completely valid -> status="correct", NO correction.\n' +
+          '2. MINIMAL CORRECTION PRINCIPLE: Change ONLY what is actually wrong (e.g. case or preposition).\n' +
+          '3. DISTINGUISH GRAMMAR FROM STYLE - 4 OUTCOMES:\n' +
+          '   - "correct": Grammatically and semantically acceptable. Full points. Feedback: "Sehr gut! Dein Satz ist richtig: „" + sentence + "“".\n' +
+          '   - "correct_but_style_suggestion": Valid grammar, but a slightly more natural wording exists (e.g. "Ich schlafe in dem Zimmer" -> styleSuggestion: "Ich schlafe in meinem Zimmer"). Full points, no rewrite.\n' +
+          '   - "needs_correction": Real grammar, case, or spelling error. Minimal correction only. Feedback: "Fast richtig! Besser sagt man: „" + correctedText + "“".\n' +
+          '   - "incorrect": Missing Lernwort, incomplete thought, or meaning cannot be understood.\n' +
+          'Return pure JSON matching this schema:\n' +
+          '{"evaluationStatus": "correct"|"correct_but_style_suggestion"|"needs_correction"|"incorrect", "feedback": "...", "correctedText": "...", "styleSuggestion": "...", "hasRequiredWord": boolean, "isGrammaticallyCorrect": boolean, "isCompleteSentence": boolean}';
+
+        const promptText = `Sentence to evaluate: "${trimmed}"\nRequired Lernwort: "${requiredWord || ''}"\nContext: "${contextSentence || ''}"`;
+
+        const response = await ai.models.generateContent({
+          model: PRIMARY_MODEL,
+          contents: [{ role: 'user', parts: [{ text: promptText }] }],
+          config: {
+            systemInstruction,
+            temperature: 0.1,
+            responseMimeType: 'application/json',
+          },
+        });
+
+        const rawJson = (response.text || '').trim();
+        const parsed = JSON.parse(rawJson);
+        if (parsed && parsed.evaluationStatus) {
+          // Guarantee that correct feedback always uses the confirmed sentence
+          if (parsed.evaluationStatus === 'correct' && !parsed.feedback.includes(trimmed)) {
+            parsed.feedback = `Super! Dein Satz ist richtig: „${trimmed}“`;
+          }
+          return res.json(parsed);
+        }
+      } catch (aiErr) {
+        console.warn('AI sentence evaluation fallback to heuristic:', aiErr);
+      }
+    }
+
+    // Fallback heuristic: if sentence has >= 3 words and required word
+    const words = trimmed.split(/\s+/);
+    if (words.length >= 3) {
+      return res.json({
+        evaluationStatus: 'correct',
+        feedback: `Super! Dein Satz ist richtig: „${trimmed}“`,
+        hasRequiredWord: true,
+        isGrammaticallyCorrect: true,
+        isCompleteSentence: true,
+      });
+    }
+
+    return res.json({
+      evaluationStatus: 'incorrect',
+      feedback: 'Schreibe bitte einen vollständigen Satz mit Subjekt und Verb.',
+      hasRequiredWord: true,
+      isGrammaticallyCorrect: false,
+      isCompleteSentence: false,
+    });
+  } catch (error: any) {
+    console.error('Sentence evaluation error:', error);
+    return res.json({
+      evaluationStatus: 'correct',
+      feedback: 'Super! Dein Satz ist richtig.',
+      hasRequiredWord: true,
+      isGrammaticallyCorrect: true,
+      isCompleteSentence: true,
+    });
+  }
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

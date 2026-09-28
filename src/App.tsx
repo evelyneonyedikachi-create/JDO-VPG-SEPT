@@ -53,6 +53,7 @@ import { MatheTrainingWorkspace } from './components/math/MatheTrainingWorkspace
 import { MathProgressState } from './types/math';
 import {
   loadMathProgressFromStorage,
+  loadStoredQuestionSignatures,
   calculateDailyMathSummary,
 } from './services/mathProgressService';
 
@@ -382,7 +383,15 @@ export default function App() {
         if (Array.isArray(remote.claimedRewards)) setClaimedRewards(remote.claimedRewards);
         if (Array.isArray(remote.completedExerciseRecords)) setCompletedRecords(remote.completedExerciseRecords);
         if (remote.mathProgress && typeof remote.mathProgress === 'object') {
-          setMathProgress(remote.mathProgress);
+          const localSignatures = loadStoredQuestionSignatures();
+          const remoteHistory = Array.isArray(remote.mathProgress.recentQuestionHistory)
+            ? remote.mathProgress.recentQuestionHistory
+            : [];
+          const mergedSignatures = Array.from(new Set([...remoteHistory, ...localSignatures]));
+          setMathProgress({
+            ...remote.mathProgress,
+            recentQuestionHistory: mergedSignatures,
+          });
         }
       }
       isInitialRemoteLoadDone.current = true;
@@ -915,6 +924,7 @@ export default function App() {
             daysProgress={daysProgress}
             weeklyOverview={weeklyOverview}
             completedRecords={completedRecords}
+            mathProgress={mathProgress}
           />
         );
       })()}

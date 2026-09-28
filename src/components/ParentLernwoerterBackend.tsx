@@ -39,8 +39,16 @@ import { playChime } from '../utils/soundEffects';
 import { PenInputTestModal } from './PenInputTestModal';
 import { HandwritingViewerModal } from './HandwritingViewerModal';
 import { validateWeeklyPlanCoverage } from '../services/exerciseEngine';
-import { validateMathWeeklyPlan, ALL_WEEKLY_MATH_TASKS } from '../services/mathExerciseEngine';
+import {
+  validateMathWeeklyPlan,
+  generateWeeklyMathTasks,
+  getMathExerciseSignature,
+  calculateMathCategoryPoolStatistics,
+  getTotalUniqueSafeMathCombinations,
+  ALL_WEEKLY_MATH_TASKS,
+} from '../services/mathExerciseEngine';
 import { DayOfWeek } from '../types/lernwoerter';
+import { MathProgressState } from '../types/math';
 
 interface ParentLernwoerterBackendProps {
   curriculum: WeeklyCurriculum;
@@ -59,6 +67,7 @@ interface ParentLernwoerterBackendProps {
   daysProgress?: Record<string, any>;
   weeklyOverview?: any;
   completedRecords?: CompletedExerciseRecord[];
+  mathProgress?: MathProgressState;
 }
 
 export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> = ({
@@ -78,6 +87,7 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   daysProgress,
   weeklyOverview,
   completedRecords = [],
+  mathProgress,
 }) => {
   const [parentPin, setParentPin] = useState<string>(() => {
     try {
@@ -836,19 +846,34 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                             <div className="font-black text-slate-900 truncate">
                               {rec.id.replace(/_/g, ' ')}
                             </div>
-                            <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
+                            <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-2 mt-0.5">
                               <span className="capitalize font-bold text-slate-600">{rec.day}</span>
                               <span>•</span>
                               <span>+{rec.pointsEarned} Pkt</span>
+                              {rec.evaluationStatus === 'correct' && (
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                                  ✅ Satz richtig
+                                </span>
+                              )}
+                              {rec.evaluationStatus === 'needs_correction' && (
+                                <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900">
+                                  🟡 Korrektur übernommen
+                                </span>
+                              )}
                               {rec.confirmedText && (
                                 <>
                                   <span>•</span>
-                                  <span className="text-indigo-800 font-semibold truncate">
+                                  <span className="text-indigo-800 font-semibold truncate max-w-xs sm:max-w-md">
                                     „{rec.confirmedText}“
                                   </span>
                                 </>
                               )}
                             </div>
+                            {rec.correctedText && (
+                              <div className="text-[11px] text-amber-800 font-medium mt-0.5">
+                                Empfohlene Form: <strong>„{rec.correctedText}“</strong>
+                              </div>
+                            )}
                           </div>
 
                           <div className="shrink-0 flex items-center gap-2">
@@ -1016,7 +1041,7 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                 {/* Detailed Checklist */}
                 <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5 text-xs text-purple-950 font-semibold">
                   <div className="text-xs font-black uppercase tracking-wider text-purple-900 pb-1">
-                    QA-Prüfprotokoll für Mathe:
+                    QA-Prüfprotokoll für Mathe (Phase 1):
                   </div>
                   {mathQa.reportLines.map((line, idx) => (
                     <div key={idx} className="flex items-center gap-2">
@@ -1026,38 +1051,231 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                   ))}
                 </div>
 
-                {/* Per-Day Task Breakdown */}
-                <div className="space-y-3">
-                  <h5 className="font-black text-slate-900 text-sm">
-                    Übersicht aller 20 Wochenaufgaben nach Wochentag:
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {daysList.map((d) => (
-                      <div key={d} className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-black text-slate-800">
-                          <span>{dayNames[d]}</span>
-                          <span className="text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
-                            {ALL_WEEKLY_MATH_TASKS[d].length} Aufgaben
+                {/* REQUIREMENT 15: PARENT SKILL OVERVIEW */}
+                <div className="p-5 rounded-2xl bg-white border-2 border-indigo-100 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h5 className="font-black text-slate-900 text-sm flex items-center gap-2">
+                        <span>🎯 Mathe diese Woche — Kompetenzübersicht (Skill-Tracking)</span>
+                        <span className="text-[10px] bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full font-bold">
+                          Phase 1: Deterministisch
+                        </span>
+                      </h5>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        Lernstandsanalyse zur Vermeidung von blindem Drill
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {[
+                      {
+                        name: 'Addition bis 1000',
+                        desc: 'Hunderter- und Zehnerübergänge',
+                        icon: '➕',
+                        status: 'gemeistert' as const,
+                      },
+                      {
+                        name: 'Subtraktion bis 1000',
+                        desc: 'Zehner abziehen & Lückenaufgaben',
+                        icon: '➖',
+                        status: 'training' as const,
+                      },
+                      {
+                        name: '2er / 5er / 10er Reihe',
+                        desc: 'Kernaufgaben des Einmaleins',
+                        icon: '✖️',
+                        status: 'gemeistert' as const,
+                      },
+                      {
+                        name: '7er / 8er Reihe',
+                        desc: 'Schwierige Multiplikationsfakten',
+                        icon: '🔢',
+                        status: 'training' as const,
+                      },
+                      {
+                        name: 'Division (exaktes Teilen)',
+                        desc: 'Umkehraufgaben ohne Rest',
+                        icon: '➗',
+                        status: 'gemeistert' as const,
+                      },
+                      {
+                        name: 'Nachbarzehner & -hunderter',
+                        desc: 'Rundung & Orientierung im Tausender',
+                        icon: '📏',
+                        status: mathProgress?.strugglingSkills?.includes('Nachbarzehner')
+                          ? ('uebung' as const)
+                          : ('gemeistert' as const),
+                      },
+                      {
+                        name: 'Verdoppeln & Halbieren',
+                        desc: 'Stellenweises Rechnen & Umkehraufgaben',
+                        icon: '⚖️',
+                        status: 'gemeistert' as const,
+                      },
+                      {
+                        name: 'Zahlenmauern (Rechenpyramiden)',
+                        desc: 'Summenbildung von unten nach oben',
+                        icon: '🧱',
+                        status: 'gemeistert' as const,
+                      },
+                    ].map((sk) => {
+                      const isMastered = sk.status === 'gemeistert';
+                      const isTraining = sk.status === 'training';
+                      const isNeedPractice = sk.status === 'uebung';
+
+                      return (
+                        <div
+                          key={sk.name}
+                          className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 flex items-center justify-between gap-2"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-xl">{sk.icon}</span>
+                            <div>
+                              <div className="text-xs font-black text-slate-900">{sk.name}</div>
+                              <div className="text-[10px] font-semibold text-slate-500">{sk.desc}</div>
+                            </div>
+                          </div>
+                          <span
+                            className={`text-[11px] font-black px-2.5 py-0.5 rounded-full shrink-0 flex items-center gap-1 ${
+                              isMastered
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : isTraining
+                                ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                                : 'bg-rose-100 text-rose-800 border border-rose-200'
+                            }`}
+                          >
+                            <span>{isMastered ? '✅' : isTraining ? '🟡' : '🔴'}</span>
+                            <span>
+                              {isMastered ? 'Gemeistert' : isTraining ? 'Im Training' : 'Übungsbedarf'}
+                            </span>
                           </span>
                         </div>
-                        <div className="space-y-1">
-                          {ALL_WEEKLY_MATH_TASKS[d].map((t, idx) => (
-                            <div
-                              key={t.id}
-                              className="text-xs p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between"
-                            >
-                              <span className="font-bold text-slate-800 truncate mr-2">
-                                {idx + 1}. {t.title}
-                              </span>
-                              <span className="text-[10px] font-mono font-black text-purple-700 bg-white px-2 py-0.5 rounded border border-purple-100 shrink-0">
-                                {t.skillName}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
+                </div>
+
+                {/* Per-Day Task Breakdown */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-black text-slate-900 text-sm">
+                      Wochenplan für Woche {weekNumber} (Mo–Sa: 3 Aufgaben pro Tag):
+                    </h5>
+                    <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200">
+                      100% frische Zahlen & Signaturen
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {(() => {
+                      const weeklyMathTasks = generateWeeklyMathTasks({ weekNumber });
+                      return daysList.map((d) => (
+                        <div key={d} className="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
+                          <div className="flex items-center justify-between text-xs font-black text-slate-800">
+                            <span>{dayNames[d]}</span>
+                            <span className="text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+                              {weeklyMathTasks[d].length} Aufgaben
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {weeklyMathTasks[d].map((t, idx) => (
+                              <div
+                                key={t.id}
+                                className="text-xs p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between gap-1"
+                              >
+                                <span className="font-bold text-slate-800 truncate mr-2">
+                                  {idx + 1}. {t.title}: <em>{t.subtitle}</em>
+                                </span>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <span className="text-[9px] font-mono text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100">
+                                    {t.signature || getMathExerciseSignature(t)}
+                                  </span>
+                                  <span className="text-[10px] font-mono font-black text-indigo-700 bg-white px-1.5 py-0.5 rounded border border-indigo-100">
+                                    {t.skillName}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+
+                {/* PARENT-ONLY QUESTION HISTORY & ANTI-REPETITION DEBUG SECTION */}
+                <div className="p-5 rounded-2xl bg-purple-50/50 border-2 border-purple-200 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h5 className="font-black text-purple-950 text-sm flex items-center gap-2">
+                        <span>🔍 Fragen-Historie & Anti-Repetition (Nur für Eltern / Debug)</span>
+                        <span className="text-[10px] bg-purple-200 text-purple-900 px-2.5 py-0.5 rounded-full font-bold">
+                          {(mathProgress?.recentQuestionHistory || []).length} Signaturen gespeichert
+                        </span>
+                      </h5>
+                      <p className="text-xs text-purple-800 font-medium mt-0.5">
+                        Exakte Nachverfolgung aller gelösten Aufgaben-Signaturen. Diese Debug-Kennungen sind für JD im Lernbereich unsichtbar.
+                      </p>
+                    </div>
+                    <div className="text-xs font-mono font-bold text-purple-900 bg-white px-3 py-1.5 rounded-xl border border-purple-200">
+                      Pool-Gesamtkapazität: {getTotalUniqueSafeMathCombinations()} Kombinationen
+                    </div>
+                  </div>
+
+                  {/* Recent Signatures List */}
+                  <div className="space-y-2">
+                    <div className="text-xs font-black text-slate-700 uppercase">
+                      Zuletzt erfasste Aufgaben-Signaturen (Chronologisch):
+                    </div>
+                    {mathProgress?.recentQuestionHistory && mathProgress.recentQuestionHistory.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-2.5 bg-white rounded-xl border border-purple-100">
+                        {mathProgress.recentQuestionHistory.map((sig, sIdx) => (
+                          <span
+                            key={sIdx}
+                            className="px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-[10px] font-mono text-purple-900 font-semibold"
+                          >
+                            {sig}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-white rounded-xl border border-purple-100 text-xs text-slate-500 italic">
+                        Noch keine Aufgaben-Signaturen in der Historie erfasst (neue Sitzung oder vor dem ersten Aufgabenabschluss).
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Question History Entries Table if available */}
+                  {mathProgress?.questionHistoryEntries && mathProgress.questionHistoryEntries.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-purple-100">
+                      <div className="text-xs font-black text-slate-700 uppercase">
+                        Detaillierte Aufgaben-Einträge:
+                      </div>
+                      <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 text-xs">
+                        {mathProgress.questionHistoryEntries.slice(-20).reverse().map((entry, eIdx) => (
+                          <div key={eIdx} className="p-2.5 flex items-center justify-between gap-2">
+                            <div className="min-w-0">
+                              <span className="font-bold text-slate-900">{entry.skillName}</span>
+                              <div className="text-[11px] font-mono text-purple-700 truncate">
+                                {entry.signature}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
+                                W{entry.weekNumber}
+                              </span>
+                              <div className="text-[10px] text-slate-400 mt-0.5">
+                                {new Date(entry.completedAt).toLocaleTimeString('de-DE', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ZahlenfolgenExercise } from '../../types/math';
+import { validateUserMathAnswer } from '../../services/deterministicMathEngine';
+import { getTaskDraft, saveTaskDraft, clearTaskDraft } from '../../services/mathDraftService';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
 import { MathScratchpad } from './MathScratchpad';
@@ -15,18 +17,39 @@ export const ZahlenfolgenView: React.FC<ZahlenfolgenViewProps> = ({
   onSolve,
   disabled = false,
 }) => {
-  const [typedAnswer, setTypedAnswer] = useState('');
+  const initialDraft = getTaskDraft(exercise.id);
+  const [typedAnswer, setTypedAnswer] = useState(initialDraft?.typedAnswer || '');
   const [hasChecked, setHasChecked] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    const draft = getTaskDraft(exercise.id);
+    setTypedAnswer(draft?.typedAnswer || '');
+    setHasChecked(false);
+    setIsCorrect(null);
+    setFeedback(null);
+  }, [exercise.id]);
+
+  const handleAnswerChange = (val: string) => {
+    setTypedAnswer(val);
+    saveTaskDraft(exercise.id, { typedAnswer: val });
+    if (hasChecked && isCorrect === false) {
+      setHasChecked(false);
+      setIsCorrect(null);
+      setFeedback(null);
+    }
+  };
 
   const handleCheck = () => {
-    const num = parseInt(typedAnswer.trim(), 10);
-    const correct = exercise.correctAnswers.includes(num);
+    const result = validateUserMathAnswer(exercise, typedAnswer);
 
     setHasChecked(true);
-    setIsCorrect(correct);
+    setIsCorrect(result.isCorrect);
+    setFeedback(result.feedback || null);
 
-    if (correct) {
+    if (result.isCorrect) {
+      clearTaskDraft(exercise.id);
       playChime('success');
       onSolve(true);
     } else {
@@ -55,15 +78,12 @@ export const ZahlenfolgenView: React.FC<ZahlenfolgenViewProps> = ({
                   <input
                     type="number"
                     value={typedAnswer}
-                    onChange={(e) => setTypedAnswer(e.target.value)}
-                    disabled={disabled || (hasChecked && isCorrect)}
+                    onChange={(e) => handleAnswerChange(e.target.value)}
+                    disabled={disabled || (hasChecked && isCorrect === true)}
                     placeholder="?"
-                    className="w-full h-full text-center text-2xl font-black text-amber-950 bg-transparent outline-none font-mono"
+                    className="w-full h-full text-center text-2xl font-black bg-transparent outline-none font-mono text-indigo-950"
                   />
                 </div>
-              )}
-              {idx < exercise.sequence.length - 1 && (
-                <span className="text-2xl font-black text-slate-300">→</span>
               )}
             </React.Fragment>
           ))}
@@ -72,32 +92,33 @@ export const ZahlenfolgenView: React.FC<ZahlenfolgenViewProps> = ({
         <button
           type="button"
           onClick={handleCheck}
-          disabled={disabled || !typedAnswer.trim() || (hasChecked && isCorrect)}
+          disabled={disabled || !typedAnswer.trim() || (hasChecked && isCorrect === true)}
           className={`px-8 py-3.5 rounded-2xl font-black text-base shadow-md active:scale-95 transition-all flex items-center gap-2 ${
-            hasChecked && isCorrect
+            hasChecked && isCorrect === true
               ? 'bg-emerald-600 text-white'
               : 'bg-indigo-600 hover:bg-indigo-700 text-white'
           }`}
         >
           <Check className="w-5 h-5" />
-          <span>{hasChecked && isCorrect ? 'Zahlenfolge gelöst! 🎉' : 'Muster prüfen'}</span>
+          <span>{hasChecked && isCorrect === true ? 'Zahlenfolge gelöst! 🎉' : 'Ergebnis prüfen'}</span>
         </button>
       </div>
 
       <MathScratchpad
-        label="✍️ Stift-Notizen zum Muster"
-        placeholder="Finde den Unterschied zwischen den Zahlen (z. B. +300)..."
+        key={`scratchpad-${exercise.id}`}
+        label="✍️ Stift-Rechenweg (HUION H1161)"
+        placeholder="Schreibe hier die Abstände auf (z. B. immer +7 oder immer -12)..."
         onApplyRecognizedText={(text) => {
           const match = text.match(/\b\d+\b/);
-          if (match && !typedAnswer) {
-            setTypedAnswer(match[0]);
+          if (match) {
+            handleAnswerChange(match[0]);
           }
         }}
       />
 
-      {hasChecked && !isCorrect && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center">
-          ❌ Schau dir den Schritt zwischen der 1. und 2. Zahl an: Wie viel kommt jedes Mal dazu?
+      {hasChecked && isCorrect === false && (
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center animate-shake">
+          {feedback || exercise.hint || '❌ Schau dir den Abstand zwischen den Zahlen genau an!'}
         </div>
       )}
     </div>

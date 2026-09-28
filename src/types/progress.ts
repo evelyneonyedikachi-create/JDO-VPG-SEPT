@@ -20,6 +20,9 @@ export interface CompletedExerciseRecord {
   inputMethod?: 'keyboard' | 'handwriting';
   handwritingStrokes?: any[];
   confirmedText?: string;
+  recognizedText?: string;
+  correctedText?: string;
+  evaluationStatus?: 'correct' | 'needs_correction' | 'incorrect';
 }
 
 export interface DayTaskDetail {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RechenradExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
@@ -20,12 +20,21 @@ export const RechenradView: React.FC<RechenradViewProps> = ({
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  useEffect(() => {
+    setAnswers(exercise.spokes.map(() => ''));
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
+
   const handleInputChange = (idx: number, val: string) => {
     setAnswers((prev) => {
       const copy = [...prev];
       copy[idx] = val;
       return copy;
     });
+    if (hasChecked && !isCorrect) {
+      setHasChecked(false);
+    }
   };
 
   const handleCheck = () => {

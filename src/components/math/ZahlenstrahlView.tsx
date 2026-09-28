@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NumberLineExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check, HelpCircle } from 'lucide-react';
@@ -18,6 +18,13 @@ export const ZahlenstrahlView: React.FC<ZahlenstrahlViewProps> = ({
   const [typedValue, setTypedValue] = useState('');
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    setSelectedTick(null);
+    setTypedValue('');
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
 
   const missingTick = exercise.labeledTicks.find((t) => t.isMissing) || exercise.labeledTicks[3];
 

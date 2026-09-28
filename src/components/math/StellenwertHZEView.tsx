@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StellenwertExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
@@ -21,6 +21,15 @@ export const StellenwertHZEView: React.FC<StellenwertHZEViewProps> = ({
 
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    setTypedTotal('');
+    setTypedH('');
+    setTypedZ('');
+    setTypedE('');
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
 
   const handleCheck = () => {
     const totalNum = parseInt(typedTotal.trim(), 10);

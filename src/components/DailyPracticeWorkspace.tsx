@@ -52,6 +52,10 @@ import { HandwritingRecognitionConfirmation } from './HandwritingRecognitionConf
 import { Stroke } from '../types/handwriting';
 import { recognizeHandwritingStrokes } from '../services/handwritingRecognitionService';
 import { getSceneImage } from '../data/sceneIllustrations';
+import {
+  evaluateStudentSentence,
+  SentenceEvaluationResult,
+} from '../services/sentenceEvaluationService';
 
 interface RepeatedMistakeItem {
   id: string;
@@ -178,6 +182,11 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const [handwritingStrokes, setHandwritingStrokes] = useState<Stroke[]>([]);
   const [isRecognizing, setIsRecognizing] = useState<boolean>(false);
   const [recognizedCandidate, setRecognizedCandidate] = useState<string | null>(null);
+  const [rawRecognizedText, setRawRecognizedText] = useState<string | null>(null);
+
+  // Sentence evaluation states (Stages C & D)
+  const [sentenceEvalResult, setSentenceEvalResult] = useState<SentenceEvaluationResult | null>(null);
+  const [isEvaluatingSentence, setIsEvaluatingSentence] = useState<boolean>(false);
 
   // Bildgeschichte scene image state & word help (User Request)
   const [sceneImageFailed, setSceneImageFailed] = useState<boolean>(false);
@@ -403,6 +412,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setSelectedWordBlocks([]);
     setHandwritingStrokes([]);
     setRecognizedCandidate(null);
+    setRawRecognizedText(null);
+    setSentenceEvalResult(null);
+    setIsEvaluatingSentence(false);
     setIsRecognizing(false);
     setAttemptCount(0);
     setHintMessage(null);
@@ -490,6 +502,146 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         onSavePauseSession(null);
       }
     }
+  };
+
+  // =========================================================================
+  // STAGES C & D: SENTENCE GRAMMAR EVALUATION & FEEDBACK
+  // Evaluates ONLY the confirmed text written by JD without replacing it with another sentence.
+  // =========================================================================
+  const isSentenceTask = (ex: GeneratedExercise | null): boolean => {
+    if (!ex) return false;
+    if (ex.type === 'sentence_linking') {
+      return !ex.options || ex.options.length === 0;
+    }
+    return (
+      ex.type === 'sentence_expand' ||
+      ex.type === 'bildgeschichte_step'
+    );
+  };
+
+  const executeSentenceEvaluation = async (confirmedText: string, recognizedText?: string | null) => {
+    if (!currentEx || !confirmedText || !confirmedText.trim()) {
+      setHintMessage('Bitte schreibe deinen Satz vor der Überprüfung.');
+      return;
+    }
+
+    setIsEvaluatingSentence(true);
+    const evalRes = await evaluateStudentSentence({
+      confirmedText: confirmedText.trim(),
+      requiredWord: currentEx.word?.cleanWord || currentEx.word?.word,
+      recognizedText: recognizedText || rawRecognizedText || confirmedText.trim(),
+      contextSentence: currentEx.contextSentence || currentEx.prompt,
+    });
+    setIsEvaluatingSentence(false);
+    setSentenceEvalResult(evalRes);
+
+    const isSuccessful =
+      evalRes.evaluationStatus === 'correct' ||
+      evalRes.evaluationStatus === 'correct_but_style_suggestion';
+
+    if (isSuccessful) {
+      playChime('success');
+      setFeedbackStatus('correct');
+      setLastCompletedTaskId(currentEx.id);
+
+      const isAlreadyDone = isExerciseAlreadyCompleted(currentEx.id);
+      const isVoluntaryPractice = isAlreadyDone || isCurrentVoluntaryRepeat;
+      const basePoints = level === 'starter' ? 4 : level === 'profi' ? 6 : 8;
+
+      if (!isVoluntaryPractice) {
+        const pointsEarned = attemptCount === 0 ? basePoints : Math.max(2, basePoints - attemptCount);
+        setSessionPointsEarned((prev) => prev + pointsEarned);
+        onAwardPoints(pointsEarned, `${currentEx.title} gelöst!`);
+
+        const activeInputMode: 'keyboard' | 'handwriting' = inputMethod;
+
+        if (onRecordCompletedExercise) {
+          onRecordCompletedExercise({
+            id: currentEx.id,
+            day: currentDay,
+            pointsEarned,
+            completedAt: Date.now(),
+            isVoluntaryRepeat: false,
+            inputMethod: activeInputMode,
+            handwritingStrokes: activeInputMode === 'handwriting' && handwritingStrokes.length > 0 ? [...handwritingStrokes] : undefined,
+            confirmedText: evalRes.confirmedText,
+            recognizedText: evalRes.recognizedText,
+            evaluationStatus: evalRes.evaluationStatus,
+          });
+        }
+        const styleNote = evalRes.styleSuggestion ? ` (💡 Noch natürlicher klingt: „${evalRes.styleSuggestion}“)` : '';
+        setHintMessage(`✅ Sehr gut! Dein Satz ist richtig: „${evalRes.confirmedText}“${styleNote} (+${pointsEarned} Punkte ⭐)`);
+      } else {
+        const styleNote = evalRes.styleSuggestion ? ` (💡 Noch natürlicher klingt: „${evalRes.styleSuggestion}“)` : '';
+        setHintMessage(`✅ Sehr gut! Dein Satz ist richtig: „${evalRes.confirmedText}“${styleNote} ⭐`);
+      }
+
+      onRewardStars(level === 'starter' ? 1 : level === 'profi' ? 2 : 3, `${currentEx.title} gemeistert!`);
+
+      if (onCompleteSkipped) {
+        const matchingSkip = skippedExercises.find((s) => s.exerciseId === currentEx.id || s.id === currentEx.id);
+        if (matchingSkip) onCompleteSkipped(matchingSkip.id);
+      }
+      if (isRepeatedTask) {
+        setMistakeList((prev) =>
+          prev.map((m) => (m.title === currentEx.title ? { ...m, isResolved: true } : m))
+        );
+      }
+    } else if (evalRes.evaluationStatus === 'needs_correction') {
+      playChime('whistle');
+      setFeedbackStatus('wrong');
+      setHintMessage(evalRes.feedback);
+    } else {
+      playChime('whistle');
+      setFeedbackStatus('wrong');
+      const nextAttempt = attemptCount + 1;
+      setAttemptCount(nextAttempt);
+      setHintMessage(evalRes.feedback);
+      onRecordMistake({
+        word: currentEx.word?.cleanWord || currentEx.word?.word || currentEx.title,
+        category: currentEx.grammarCategory,
+        wrongAnswer: confirmedText,
+        correctAnswer: currentEx.correctAnswer,
+      });
+    }
+  };
+
+  const handleAcceptSentenceCorrection = (evalRes: SentenceEvaluationResult) => {
+    if (!currentEx) return;
+    playChime('success');
+    setFeedbackStatus('correct');
+    setLastCompletedTaskId(currentEx.id);
+
+    const isAlreadyDone = isExerciseAlreadyCompleted(currentEx.id);
+    const isVoluntaryPractice = isAlreadyDone || isCurrentVoluntaryRepeat;
+    const basePoints = level === 'starter' ? 4 : level === 'profi' ? 6 : 8;
+    const pointsEarned = Math.max(2, basePoints - (attemptCount + 1));
+
+    if (!isVoluntaryPractice) {
+      setSessionPointsEarned((prev) => prev + pointsEarned);
+      onAwardPoints(pointsEarned, `${currentEx.title} gemeistert!`);
+
+      const activeInputMode: 'keyboard' | 'handwriting' = inputMethod;
+
+      if (onRecordCompletedExercise) {
+        onRecordCompletedExercise({
+          id: currentEx.id,
+          day: currentDay,
+          pointsEarned,
+          completedAt: Date.now(),
+          isVoluntaryRepeat: false,
+          inputMethod: activeInputMode,
+          handwritingStrokes: activeInputMode === 'handwriting' && handwritingStrokes.length > 0 ? [...handwritingStrokes] : undefined,
+          confirmedText: evalRes.confirmedText,
+          recognizedText: evalRes.recognizedText,
+          correctedText: evalRes.correctedText,
+          evaluationStatus: 'needs_correction',
+        });
+      }
+    }
+
+    setHintMessage(`Toll gelernt! Korrektur verstanden. +${pointsEarned} Punkte! ⭐`);
+    onRewardStars(1, `${currentEx.title} verstanden!`);
   };
 
   // CHECK ANSWER & AWARD POINTS SAFELY (Section 10 Points Protection)
@@ -637,14 +789,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         studentAnswer = textInput.trim();
       }
 
-      if (
-        currentEx.type === 'sentence_expand' ||
-        currentEx.type === 'sentence_linking' ||
-        currentEx.type === 'sentence_completion' ||
-        currentEx.type === 'sentence_missing_word' ||
-        currentEx.type === 'bildgeschichte_step'
-      ) {
-        isCorrect = studentAnswer.length >= 8;
+      if (isSentenceTask(currentEx)) {
+        await executeSentenceEvaluation(studentAnswer, rawRecognizedText);
+        return;
       } else if (currentEx.type === 'missing_letters') {
         const matchFull = studentAnswer.toLowerCase() === currentEx.correctAnswer.toLowerCase();
         let missingChars = '';
@@ -771,27 +918,8 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
         ]);
       }
 
-      const repeatId = `${currentEx.id}_repeat_${Date.now()}`;
-      const isAlreadyScheduled = exerciseQueue.some(
-        (ex, idx) => idx > exerciseIndex && ex.title === currentEx.title
-      );
-
-      if (!isAlreadyScheduled) {
-        const clonedEx: GeneratedExercise = {
-          ...currentEx,
-          id: repeatId,
-          title: `Wiederholung: ${currentEx.title}`,
-        };
-        const newQueue = [...exerciseQueue];
-        const insertPosition = Math.min(exerciseIndex + 2, newQueue.length);
-        newQueue.splice(insertPosition, 0, clonedEx);
-        setExerciseQueue(newQueue);
-      }
-
       const hint = getSmartPedagogicalHint(currentEx, studentAnswer, nextAttempt);
-      setHintMessage(
-        `${hint} (Diese Aufgabe wird gleich noch einmal wiederholt, damit du sie meisterst!)`
-      );
+      setHintMessage(hint);
     }
   };
 
@@ -1776,7 +1904,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                 {(currentEx.type === 'missing_letters' ||
                   currentEx.type === 'type_word' ||
                   currentEx.type === 'sentence_expand' ||
-                  currentEx.type === 'sentence_linking' ||
+                  (currentEx.type === 'sentence_linking' && (!currentEx.options || currentEx.options.length === 0)) ||
                   currentEx.type === 'sentence_completion' ||
                   currentEx.type === 'sentence_missing_word' ||
                   currentEx.type === 'bildgeschichte_step') && (
@@ -1816,7 +1944,15 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                         <input
                           type="text"
                           value={textInput}
-                          onChange={(e) => setTextInput(e.target.value)}
+                          onChange={(e) => {
+                            setTextInput(e.target.value);
+                            if (feedbackStatus === 'wrong') {
+                              setFeedbackStatus('idle');
+                            }
+                            if (sentenceEvalResult) {
+                              setSentenceEvalResult(null);
+                            }
+                          }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') handleCheckAnswer();
                           }}
@@ -1911,19 +2047,24 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                             setIsRecognizing(false);
                             if (rec.text) {
                               setRecognizedCandidate(rec.text);
+                              setRawRecognizedText(rec.text);
                             } else {
                               setHintMessage('Die Schrift konnte nicht erkannt werden. Bitte schreibe etwas deutlicher oder tippe deinen Text.');
                             }
                           }}
                         />
 
-                        {/* RECOGNITION CONFIRMATION DIALOG (Requirements 7, 9 & 10) */}
+                        {/* RECOGNITION CONFIRMATION DIALOG (Stage B - Confirms OCR only) */}
                         {recognizedCandidate && (
                           <HandwritingRecognitionConfirmation
                             recognizedText={recognizedCandidate}
                             onConfirm={(confirmedText) => {
                               setTextInput(confirmedText);
+                              setRawRecognizedText(recognizedCandidate);
                               setRecognizedCandidate(null);
+                              if (isSentenceTask(currentEx)) {
+                                executeSentenceEvaluation(confirmedText, recognizedCandidate);
+                              }
                             }}
                             onRetry={() => {
                               setRecognizedCandidate(null);
@@ -2064,6 +2205,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                               onClick={() => {
                                 playChime('click');
                                 setSelectedOption(opt);
+                                if (feedbackStatus === 'wrong') {
+                                  setFeedbackStatus('idle');
+                                }
                               }}
                               className={`p-4 rounded-2xl border-2 text-left font-black text-base sm:text-lg transition-all flex items-center justify-between ${
                                 isSelected
@@ -2090,8 +2234,88 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                 )}
               </div>
 
+              {/* STAGE C EVALUATION IN PROGRESS */}
+              {isEvaluatingSentence && (
+                <div className="p-4 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-950 font-bold flex items-center gap-3 animate-pulse">
+                  <RefreshCw className="w-5 h-5 animate-spin text-indigo-600" />
+                  <span>Satz wird auf Grammatik und Lernwort überprüft...</span>
+                </div>
+              )}
+
+              {/* STAGE D: PEDAGOGICAL CORRECTION CARD (Outcome B: Needs Correction or Outcome C: Incorrect) */}
+              {sentenceEvalResult && (sentenceEvalResult.evaluationStatus === 'needs_correction' || sentenceEvalResult.evaluationStatus === 'incorrect') && feedbackStatus !== 'correct' && (
+                <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 space-y-3 animate-fade-in shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">
+                      {sentenceEvalResult.evaluationStatus === 'needs_correction' ? '🟡' : '❌'}
+                    </span>
+                    <span className="text-base font-black text-amber-950">
+                      {sentenceEvalResult.evaluationStatus === 'needs_correction' ? 'Fast richtig!' : 'Versuch es noch einmal!'}
+                    </span>
+                  </div>
+
+                  <div className="text-xs sm:text-sm text-slate-700">
+                    Dein geschriebener Satz:{' '}
+                    <span className="font-bold text-slate-900 bg-white px-2 py-0.5 rounded-lg border border-amber-200">
+                      „{sentenceEvalResult.confirmedText}“
+                    </span>
+                  </div>
+
+                  {sentenceEvalResult.correctedText && (
+                    <div className="bg-white p-3 sm:p-3.5 rounded-xl border border-amber-200 shadow-2xs space-y-1">
+                      <span className="text-[11px] font-black uppercase text-amber-800 tracking-wider block">
+                        Besser sagt man:
+                      </span>
+                      <div className="text-base sm:text-lg font-black text-slate-900">
+                        „{sentenceEvalResult.correctedText}“
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-xs font-bold text-amber-900">
+                    {sentenceEvalResult.evaluationStatus === 'needs_correction'
+                      ? 'Möchtest du deinen Satz noch einmal schreiben oder die Korrektur übernehmen?'
+                      : sentenceEvalResult.feedback || 'Schreibe deinen Satz noch einmal mit dem Lernwort.'}
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playChime('click');
+                        setSentenceEvalResult(null);
+                        setFeedbackStatus('idle');
+                        setHintMessage('Schreibe deinen Satz noch einmal auf die Linien oder passe ihn an.');
+                        setTextInput('');
+                        setRecognizedCandidate(null);
+                        setRawRecognizedText(null);
+                        setHandwritingStrokes([]);
+                        // Do not increment attemptCount
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-xs transition-transform active:scale-95"
+                    >
+                      <PenTool className="w-3.5 h-3.5" />
+                      <span>✍️ Noch einmal schreiben</span>
+                    </button>
+
+                    {sentenceEvalResult.evaluationStatus === 'needs_correction' && sentenceEvalResult.correctedText && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleAcceptSentenceCorrection(sentenceEvalResult);
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-white hover:bg-amber-100 border-2 border-amber-300 text-amber-950 font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+                        <span>🔄 Korrektur übernehmen</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* HINT & FEEDBACK MESSAGE */}
-              {hintMessage && (
+              {hintMessage && (!sentenceEvalResult || (sentenceEvalResult.evaluationStatus !== 'needs_correction' && sentenceEvalResult.evaluationStatus !== 'incorrect') || feedbackStatus === 'correct') && (
                 <div
                   className={`p-4 rounded-2xl border-2 text-sm sm:text-base font-bold flex items-center gap-3 animate-fade-in ${
                     feedbackStatus === 'correct'
@@ -2170,9 +2394,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                   {feedbackStatus !== 'correct' ? (
                     <button
                       onClick={handleCheckAnswer}
-                      disabled={currentEx.type === 'bildgeschichte_step' && sceneImageFailed}
+                      disabled={isEvaluatingSentence || (currentEx.type === 'bildgeschichte_step' && sceneImageFailed)}
                       className={`px-8 py-4 rounded-2xl font-black text-base sm:text-lg shadow-md transition-all ${
-                        currentEx.type === 'bildgeschichte_step' && sceneImageFailed
+                        isEvaluatingSentence || (currentEx.type === 'bildgeschichte_step' && sceneImageFailed)
                           ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
                           : 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-95'
                       }`}
@@ -2182,7 +2406,11 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                           : undefined
                       }
                     >
-                      Antwort prüfen ✨
+                      {isEvaluatingSentence
+                        ? 'Satz wird überprüft... 🔍'
+                        : isSentenceTask(currentEx)
+                        ? 'Satz prüfen ✨'
+                        : 'Antwort prüfen ✨'}
                     </button>
                   ) : (
                     <button

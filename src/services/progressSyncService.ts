@@ -58,6 +58,7 @@ function updateSyncStatus(newState: SyncState) {
  * Returns null if backend has no data or is unreachable.
  */
 export async function fetchRemoteProgress(userId: string = 'jedidiah'): Promise<PersistedUserProgress | null> {
+  if (typeof window === 'undefined') return null;
   try {
     updateSyncStatus('syncing');
     const controller = new AbortController();
@@ -87,6 +88,7 @@ export async function fetchRemoteProgress(userId: string = 'jedidiah'): Promise<
  * Debounced backend save: writes to backend API without blocking the UI.
  */
 export function queueProgressSync(payload: PersistedUserProgress, userId: string = 'jedidiah') {
+  if (typeof window === 'undefined') return;
   if (syncTimeout) {
     clearTimeout(syncTimeout);
   }

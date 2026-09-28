@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SachaufgabeExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check, HelpCircle, AlertCircle } from 'lucide-react';
@@ -19,6 +19,23 @@ export const SachaufgabeView: React.FC<SachaufgabeViewProps> = ({
   const [typedAnswer, setTypedAnswer] = useState('');
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    setSelectedDecision(null);
+    setTypedAnswer('');
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
+
+  const handleDecisionSelect = (decision: 'yes_solvable' | 'no_missing_info') => {
+    setSelectedDecision(decision);
+    if (hasChecked && !isCorrect) setHasChecked(false);
+  };
+
+  const handleAnswerChange = (val: string) => {
+    setTypedAnswer(val);
+    if (hasChecked && !isCorrect) setHasChecked(false);
+  };
 
   const handleCheck = () => {
     let correct = false;
@@ -76,7 +93,7 @@ export const SachaufgabeView: React.FC<SachaufgabeViewProps> = ({
             type="button"
             onClick={() => {
               playChime('click');
-              setSelectedDecision('yes_solvable');
+              handleDecisionSelect('yes_solvable');
             }}
             disabled={disabled || (hasChecked && isCorrect)}
             className={`p-4 rounded-2xl border-2 font-black text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${
@@ -92,7 +109,7 @@ export const SachaufgabeView: React.FC<SachaufgabeViewProps> = ({
             type="button"
             onClick={() => {
               playChime('click');
-              setSelectedDecision('no_missing_info');
+              handleDecisionSelect('no_missing_info');
             }}
             disabled={disabled || (hasChecked && isCorrect)}
             className={`p-4 rounded-2xl border-2 font-black text-sm sm:text-base flex items-center justify-center gap-2 transition-all ${
@@ -113,7 +130,7 @@ export const SachaufgabeView: React.FC<SachaufgabeViewProps> = ({
           <input
             type="text"
             value={typedAnswer}
-            onChange={(e) => setTypedAnswer(e.target.value)}
+            onChange={(e) => handleAnswerChange(e.target.value)}
             disabled={disabled || (hasChecked && isCorrect)}
             placeholder="Ergebnis eingeben..."
             className="flex-1 px-4 py-2 text-lg font-black bg-slate-50 border border-slate-300 rounded-xl"
@@ -123,6 +140,7 @@ export const SachaufgabeView: React.FC<SachaufgabeViewProps> = ({
 
       {/* Scratchpad */}
       <MathScratchpad
+        key={`scratchpad-${exercise.id}`}
         label="✍️ Rechenweg & Überlegungen"
         placeholder="Schreibe deine Überlegungen oder Notizen hier mit dem Stift auf..."
       />

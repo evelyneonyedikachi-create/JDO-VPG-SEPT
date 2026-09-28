@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AufgabenfamilieExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
@@ -24,6 +24,15 @@ export const AufgabenfamilieView: React.FC<AufgabenfamilieViewProps> = ({
 
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    setEq1({ op1: '', op2: '', res: '' });
+    setEq2({ op1: '', op2: '', res: '' });
+    setEq3({ op1: '', op2: '', res: '' });
+    setEq4({ op1: '', op2: '', res: '' });
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
 
   const handleCheck = () => {
     // Check multiplication 1: 4 * 5 = 20 or 5 * 4 = 20

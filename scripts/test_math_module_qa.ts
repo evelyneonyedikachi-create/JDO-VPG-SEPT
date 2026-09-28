@@ -14,7 +14,7 @@ import { DayOfWeek } from '../src/types/lernwoerter';
 
 async function runMathModuleQA() {
   console.log('================================================================');
-  console.log('➕ RUNNING COMPREHENSIVE MATH MODULE QA VERIFICATION');
+  console.log('➕ RUNNING COMPREHENSIVE MATH MODULE QA VERIFICATION (PHASE 1)');
   console.log('================================================================\n');
 
   let allChecksPassed = true;
@@ -25,23 +25,28 @@ async function runMathModuleQA() {
   console.log('Report valid:', report.isValid);
   console.log('Total weekly tasks:', report.totalWeeklyTasks);
   console.log('Daily counts:', JSON.stringify(report.dailyCounts));
-  console.log('Operations:', JSON.stringify(report.operationsCovered));
+  console.log('Phase 1 Categories:', JSON.stringify(report.phase1CategoriesCovered));
   console.log(`Number range: [${report.minCalculatedNumber} ... ${report.maxCalculatedNumber}]`);
   console.log('Has negative numbers:', report.hasNegativeNumbers);
 
   const check1Pass =
     report.isValid &&
-    report.totalWeeklyTasks === 20 &&
+    report.totalWeeklyTasks === 18 &&
     report.dailyCounts.monday === 3 &&
     report.dailyCounts.tuesday === 3 &&
     report.dailyCounts.wednesday === 3 &&
     report.dailyCounts.thursday === 3 &&
     report.dailyCounts.friday === 3 &&
-    report.dailyCounts.saturday === 5 &&
-    report.operationsCovered.addition &&
-    report.operationsCovered.subtraction &&
-    report.operationsCovered.multiplication &&
-    report.operationsCovered.division &&
+    report.dailyCounts.saturday === 3 &&
+    report.phase1CategoriesCovered.addition &&
+    report.phase1CategoriesCovered.subtraction &&
+    report.phase1CategoriesCovered.multiplication &&
+    report.phase1CategoriesCovered.division &&
+    report.phase1CategoriesCovered.verdoppeln &&
+    report.phase1CategoriesCovered.halbieren &&
+    report.phase1CategoriesCovered.nachbarzehner &&
+    report.phase1CategoriesCovered.nachbarhunderter &&
+    report.phase1CategoriesCovered.zahlenmauer &&
     report.maxCalculatedNumber <= 1000 &&
     report.minCalculatedNumber >= 0 &&
     !report.hasNegativeNumbers;
@@ -51,20 +56,15 @@ async function runMathModuleQA() {
 
   // 2. Division Problems Validity Check
   console.log('--- 2. DIVISION PROBLEMS APPROPRIATENESS ---');
-  const thuPlan = generateDailyMathPlan({ day: 'thursday' });
-  const divTask = thuPlan.tasks.find((t) => t.type === 'division_facts');
-  console.log('Thursday division task:', divTask?.title, '->', (divTask as any)?.equation, '=', (divTask as any)?.correctAnswer);
-
-  const wedPlan = generateDailyMathPlan({ day: 'wednesday' });
-  const familyTask = wedPlan.tasks.find((t) => t.type === 'aufgabenfamilie');
-  console.log('Aufgabenfamilie numbers:', (familyTask as any)?.numbers);
+  const tuePlan = generateDailyMathPlan({ day: 'tuesday' });
+  const divTask = tuePlan.tasks.find((t) => t.type === 'division_facts');
+  console.log('Tuesday division task:', divTask?.title, '->', (divTask as any)?.equation, '=', (divTask as any)?.correctAnswer);
 
   const check2Pass =
     divTask &&
-    (divTask as any).hasRemainder === true &&
-    (divTask as any).correctAnswer === '5 Rest 5' &&
-    familyTask &&
-    (familyTask as any).numbers[0] * (familyTask as any).numbers[1] === (familyTask as any).numbers[2];
+    (divTask as any).hasRemainder === false &&
+    (divTask as any).correctAnswer === 8 &&
+    (divTask as any).equation === '48 ÷ 6';
 
   console.log(`Result 2: ${check2Pass ? 'PASSED ✅' : 'FAILED ❌'}\n`);
   if (!check2Pass) allChecksPassed = false;
@@ -170,10 +170,9 @@ async function runMathModuleQA() {
   console.log(`Result 5: ${check5Pass ? 'PASSED ✅' : 'FAILED ❌'}\n`);
   if (!check5Pass) allChecksPassed = false;
 
-  // 6. Non-Interference with German Rewards (Requirement 21)
+  // 6. Non-Interference with German Rewards (Requirement 11)
   console.log('--- 6. REWARD SYSTEM ISOLATION (NO DISTORTION OF 100-PT CAP) ---');
-  // Confirm that math points are kept in mathProgress and do NOT alter German pointsWeek
-  const germanPointsWeek = 65; // initial sample
+  const germanPointsWeek = 65;
   const combinedGerman = Math.min(100, germanPointsWeek);
   const check6Pass = combinedGerman === 65 && mathState.pointsWeek === 12;
   console.log(`German Points Week: ${combinedGerman}/100, Math Points Week: ${mathState.pointsWeek}`);

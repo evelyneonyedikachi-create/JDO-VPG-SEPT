@@ -11,6 +11,10 @@ import {
   THURSDAY_SATZ_PROFI_EXERCISES,
   WEDNESDAY_SENTENCE_BUILDERS,
 } from '../data/defaultWeeklyCurriculum';
+import {
+  CURATED_LERNWOERTER_BANKS,
+  validateSentencePedagogically,
+} from '../data/curatedSentenceBanks';
 
 export interface GeneratedExercise {
   id: string;
@@ -291,68 +295,54 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
   const nouns = words.filter((w) => w.wortart === 'Nomen');
   const adjs = words.filter((w) => w.wortart === 'Adjektiv');
 
-  // Conjugation tasks with non-spoiler hints
+  // Curated conjugation tasks with meaningful context and non-spoiler hints
   verbs.forEach((v) => {
     const clean = v.cleanWord.toLowerCase();
-    // Task 1: "Ich" or "Du"
-    exercises.push({
-      id: `tue_verb_conjugation_${clean}_du`,
-      day: 'tuesday',
-      level: 'starter',
-      type: 'verb_conjugation',
-      title: 'Verbform anpassen',
-      prompt: 'Welche Verbform passt in den Satz?',
-      contextSentence: v.cleanWord === 'schwimmen'
-        ? 'Du ___ heute im See.'
-        : v.cleanWord === 'rennen'
-        ? 'Du ___ schnell zum Bus.'
-        : v.cleanWord === 'passen'
-        ? 'Die neue Hose ___ ihr gut.'
-        : `Du ___ heute gerne.`,
-      avatarId: 'ben',
-      word: v,
-      options: v.cleanWord === 'schwimmen'
-        ? ['schwimmst', 'schwimme', 'schwimmt']
-        : v.cleanWord === 'rennen'
-        ? ['rennst', 'renne', 'rennt']
-        : v.cleanWord === 'passen'
-        ? ['passt', 'passe', 'passen']
-        : [`${v.cleanWord.slice(0, -2)}st`, `${v.cleanWord.slice(0, -2)}e`, `${v.cleanWord.slice(0, -2)}t`],
-      correctAnswer: v.cleanWord === 'passen' ? 'passt' : `${v.cleanWord.slice(0, -2)}st`,
-      solutionExplanation: `Sehr gut erkannt! Die passende Verbform für diesen Satz wurde gewählt.`,
-      userHint1: 'Achte auf das Pronomen (wer handelt?). Bei „du“ endet das Verb im Präsens meist auf -st (wie bei: du hörst, du spielst).',
-      userHint2: 'Denke an die Personalendungen: ich -e, du -st, er/sie/es -t. Welche Endung passt hier?',
-      grammarCategory: 'Grammatik',
-    });
+    const bank = CURATED_LERNWOERTER_BANKS[v.cleanWord];
+    const taskDu = bank?.conjugationBank?.find((c) => c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[0];
+    const taskEr = bank?.conjugationBank?.find((c) => !c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[1] || taskDu;
 
-    // Task 2: "Er/Sie/Es" or "Wir"
-    exercises.push({
-      id: `tue_verb_conjugation_${clean}_er`,
-      day: 'tuesday',
-      level: 'profi',
-      type: 'verb_conjugation',
-      title: 'Verbform anpassen',
-      prompt: 'Welche Verbform passt in den Satz?',
-      contextSentence: v.cleanWord === 'schwimmen'
-        ? 'Er ___ gerne eine Runde.'
-        : v.cleanWord === 'rennen'
-        ? 'Er ___ um die Wette.'
-        : v.cleanWord === 'passen'
-        ? 'Wir ___ gut zusammen.'
-        : `Er ___ jeden Tag.`,
-      avatarId: 'ben',
-      word: v,
-      options: v.cleanWord === 'passen'
-        ? ['passen', 'passt', 'passe']
-        : [`${v.cleanWord.slice(0, -2)}t`, `${v.cleanWord.slice(0, -2)}st`, v.cleanWord],
-      correctAnswer: v.cleanWord === 'passen' ? 'passen' : `${v.cleanWord.slice(0, -2)}t`,
-      solutionExplanation: `Klasse! Das Verb wurde grammatikalisch korrekt gebeugt.`,
-      userHint1: v.cleanWord === 'passen'
-        ? 'Bei „wir“ (Mehrzahl) bleibt das Verb in der Grundform auf -en (wie bei: wir lernen, wir spielen).'
-        : 'Bei „er/sie/es“ endet das Verb in der Gegenwart meistens auf -t (wie bei: er lacht, er wohnt).',
-      userHint2: 'Schau genau auf das Subjekt des Satzes und wähle die passende Verb-Endung.',
-      grammarCategory: 'Grammatik',
-    });
+    if (taskDu) {
+      // Task 1: "Du" or primary form
+      exercises.push({
+        id: `tue_verb_conjugation_${clean}_du`,
+        day: 'tuesday',
+        level: 'starter',
+        type: 'verb_conjugation',
+        title: 'Verbform anpassen',
+        prompt: 'Welche Verbform passt in den Satz?',
+        contextSentence: taskDu.sentenceWithBlank,
+        avatarId: 'ben',
+        word: v,
+        options: taskDu.options,
+        correctAnswer: taskDu.correctForm,
+        solutionExplanation: taskDu.explanation,
+        userHint1: 'Achte auf das Subjekt (wer handelt?) und wähle die passende Verb-Endung im Präsens.',
+        userHint2: 'Denke an die Personalendungen: ich -e, du -st, er/sie/es -t, wir -en.',
+        grammarCategory: 'Grammatik',
+      });
+    }
+
+    if (taskEr) {
+      // Task 2: "Er/Sie/Es", "Wir", or plural form
+      exercises.push({
+        id: `tue_verb_conjugation_${clean}_er`,
+        day: 'tuesday',
+        level: 'profi',
+        type: 'verb_conjugation',
+        title: 'Verbform anpassen',
+        prompt: 'Welche Verbform passt in den Satz?',
+        contextSentence: taskEr.sentenceWithBlank,
+        avatarId: 'ben',
+        word: v,
+        options: taskEr.options,
+        correctAnswer: taskEr.correctForm,
+        solutionExplanation: taskEr.explanation,
+        userHint1: 'Schau genau auf das Subjekt des Satzes (Einzahl oder Mehrzahl?).',
+        userHint2: 'Denke an die Endungen: er/sie/es endet meist auf -t, wir auf -en.',
+        grammarCategory: 'Grammatik',
+      });
+    }
   });
 
   // Nouns plural with non-answer hint box!
@@ -472,7 +462,7 @@ export function generateThursdayExercises(level: DifficultyLevel): GeneratedExer
         contextSentence: `Lernwort: „${ex.word}“`,
         avatarId: 'sophie',
         correctAnswer: ex.baseExample,
-        solutionExplanation: `Beispiel: „${ex.baseExample}“`,
+        solutionExplanation: `Ein eigener, vollständiger Satz mit dem Lernwort „${ex.word}“.`,
         userHint1: 'Denke an Subjekt (wer?), Verb (tut was?) und Großschreibung am Anfang.',
         userHint2: 'Formuliere nach dem Muster: „Wer tut was mit dem Lernwort?“',
         expandSuggestions: ex.expandSuggestions,
@@ -489,7 +479,7 @@ export function generateThursdayExercises(level: DifficultyLevel): GeneratedExer
         contextSentence: `Ausgangssatz: „${ex.baseExample}“`,
         avatarId: 'sophie',
         correctAnswer: ex.longExample,
-        solutionExplanation: `Toller langer Satz: „${ex.longExample}“`,
+        solutionExplanation: `Ein eigener, erweiterter Satz mit dem Lernwort „${ex.word}“.`,
         userHint1: 'Füge Zeit („heute“) oder Ort („im Schwimmbad“) hinzu!',
         userHint2: 'Nutze die Wörter aus der Ideen-Box, um den Satz mit Details anzureichern.',
         expandSuggestions: ex.expandSuggestions,
@@ -775,25 +765,15 @@ export function createWordExercise(
 
   if (type === 'verb_conjugation') {
     const isDu = customVariant === 'du' || !customVariant;
-    const pronoun = isDu ? 'Du' : 'Er';
-    let baseStem = w.infinitive ? w.infinitive.replace(/en$/, '') : w.cleanWord.replace(/en$/, '');
-    if (baseStem.endsWith('renn')) baseStem = 'renn';
-    if (baseStem.endsWith('pass')) baseStem = 'pass';
-    if (baseStem.endsWith('brenn')) baseStem = 'brenn';
-    if (baseStem.endsWith('kenn')) baseStem = 'kenn';
-    if (baseStem.endsWith('beginn')) baseStem = 'beginn';
+    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
+    const task = isDu
+      ? bank?.conjugationBank?.find((c) => c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[0]
+      : bank?.conjugationBank?.find((c) => !c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[1] || bank?.conjugationBank?.[0];
 
-    const correctForm =
-      w.cleanWord === 'passen'
-        ? (isDu ? 'passt' : 'passt')
-        : isDu
-        ? `${baseStem}st`
-        : `${baseStem}t`;
-
-    const opt1 = `${baseStem}st`;
-    const opt2 = `${baseStem}t`;
-    const opt3 = `${baseStem}e`;
-    const options = [opt1, opt2, opt3].filter((v, i, a) => a.indexOf(v) === i);
+    const sentenceWithBlank = task?.sentenceWithBlank || (isDu ? `Du ___ die richtige Antwort.` : `Er ___ den Weg zur Schule.`);
+    const correctForm = task?.correctForm || (isDu ? `${w.cleanWord.slice(0, -2)}st` : `${w.cleanWord.slice(0, -2)}t`);
+    const options = task?.options || [correctForm, `${w.cleanWord.slice(0, -2)}e`, `${w.cleanWord.slice(0, -2)}en`];
+    const explanation = task?.explanation || `Richtig! Die passende Form heißt „${correctForm}“.`;
 
     return {
       id,
@@ -802,36 +782,25 @@ export function createWordExercise(
       type: 'verb_conjugation',
       title: 'Verbform anpassen',
       prompt: 'Welche Verbform passt in den Satz?',
-      contextSentence: `${pronoun} ___ heute.`,
+      contextSentence: sentenceWithBlank,
       avatarId,
       word: w,
       options,
       correctAnswer: correctForm,
-      solutionExplanation: `Richtig! ${pronoun} ${correctForm}.`,
+      solutionExplanation: explanation,
       userHint1: isDu ? 'Bei „du“ endet das Verb im Präsens auf -st.' : 'Bei „er/sie/es“ endet das Verb auf -t.',
-      userHint2: 'Denke an die Endungen: ich -e, du -st, er/sie -t.',
+      userHint2: 'Denke an die Endungen: ich -e, du -st, er/sie -t, wir -en.',
       grammarCategory: 'Grammatik',
     };
   }
 
   if (type === 'adjective_form') {
-    let formCorrect = w.cleanWord;
-    let sentence = `Das ist ganz schön ___.`;
-    let options = [w.cleanWord, `${w.cleanWord}e`, `${w.cleanWord}en`];
-
-    if (w.cleanWord === 'bissig') {
-      sentence = 'Pass gut auf vor dem ___ Hund!';
-      formCorrect = 'bissigen';
-      options = ['bissigen', 'bissiger', 'bissige'];
-    } else if (w.cleanWord === 'dünn') {
-      sentence = 'Er schneidet eine ___ Scheibe Brot.';
-      formCorrect = 'dünne';
-      options = ['dünne', 'dünnen', 'dünnes'];
-    } else if (w.cleanWord === 'schlimm') {
-      sentence = 'Die kleine Schramme ist nicht ___.';
-      formCorrect = 'schlimm';
-      options = ['schlimm', 'schlimme', 'schlimmer'];
-    }
+    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
+    const adjTask = bank?.adjectiveBank?.[0];
+    const formCorrect = adjTask?.correctForm || w.cleanWord;
+    const sentence = adjTask?.sentenceWithBlank || `Das ist ganz schön ${w.cleanWord}.`;
+    const options = adjTask?.options || [w.cleanWord, `${w.cleanWord}e`, `${w.cleanWord}en`];
+    const explanation = adjTask?.explanation || `Im Satz heißt es: „${formCorrect}“.`;
 
     return {
       id,
@@ -845,7 +814,7 @@ export function createWordExercise(
       word: w,
       options,
       correctAnswer: formCorrect,
-      solutionExplanation: `Im Satz heißt es: „${formCorrect}“.`,
+      solutionExplanation: explanation,
       userHint1: 'Sprich den Satz laut und wähle die Form, die flüssig klingt.',
       userHint2: 'Achte auf den Begleiter vor dem Adjektiv.',
       grammarCategory: 'Grammatik',
@@ -853,9 +822,11 @@ export function createWordExercise(
   }
 
   if (type === 'sentence_builder') {
+    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
     const rawTarget =
+      bank?.naturalSentences?.[0] ||
       w.exampleSentence ||
-      (w.sentences && w.sentences[0] ? w.sentences[0].text : `Er mag das Wort ${w.cleanWord}.`);
+      (w.sentences && w.sentences[0] ? w.sentences[0].text : `Er lernt das Wort ${w.cleanWord}.`);
     const cleanSentence = rawTarget.trim();
     const blocks = cleanSentence
       .split(' ')
@@ -882,19 +853,20 @@ export function createWordExercise(
   }
 
   if (type === 'sentence_expand') {
-    const baseEx = w.exampleSentence || `Er mag ${w.cleanWord}.`;
+    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
+    const baseEx = bank?.naturalSentences?.[0] || w.exampleSentence || `Er mag ${w.cleanWord}.`;
     return {
       id,
       day,
       level,
       type: 'sentence_expand',
-      title: 'Satz länger machen',
-      prompt: 'Schreibe einen vollständigen Satz mit dem Lernwort:',
+      title: 'Satz mit Lernwort schreiben',
+      prompt: bank?.writingPrompt || 'Schreibe einen vollständigen Satz mit dem Lernwort:',
       contextSentence: `Lernwort: „${w.cleanWord}“`,
       avatarId,
       word: w,
       correctAnswer: baseEx,
-      solutionExplanation: `Toller Satz: „${baseEx}“`,
+      solutionExplanation: `Ein eigener, vollständiger Satz mit dem Lernwort „${w.cleanWord}“.`,
       userHint1: 'Denke an Subjekt (wer?), Verb (tut was?) und Großschreibung.',
       userHint2: 'Nutze Zeit („heute“) oder Ort („im Zimmer“, „am See“).',
       expandSuggestions: ['heute', 'gemeinsam', 'sehr vorsichtig', 'mit Freude'],
@@ -903,6 +875,23 @@ export function createWordExercise(
   }
 
   if (type === 'sentence_linking') {
+    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
+    const connTask = bank?.connectorExercises?.[0] || {
+      firstClause: `Er kennt das Wort „${w.cleanWord}“`,
+      secondClause: 'er schreibt es manchmal noch falsch.',
+      correctConnector: 'aber' as const,
+      options: ['weil', 'aber', 'und'] as ('weil' | 'aber' | 'und')[],
+      combinedSentence: `Er kennt das Wort „${w.cleanWord}“, aber er schreibt es manchmal noch falsch.`,
+      connectorType: 'contrast' as const,
+      explanation: '„aber“ drückt einen klaren Gegensatz aus.',
+      hint: 'Achte auf den Gegensatz zwischen den beiden Satzteilen.',
+    };
+
+    const firstSentence = connTask.firstClause.trim().replace(/\.*$/, '.');
+    const secondSentenceCap =
+      connTask.secondClause.trim().charAt(0).toUpperCase() +
+      connTask.secondClause.trim().slice(1).replace(/\.*$/, '.');
+
     return {
       id,
       day,
@@ -910,14 +899,14 @@ export function createWordExercise(
       type: 'sentence_linking',
       title: 'Zwei Sätze verbinden',
       prompt: 'Verbinde diese zwei Sätze sinnvoll mit dem passenden Bindewort:',
-      contextSentence: `1. Er lernt das Wort „${w.cleanWord}“.\n2. Er möchte heute fehlerfrei schreiben.`,
+      contextSentence: `1. ${firstSentence}\n2. ${secondSentenceCap}`,
       avatarId,
       word: w,
-      options: ['weil', 'aber', 'und'],
-      correctAnswer: 'weil',
-      solutionExplanation: `Richtig! Er lernt das Wort „${w.cleanWord}“, weil er heute fehlerfrei schreiben möchte.`,
-      userHint1: '„weil“ begründet die Handlung (Warum macht er das?).',
-      userHint2: 'Vor dem Bindewort „weil“ steht immer ein Komma.',
+      options: connTask.options,
+      correctAnswer: connTask.correctConnector,
+      solutionExplanation: `Richtig! ${connTask.combinedSentence}`,
+      userHint1: connTask.hint,
+      userHint2: connTask.explanation,
       grammarCategory: 'Satzbau',
     };
   }

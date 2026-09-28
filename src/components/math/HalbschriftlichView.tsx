@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HalbschriftlichExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
@@ -21,6 +21,29 @@ export const HalbschriftlichView: React.FC<HalbschriftlichViewProps> = ({
 
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    setStep1Val('');
+    setStep2Val('');
+    setFinalVal('');
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
+
+  const handleStep1Change = (val: string) => {
+    setStep1Val(val);
+    if (hasChecked && !isCorrect) setHasChecked(false);
+  };
+
+  const handleStep2Change = (val: string) => {
+    setStep2Val(val);
+    if (hasChecked && !isCorrect) setHasChecked(false);
+  };
+
+  const handleFinalChange = (val: string) => {
+    setFinalVal(val);
+    if (hasChecked && !isCorrect) setHasChecked(false);
+  };
 
   const handleCheck = () => {
     const s1 = parseInt(step1Val.trim(), 10);
@@ -74,7 +97,7 @@ export const HalbschriftlichView: React.FC<HalbschriftlichViewProps> = ({
           <input
             type="number"
             value={step1Val}
-            onChange={(e) => setStep1Val(e.target.value)}
+            onChange={(e) => handleStep1Change(e.target.value)}
             disabled={disabled || (hasChecked && isCorrect)}
             placeholder="?"
             className="w-24 px-3 py-2 text-center text-xl font-black bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl outline-none"
@@ -90,7 +113,7 @@ export const HalbschriftlichView: React.FC<HalbschriftlichViewProps> = ({
           <input
             type="number"
             value={step2Val}
-            onChange={(e) => setStep2Val(e.target.value)}
+            onChange={(e) => handleStep2Change(e.target.value)}
             disabled={disabled || (hasChecked && isCorrect)}
             placeholder="?"
             className="w-24 px-3 py-2 text-center text-xl font-black bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl outline-none"
@@ -106,7 +129,7 @@ export const HalbschriftlichView: React.FC<HalbschriftlichViewProps> = ({
           <input
             type="number"
             value={finalVal}
-            onChange={(e) => setFinalVal(e.target.value)}
+            onChange={(e) => handleFinalChange(e.target.value)}
             disabled={disabled || (hasChecked && isCorrect)}
             placeholder="?"
             className="w-24 px-3 py-2 text-center text-xl font-black bg-white border-2 border-amber-400 focus:border-indigo-600 rounded-xl outline-none"

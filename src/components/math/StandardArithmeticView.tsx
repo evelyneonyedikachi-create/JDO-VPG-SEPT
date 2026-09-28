@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StandardArithmeticExercise } from '../../types/math';
+import { validateUserMathAnswer } from '../../services/deterministicMathEngine';
+import { getTaskDraft, saveTaskDraft, clearTaskDraft } from '../../services/mathDraftService';
 import { playChime } from '../../utils/soundEffects';
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { MathScratchpad } from './MathScratchpad';
 
 interface StandardArithmeticViewProps {
@@ -15,34 +17,57 @@ export const StandardArithmeticView: React.FC<StandardArithmeticViewProps> = ({
   onSolve,
   disabled = false,
 }) => {
-  const [typedAnswer, setTypedAnswer] = useState('');
-  const [typedRemainder, setTypedRemainder] = useState('');
+  // Restore draft ONLY if JD previously started this exact task ID and paused it
+  const initialDraft = getTaskDraft(exercise.id);
+  const [typedAnswer, setTypedAnswer] = useState(initialDraft?.typedAnswer || '');
+  const [typedRemainder, setTypedRemainder] = useState(initialDraft?.typedRemainder || '');
   const [hasChecked, setHasChecked] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  // CRITICAL: Fresh local answer state on task change
+  useEffect(() => {
+    const draft = getTaskDraft(exercise.id);
+    setTypedAnswer(draft?.typedAnswer || '');
+    setTypedRemainder(draft?.typedRemainder || '');
+    setHasChecked(false);
+    setIsCorrect(null);
+    setFeedback(null);
+  }, [exercise.id]);
+
+  const handleAnswerChange = (val: string) => {
+    setTypedAnswer(val);
+    saveTaskDraft(exercise.id, { typedAnswer: val, typedRemainder });
+    // If previously marked incorrect, immediately restore editable neutral check state
+    if (hasChecked && isCorrect === false) {
+      setHasChecked(false);
+      setIsCorrect(null);
+      setFeedback(null);
+    }
+  };
+
+  const handleRemainderChange = (val: string) => {
+    setTypedRemainder(val);
+    saveTaskDraft(exercise.id, { typedAnswer, typedRemainder: val });
+    if (hasChecked && isCorrect === false) {
+      setHasChecked(false);
+      setIsCorrect(null);
+      setFeedback(null);
+    }
+  };
 
   const handleCheck = () => {
-    let correct = false;
-
-    if (exercise.hasRemainder) {
-      // Division with remainder: e.g. 40 / 7 -> 5 Rest 5
-      const ansPart = typedAnswer.trim();
-      const remPart = typedRemainder.trim();
-      const combined = `${ansPart} Rest ${remPart}`.toLowerCase();
-      const expected = String(exercise.correctAnswer).toLowerCase();
-
-      correct =
-        combined === expected ||
-        (ansPart === '5' && remPart === String(exercise.remainder));
-    } else {
-      const cleanTyped = typedAnswer.trim().toLowerCase();
-      const cleanExpected = String(exercise.correctAnswer).toLowerCase();
-      correct = cleanTyped === cleanExpected;
-    }
+    // Validate strictly against the current active exercise
+    const result = validateUserMathAnswer(exercise, typedAnswer, {
+      remainder: typedRemainder,
+    });
 
     setHasChecked(true);
-    setIsCorrect(correct);
+    setIsCorrect(result.isCorrect);
+    setFeedback(result.feedback || null);
 
-    if (correct) {
+    if (result.isCorrect) {
+      clearTaskDraft(exercise.id);
       playChime('success');
       onSolve(true);
     } else {
@@ -98,8 +123,8 @@ export const StandardArithmeticView: React.FC<StandardArithmeticViewProps> = ({
             <input
               type="number"
               value={typedAnswer}
-              onChange={(e) => setTypedAnswer(e.target.value)}
-              disabled={disabled || (hasChecked && isCorrect)}
+              onChange={(e) => handleAnswerChange(e.target.value)}
+              disabled={disabled || (hasChecked && isCorrect === true)}
               placeholder="Ergebnis"
               className="w-28 px-3 py-3 text-center text-2xl font-black bg-slate-50 focus:bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-2xl outline-none"
             />
@@ -107,8 +132,8 @@ export const StandardArithmeticView: React.FC<StandardArithmeticViewProps> = ({
             <input
               type="number"
               value={typedRemainder}
-              onChange={(e) => setTypedRemainder(e.target.value)}
-              disabled={disabled || (hasChecked && isCorrect)}
+              onChange={(e) => handleRemainderChange(e.target.value)}
+              disabled={disabled || (hasChecked && isCorrect === true)}
               placeholder="Rest"
               className="w-24 px-3 py-3 text-center text-2xl font-black bg-slate-50 focus:bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-2xl outline-none"
             />
@@ -119,8 +144,8 @@ export const StandardArithmeticView: React.FC<StandardArithmeticViewProps> = ({
             <input
               type="number"
               value={typedAnswer}
-              onChange={(e) => setTypedAnswer(e.target.value)}
-              disabled={disabled || (hasChecked && isCorrect)}
+              onChange={(e) => handleAnswerChange(e.target.value)}
+              disabled={disabled || (hasChecked && isCorrect === true)}
               placeholder="?"
               className="w-40 px-4 py-3 text-center text-3xl font-black bg-slate-50 focus:bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-2xl outline-none"
             />
@@ -130,33 +155,35 @@ export const StandardArithmeticView: React.FC<StandardArithmeticViewProps> = ({
         <button
           type="button"
           onClick={handleCheck}
-          disabled={disabled || !typedAnswer.trim() || (hasChecked && isCorrect)}
+          disabled={disabled || !typedAnswer.trim() || (hasChecked && isCorrect === true)}
           className={`px-8 py-3.5 rounded-2xl font-black text-base shadow-md active:scale-95 transition-all flex items-center gap-2 ${
-            hasChecked && isCorrect
+            hasChecked && isCorrect === true
               ? 'bg-emerald-600 text-white'
               : 'bg-indigo-600 hover:bg-indigo-700 text-white'
           }`}
         >
           <Check className="w-5 h-5" />
-          <span>{hasChecked && isCorrect ? 'Richtig gerechnet! 🎉' : 'Ergebnis prüfen'}</span>
+          <span>{hasChecked && isCorrect === true ? 'Richtig gerechnet! 🎉' : 'Ergebnis prüfen'}</span>
         </button>
       </div>
 
-      {/* Handwriting Scratchpad */}
+      {/* Handwriting Scratchpad - separated by unique key per exercise */}
       <MathScratchpad
+        key={`scratchpad-${exercise.id}`}
         label="✍️ Stift-Rechenweg (HUION H1161)"
         placeholder="Schreibe hier mit dem Stift deine Zwischenschritte oder das Ergebnis..."
         onApplyRecognizedText={(text) => {
           const match = text.match(/\b\d+\b/);
-          if (match && !typedAnswer) {
-            setTypedAnswer(match[0]);
+          if (match) {
+            handleAnswerChange(match[0]);
           }
         }}
       />
 
-      {hasChecked && !isCorrect && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center">
-          ❌ Das Ergebnis stimmt noch nicht. Versuche es noch einmal in Einzelschritten!
+      {/* Incorrect Feedback Banner */}
+      {hasChecked && isCorrect === false && (
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center animate-shake">
+          {feedback || exercise.hint || '❌ Das Ergebnis stimmt noch nicht. Versuche es noch einmal in Einzelschritten!'}
         </div>
       )}
     </div>

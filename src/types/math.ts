@@ -33,6 +33,9 @@ export interface BaseMathExercise {
   skillName: string;
   difficulty?: 'leicht' | 'mittel' | 'profi';
   points: number;
+  hint?: string;
+  signature?: string; // Stable signature: skillType + operands + operator + structure
+  weekNumber?: number;
 }
 
 // 1. Number Line (Zahlenstrahl)
@@ -259,6 +262,15 @@ export interface CompletedMathRecord {
   wasCorrectFirstTry: boolean;
 }
 
+// Detailed question history tracking
+export interface QuestionHistoryEntry {
+  signature: string;
+  skillName: string;
+  weekNumber: number;
+  completedAt: number;
+  taskId: string;
+}
+
 // Overall Math Progress State
 export interface MathProgressState {
   completedTaskIds: string[];
@@ -274,6 +286,9 @@ export interface MathProgressState {
     }
   >;
   strugglingSkills: string[]; // "Das üben wir noch"
+  recentQuestionHistory?: string[]; // Array of unique question signatures seen in recent weeks
+  questionHistoryEntries?: QuestionHistoryEntry[]; // Detailed question history tracking
+  currentWeekNumber?: number; // Active math week (1, 2, 3, ...)
   pointsToday: number;
   pointsWeek: number;
   streakDays: number;

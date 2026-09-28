@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GroessenvergleichExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
@@ -21,12 +21,21 @@ export const GroessenvergleichView: React.FC<GroessenvergleichViewProps> = ({
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  useEffect(() => {
+    setSelectedOps(exercise.items.map(() => null));
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
+
   const handleSelectOp = (idx: number, op: '<' | '>' | '=') => {
     setSelectedOps((prev) => {
       const copy = [...prev];
       copy[idx] = op;
       return copy;
     });
+    if (hasChecked && !isCorrect) {
+      setHasChecked(false);
+    }
   };
 
   const handleCheck = () => {

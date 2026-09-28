@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GeldbetragExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check, Coins } from 'lucide-react';
@@ -18,6 +18,17 @@ export const GeldbetragView: React.FC<GeldbetragViewProps> = ({
   const [typedAmount, setTypedAmount] = useState('');
   const [hasChecked, setHasChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  useEffect(() => {
+    setTypedAmount('');
+    setHasChecked(false);
+    setIsCorrect(false);
+  }, [exercise.id]);
+
+  const handleAmountChange = (val: string) => {
+    setTypedAmount(val);
+    if (hasChecked && !isCorrect) setHasChecked(false);
+  };
 
   const handleCheck = () => {
     // Normalize: replace comma with dot, remove euro signs and spaces
@@ -88,7 +99,7 @@ export const GeldbetragView: React.FC<GeldbetragViewProps> = ({
             <input
               type="text"
               value={typedAmount}
-              onChange={(e) => setTypedAmount(e.target.value)}
+              onChange={(e) => handleAmountChange(e.target.value)}
               disabled={disabled || (hasChecked && isCorrect)}
               placeholder="z. B. 24,70 €"
               className="w-44 px-4 py-2.5 text-center text-xl font-black bg-slate-50 focus:bg-white border-2 border-slate-300 focus:border-indigo-600 rounded-xl outline-none pr-8"
@@ -114,11 +125,12 @@ export const GeldbetragView: React.FC<GeldbetragViewProps> = ({
 
       {/* Scratchpad */}
       <MathScratchpad
+        key={`scratchpad-${exercise.id}`}
         label="✍️ Rechenweg für die Preise"
         placeholder="Rechne z. B.: 19,50 + 2,60 = 22,10 ..."
         onApplyRecognizedText={(text) => {
           if (!typedAmount) {
-            setTypedAmount(text);
+            handleAmountChange(text);
           }
         }}
       />
