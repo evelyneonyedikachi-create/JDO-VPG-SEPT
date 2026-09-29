@@ -196,7 +196,15 @@ export const HeuteScreen: React.FC<HeuteScreenProps> = ({
                 Zahlenraum bis 1000
               </div>
               <div className="text-base sm:text-lg font-black text-slate-900">
-                Mathe: {mathSummary ? mathSummary.completedRequired : 0}/{mathSummary ? mathSummary.totalRequired : 3} geschafft
+                {mathSummary?.isCompleted ? (
+                  <span className="text-emerald-700 font-black flex items-center gap-1">
+                    <span>✅ Mathe: {mathSummary.completedRequired}/{mathSummary.totalRequired} geschafft</span>
+                  </span>
+                ) : (
+                  <span>
+                    Mathe: {mathSummary ? mathSummary.completedRequired : 0}/{mathSummary ? mathSummary.totalRequired : 3} geschafft
+                  </span>
+                )}
               </div>
             </div>
           </div>

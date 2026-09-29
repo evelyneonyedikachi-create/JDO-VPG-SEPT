@@ -23,6 +23,8 @@ export interface LernwortItem {
   sentences: PracticeSentence[];
   exampleSentence?: string;
   needsPracticeNote?: string;
+  validationStatus?: 'approved' | 'needs_review' | 'rejected';
+  validationIssues?: string[];
 }
 
 export interface DragSentenceWord {

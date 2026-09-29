@@ -253,6 +253,8 @@ export interface CompletedMathRecord {
   taskId: string;
   day: DayOfWeek;
   skillName: string;
+  skillType?: string;
+  weekId?: string | number;
   pointsEarned: number;
   completedAt: number;
   inputMethod: 'keyboard' | 'handwriting';
@@ -260,6 +262,7 @@ export interface CompletedMathRecord {
   scratchpadStrokes?: Stroke[];
   attemptCount: number;
   wasCorrectFirstTry: boolean;
+  isCorrect?: boolean;
 }
 
 // Detailed question history tracking

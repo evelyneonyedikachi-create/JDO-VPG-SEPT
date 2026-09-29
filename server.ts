@@ -805,21 +805,28 @@ app.post('/api/recognize-handwriting', async (req, res) => {
     const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
 
     if (!apiKey) {
-      // Offline fallback: cannot infer without vision API, return empty rather than guessing
-      return res.json({
+      console.warn('[OCR Server] No Gemini API key available on server for handwriting recognition.');
+      return res.status(503).json({
         text: '',
         confidence: 0,
-        message: 'No Gemini API key available on server for handwriting recognition.',
+        errorCode: 'technical_error',
+        error: 'No Gemini API key available on server for handwriting recognition.',
       });
     }
 
-    let prompt =
-      mode === 'math'
-        ? 'Transcribe only the handwritten numbers, mathematical equations, symbols (<, >, =, +, -, *, x, :, /), units (Euro, Cent, €), or short German words exactly as written. CRITICAL: Do NOT calculate or solve the equation. Do NOT correct mathematical errors. Return only the literal written characters.'
-        : 'Transcribe only the handwritten German text exactly as written. Do not correct, rewrite, expand, infer or paraphrase.';
-
-    if (Array.isArray(vocabularyList) && vocabularyList.length > 0) {
-      prompt += ` Context words: ${vocabularyList.join(', ')}.`;
+    let prompt = '';
+    if (mode === 'math') {
+      prompt =
+        'Transcribe only the handwritten numbers, mathematical equations, symbols (<, >, =, +, -, *, x, :, /), units (Euro, Cent, €), or short German words exactly as written. CRITICAL: Do NOT calculate or solve the equation. Do NOT correct mathematical errors. Return only the literal written characters.';
+    } else if (Array.isArray(vocabularyList) && vocabularyList.length > 0) {
+      prompt =
+        `Transcribe the handwritten German word exactly as written. ` +
+        `Candidate vocabulary: ${vocabularyList.join(', ')}. ` +
+        `Prefer a candidate only if the handwriting genuinely matches it. Do not infer the target from the exercise. ` +
+        `Return only the literal transcribed word or text without punctuation, formatting or quotes.`;
+    } else {
+      prompt =
+        'Transcribe only the handwritten German text exactly as written. Do not correct, rewrite, expand, infer or paraphrase. Return only the literal transcribed text.';
     }
 
     const systemInstruction =
@@ -829,50 +836,103 @@ app.post('/api/recognize-handwriting', async (req, res) => {
           'STRICT RULE: Do NOT calculate the result. If the student writes "72 + 20 = 95", return exactly "72 + 20 = 95". ' +
           'Never replace wrong numbers with correct answers. Return ONLY the raw transcription without notes or formatting.'
         : 'You are a strict, literal handwriting transcription engine for a 9-10 year old German student. ' +
-          'Transcribe only the handwritten German text exactly as written. ' +
+          'Transcribe only the handwritten German word or text exactly as written. ' +
           'Do NOT correct grammar. Do NOT fix typos. Do NOT autocomplete. Do NOT expand. Do NOT paraphrase. ' +
-          'Return ONLY the raw transcribed text. Do not wrap in quotes or add notes.';
+          'Return ONLY the raw transcribed text. Do not wrap in quotes or add notes. If genuinely unreadable scribbles, return [unleserlich].';
 
-    const response = await ai.models.generateContent({
-      model: PRIMARY_MODEL,
-      contents: [
-        {
-          role: 'user',
-          parts: [
+    const modelsToTry = [PRIMARY_MODEL, FALLBACK_MODEL, 'gemini-2.5-flash'];
+    let lastError: any = null;
+    let rawText = '';
+
+    for (const modelName of modelsToTry) {
+      try {
+        console.log(`[OCR Server] Attempting recognition with model: ${modelName} (candidates: ${Array.isArray(vocabularyList) ? vocabularyList.length : 0})`);
+        const response = await ai.models.generateContent({
+          model: modelName,
+          contents: [
             {
-              inlineData: {
-                mimeType: 'image/png',
-                data: base64Data,
-              },
-            },
-            {
-              text: prompt,
+              role: 'user',
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: 'image/png',
+                    data: base64Data,
+                  },
+                },
+                {
+                  text: prompt,
+                },
+              ],
             },
           ],
-        },
-      ],
-      config: {
-        systemInstruction,
-        temperature: 0.1,
-        maxOutputTokens: 120,
-      },
-    });
+          config: {
+            systemInstruction,
+            temperature: 0.1,
+            maxOutputTokens: 120,
+          },
+        });
 
-    const transcribed = (response.text || '')
+        rawText = response.text || '';
+        if (rawText !== undefined) {
+          console.log(`[OCR Server] Model ${modelName} succeeded, transcribed length: ${rawText.length}`);
+          break;
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`[OCR Server] Model ${modelName} failed:`, err?.message || err);
+        // Continue to try next fallback model
+      }
+    }
+
+    if (!rawText && lastError) {
+      console.error('[OCR Server] All models failed for handwriting transcription:', lastError?.message);
+      return res.status(500).json({
+        text: '',
+        confidence: 0,
+        errorCode: 'technical_error',
+        error: lastError?.message || 'Transcription failed across all models',
+      });
+    }
+
+    const transcribed = (rawText || '')
       .replace(/^["'„“»«]+|["'„“»«]+$/g, '')
       .replace(/[\r\n]+/g, ' ')
       .trim();
 
+    const isUnreadable =
+      transcribed === '[unleserlich]' ||
+      transcribed.toLowerCase() === 'unleserlich' ||
+      transcribed.toLowerCase() === 'unreadable';
+
+    if (isUnreadable) {
+      return res.json({
+        text: '',
+        confidence: 0,
+        errorCode: 'unreadable',
+        durationMs: Date.now() - startTime,
+      });
+    }
+
+    if (!transcribed) {
+      return res.json({
+        text: '',
+        confidence: 0,
+        errorCode: 'empty_response',
+        durationMs: Date.now() - startTime,
+      });
+    }
+
     return res.json({
       text: transcribed,
-      confidence: transcribed ? 0.92 : 0,
+      confidence: 0.95,
       durationMs: Date.now() - startTime,
     });
   } catch (error: any) {
-    console.error('Handwriting recognition error:', error);
-    return res.json({
+    console.error('Handwriting recognition uncaught error:', error);
+    return res.status(500).json({
       text: '',
       confidence: 0,
+      errorCode: 'technical_error',
       error: error?.message || 'Transcription failed',
     });
   }

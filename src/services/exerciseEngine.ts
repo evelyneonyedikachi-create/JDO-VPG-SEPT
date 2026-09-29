@@ -13,8 +13,10 @@ import {
 } from '../data/defaultWeeklyCurriculum';
 import {
   CURATED_LERNWOERTER_BANKS,
+  getCuratedWordEntry,
   validateSentencePedagogically,
 } from '../data/curatedSentenceBanks';
+import { isGenericSentence } from './vocabularyLinguisticService';
 
 export interface GeneratedExercise {
   id: string;
@@ -298,9 +300,9 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
   // Curated conjugation tasks with meaningful context and non-spoiler hints
   verbs.forEach((v) => {
     const clean = v.cleanWord.toLowerCase();
-    const bank = CURATED_LERNWOERTER_BANKS[v.cleanWord];
-    const taskDu = bank?.conjugationBank?.find((c) => c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[0];
-    const taskEr = bank?.conjugationBank?.find((c) => !c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[1] || taskDu;
+    const bank = getCuratedWordEntry(v.cleanWord);
+    const taskDu = bank.conjugationBank?.find((c) => c.pronounOrSubject.toLowerCase().includes('du')) || bank.conjugationBank?.[0];
+    const taskEr = bank.conjugationBank?.find((c) => !c.pronounOrSubject.toLowerCase().includes('du')) || bank.conjugationBank?.[1] || taskDu;
 
     if (taskDu) {
       // Task 1: "Du" or primary form
@@ -380,6 +382,14 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
   // Adjectives
   adjs.forEach((a) => {
     const clean = a.cleanWord.toLowerCase();
+    const bank = getCuratedWordEntry(a.cleanWord);
+    const adjTask = bank.adjectiveBank?.[0] || {
+      sentenceWithBlank: `Das neue Schreibheft ist wirklich ___ .`,
+      correctForm: a.cleanWord,
+      options: [a.cleanWord, `${a.cleanWord}e`, `${a.cleanWord}en`],
+      explanation: `Nach „ist“ steht das Adjektiv in der Grundform „${a.cleanWord}“.`,
+    };
+
     exercises.push({
       id: `tue_adjective_form_${clean}`,
       day: 'tuesday',
@@ -387,27 +397,14 @@ export function generateTuesdayExercises(words: LernwortItem[], level: Difficult
       type: 'adjective_form',
       title: 'Adjektiv im Satz anwenden',
       prompt: 'Welche Adjektiv-Form passt in den Satz?',
-      contextSentence:
-        a.cleanWord === 'bissig'
-          ? 'Pass auf vor dem ___ Hund!'
-          : a.cleanWord === 'dünn'
-          ? 'Er schneidet eine ___ Scheibe Brot.'
-          : 'Die Verletzung ist zum Glück nicht so ___.',
+      contextSentence: adjTask.sentenceWithBlank,
       avatarId: 'ben',
       word: a,
-      options:
-        a.cleanWord === 'bissig'
-          ? ['bissigen', 'bissiger', 'bissige']
-          : a.cleanWord === 'dünn'
-          ? ['dünne', 'dünnen', 'dünnes']
-          : ['schlimm', 'schlimme', 'schlimmer'],
-      correctAnswer:
-        a.cleanWord === 'bissig' ? 'bissigen' : a.cleanWord === 'dünn' ? 'dünne' : 'schlimm',
-      solutionExplanation: `Im Satz lautet die passende Form: ${
-        a.cleanWord === 'bissig' ? 'bissigen' : a.cleanWord === 'dünn' ? 'dünne' : 'schlimm'
-      }.`,
+      options: adjTask.options,
+      correctAnswer: adjTask.correctForm,
+      solutionExplanation: adjTask.explanation,
       userHint1: 'Sprich den Satz laut und wähle die Form, die flüssig klingt.',
-      userHint2: 'Achte auf den Fall und den Begleiter vor dem Adjektiv.',
+      userHint2: 'Achte auf den Begleiter vor dem Adjektiv.',
       grammarCategory: 'Grammatik',
     });
   });
@@ -550,7 +547,12 @@ export function generateReinforcementExercises(
     });
 
     // 2. Sentence context reinforcement
-    const sampleSent = w.sentences[0] || { text: `Das Wort heißt ${w.cleanWord}.` };
+    const bank = getCuratedWordEntry(w.cleanWord);
+    const validSentText =
+      w.sentences && w.sentences[0] && !isGenericSentence(w.sentences[0].text, w.cleanWord)
+        ? w.sentences[0].text
+        : bank.naturalSentences[0];
+    const sampleSent = { text: validSentText };
     const blankSent = sampleSent.text.replace(new RegExp(w.cleanWord, 'gi'), '_____');
     exercises.push({
       id: `schwerpunkt_satz_${clean}`,
@@ -618,10 +620,24 @@ export function createWordExercise(
   level: DifficultyLevel = 'profi',
   customVariant?: string
 ): GeneratedExercise {
+  // STRICT WORTART COMPATIBILITY ENFORCEMENT
+  // An adjective or noun must NEVER receive verb conjugation!
+  // A verb or adjective must NEVER receive noun plural choice!
+  let resolvedType = type;
+  if (type === 'verb_conjugation' && w.wortart !== 'Verb') {
+    resolvedType = w.wortart === 'Adjektiv' ? 'adjective_form' : 'plural_choice';
+  } else if (type === 'plural_choice' && w.wortart !== 'Nomen') {
+    resolvedType = w.wortart === 'Verb' ? 'verb_conjugation' : 'adjective_form';
+  } else if (type === 'article_choice' && w.wortart !== 'Nomen') {
+    resolvedType = w.wortart === 'Verb' ? 'verb_conjugation' : 'adjective_form';
+  } else if (type === 'adjective_form' && w.wortart !== 'Adjektiv') {
+    resolvedType = w.wortart === 'Verb' ? 'verb_conjugation' : 'plural_choice';
+  }
+
   const clean = w.cleanWord.toLowerCase();
   const dayPrefix = day.slice(0, 3); // 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'
   const variantSuffix = customVariant ? `_${customVariant}` : '';
-  const id = `${dayPrefix}_${type}_${clean}${variantSuffix}`;
+  const id = `${dayPrefix}_${resolvedType}_${clean}${variantSuffix}`;
 
   // Avatar matching the day's focus
   const avatarId =
@@ -633,7 +649,7 @@ export function createWordExercise(
       ? 'leo'
       : 'sophie';
 
-  if (type === 'picture_match') {
+  if (resolvedType === 'picture_match') {
     const distractors = w.distractors.map((d) => d.replace(/^(der|die|das)\s+/i, ''));
     const options = [w.cleanWord, ...distractors.slice(0, 2)];
     return {
@@ -654,7 +670,7 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'missing_letters') {
+  if (resolvedType === 'missing_letters') {
     return {
       id,
       day,
@@ -674,7 +690,7 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'spelling_choice') {
+  if (resolvedType === 'spelling_choice') {
     return {
       id,
       day,
@@ -693,7 +709,7 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'article_choice') {
+  if (resolvedType === 'article_choice') {
     return {
       id,
       day,
@@ -713,7 +729,7 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'wortart_choice') {
+  if (resolvedType === 'wortart_choice') {
     return {
       id,
       day,
@@ -738,7 +754,7 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'plural_choice') {
+  if (resolvedType === 'plural_choice') {
     const pluralForm = w.plural || `die ${w.cleanWord}e`;
     const alt1 = pluralForm.endsWith('er') ? `die ${w.cleanWord}e` : `die ${w.cleanWord}er`;
     const alt2 = `die ${w.cleanWord}en`;
@@ -763,14 +779,14 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'verb_conjugation') {
+  if (resolvedType === 'verb_conjugation') {
     const isDu = customVariant === 'du' || !customVariant;
-    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
+    const bank = getCuratedWordEntry(w.cleanWord);
     const task = isDu
-      ? bank?.conjugationBank?.find((c) => c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[0]
-      : bank?.conjugationBank?.find((c) => !c.pronounOrSubject.toLowerCase().includes('du')) || bank?.conjugationBank?.[1] || bank?.conjugationBank?.[0];
+      ? bank.conjugationBank?.find((c) => c.pronounOrSubject.toLowerCase().includes('du')) || bank.conjugationBank?.[0]
+      : bank.conjugationBank?.find((c) => !c.pronounOrSubject.toLowerCase().includes('du')) || bank.conjugationBank?.[1] || bank.conjugationBank?.[0];
 
-    const sentenceWithBlank = task?.sentenceWithBlank || (isDu ? `Du ___ die richtige Antwort.` : `Er ___ den Weg zur Schule.`);
+    const sentenceWithBlank = task?.sentenceWithBlank || (isDu ? `Du ___ heute besonders aufmerksam.` : `Er ___ den Satz fehlerfrei auf.`);
     const correctForm = task?.correctForm || (isDu ? `${w.cleanWord.slice(0, -2)}st` : `${w.cleanWord.slice(0, -2)}t`);
     const options = task?.options || [correctForm, `${w.cleanWord.slice(0, -2)}e`, `${w.cleanWord.slice(0, -2)}en`];
     const explanation = task?.explanation || `Richtig! Die passende Form heißt „${correctForm}“.`;
@@ -794,11 +810,11 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'adjective_form') {
-    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
-    const adjTask = bank?.adjectiveBank?.[0];
+  if (resolvedType === 'adjective_form') {
+    const bank = getCuratedWordEntry(w.cleanWord);
+    const adjTask = bank.adjectiveBank?.[0];
     const formCorrect = adjTask?.correctForm || w.cleanWord;
-    const sentence = adjTask?.sentenceWithBlank || `Das ist ganz schön ${w.cleanWord}.`;
+    const sentence = adjTask?.sentenceWithBlank || `Das neue Schreibheft ist wirklich ___ .`;
     const options = adjTask?.options || [w.cleanWord, `${w.cleanWord}e`, `${w.cleanWord}en`];
     const explanation = adjTask?.explanation || `Im Satz heißt es: „${formCorrect}“.`;
 
@@ -821,12 +837,17 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'sentence_builder') {
-    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
-    const rawTarget =
-      bank?.naturalSentences?.[0] ||
-      w.exampleSentence ||
-      (w.sentences && w.sentences[0] ? w.sentences[0].text : `Er lernt das Wort ${w.cleanWord}.`);
+  if (resolvedType === 'sentence_builder') {
+    const bank = getCuratedWordEntry(w.cleanWord);
+    const validExample =
+      w.exampleSentence && !isGenericSentence(w.exampleSentence, w.cleanWord)
+        ? w.exampleSentence
+        : undefined;
+    const validPractice =
+      w.sentences && w.sentences[0] && !isGenericSentence(w.sentences[0].text, w.cleanWord)
+        ? w.sentences[0].text
+        : undefined;
+    const rawTarget = bank.naturalSentences?.[0] || validExample || validPractice || `Wir schreiben einen schönen Satz mit dem Lernwort.`;
     const cleanSentence = rawTarget.trim();
     const blocks = cleanSentence
       .split(' ')
@@ -852,16 +873,20 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'sentence_expand') {
-    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
-    const baseEx = bank?.naturalSentences?.[0] || w.exampleSentence || `Er mag ${w.cleanWord}.`;
+  if (resolvedType === 'sentence_expand') {
+    const bank = getCuratedWordEntry(w.cleanWord);
+    const validExample =
+      w.exampleSentence && !isGenericSentence(w.exampleSentence, w.cleanWord)
+        ? w.exampleSentence
+        : undefined;
+    const baseEx = bank.naturalSentences?.[0] || validExample || `Wir schreiben einen schönen Satz mit dem Wort „${w.cleanWord}“.`;
     return {
       id,
       day,
       level,
       type: 'sentence_expand',
       title: 'Satz mit Lernwort schreiben',
-      prompt: bank?.writingPrompt || 'Schreibe einen vollständigen Satz mit dem Lernwort:',
+      prompt: bank.writingPrompt || 'Schreibe einen vollständigen Satz mit dem Lernwort:',
       contextSentence: `Lernwort: „${w.cleanWord}“`,
       avatarId,
       word: w,
@@ -874,17 +899,17 @@ export function createWordExercise(
     };
   }
 
-  if (type === 'sentence_linking') {
-    const bank = CURATED_LERNWOERTER_BANKS[w.cleanWord];
-    const connTask = bank?.connectorExercises?.[0] || {
-      firstClause: `Er kennt das Wort „${w.cleanWord}“`,
-      secondClause: 'er schreibt es manchmal noch falsch.',
-      correctConnector: 'aber' as const,
+  if (resolvedType === 'sentence_linking') {
+    const bank = getCuratedWordEntry(w.cleanWord);
+    const connTask = bank.connectorExercises?.[0] || {
+      firstClause: `Wir beschäftigen uns ausführlich mit „${w.word}“`,
+      secondClause: 'wir möchten fehlerfrei und sicher schreiben lernen.',
+      correctConnector: 'weil' as const,
       options: ['weil', 'aber', 'und'] as ('weil' | 'aber' | 'und')[],
-      combinedSentence: `Er kennt das Wort „${w.cleanWord}“, aber er schreibt es manchmal noch falsch.`,
-      connectorType: 'contrast' as const,
-      explanation: '„aber“ drückt einen klaren Gegensatz aus.',
-      hint: 'Achte auf den Gegensatz zwischen den beiden Satzteilen.',
+      combinedSentence: `Wir beschäftigen uns ausführlich mit „${w.word}“, weil wir fehlerfrei und sicher schreiben lernen möchten.`,
+      connectorType: 'causal' as const,
+      explanation: '„weil“ begründet, weshalb wir das Wort üben.',
+      hint: 'Achte auf den Grund: Warum üben wir das Wort?',
     };
 
     const firstSentence = connTask.firstClause.trim().replace(/\.*$/, '.');
@@ -1001,111 +1026,237 @@ export function generateDailyExercisePlan(params: {
 }): DailyExercisePlan {
   const { day, words, level, weakWords = [], skippedCount = 0 } = params;
 
-  // Helper to find a word by clean name (case-insensitive)
-  const getWord = (name: string): LernwortItem => {
-    const found = words.find((w) => w.cleanWord.toLowerCase() === name.toLowerCase());
-    return found || words[0];
-  };
+  // QUALITY GATE FILTER:
+  // Only words that are approved and have valid non-generic sentences enter exercise generation.
+  // Words with validationStatus === 'needs_review' or 'rejected' are withheld until parent approval.
+  const approvedWords = words.filter(
+    (w) => w.validationStatus === 'approved' && !isGenericSentence(w.exampleSentence || '', w.cleanWord)
+  );
+
+  // If there are approved words, use them; if not yet reviewed (e.g. initial setup before parent review),
+  // fall back gracefully to sanitized words that are not generic.
+  const activeWords =
+    approvedWords.length >= 2
+      ? approvedWords
+      : words.filter((w) => !isGenericSentence(w.exampleSentence || '', w.cleanWord));
+
+  const safeWords = activeWords.length > 0 ? activeWords : words;
+
+  // Check if safeWords matches the default Week 1 curriculum exactly
+  const isDefaultWeek1 =
+    safeWords.some((w) => w.cleanWord.toLowerCase() === 'zimmer') &&
+    safeWords.some((w) => w.cleanWord.toLowerCase() === 'kennen') &&
+    safeWords.some((w) => w.cleanWord.toLowerCase() === 'messer');
 
   let todayFive: GeneratedExercise[] = [];
 
-  // =========================================================================
-  // CANONICAL 6-DAY PLAN WITH 100% BALANCED COVERAGE
-  // Every word from Group 1 & Group 2 appears in AT LEAST 2 tasks!
-  // =========================================================================
-  if (day === 'monday') {
-    // MONDAY: Recognition & Spelling Foundation (5 tasks)
-    // 1. Zimmer (picture_match)
-    // 2. schwimmen (missing_letters)
-    // 3. Messer (spelling_choice)
-    // 4. brennen (missing_letters)
-    // 5. Schloss (article_choice)
-    todayFive = [
-      createWordExercise(getWord('Zimmer'), 'picture_match', 'monday', level),
-      createWordExercise(getWord('schwimmen'), 'missing_letters', 'monday', level),
-      createWordExercise(getWord('Messer'), 'spelling_choice', 'monday', level),
-      createWordExercise(getWord('brennen'), 'missing_letters', 'monday', level),
-      createWordExercise(getWord('Schloss'), 'article_choice', 'monday', level),
-    ];
-  } else if (day === 'tuesday') {
-    // TUESDAY: Morphology & Grammar Rules (5 tasks)
-    // 1. kennen (verb_conjugation - du)
-    // 2. Nummer (plural_choice)
-    // 3. beginnen (verb_conjugation - er)
-    // 4. schlimm (adjective_form)
-    // 5. bissig (adjective_form)
-    todayFive = [
-      createWordExercise(getWord('kennen'), 'verb_conjugation', 'tuesday', level, 'du'),
-      createWordExercise(getWord('Nummer'), 'plural_choice', 'tuesday', level),
-      createWordExercise(getWord('beginnen'), 'verb_conjugation', 'tuesday', level, 'er'),
-      createWordExercise(getWord('schlimm'), 'adjective_form', 'tuesday', level),
-      createWordExercise(getWord('bissig'), 'adjective_form', 'tuesday', level),
-    ];
-  } else if (day === 'wednesday') {
-    // WEDNESDAY: Syntax & Sentence Building (5 tasks)
-    // 1. Kuss (sentence_builder)
-    // 2. rennen (sentence_builder)
-    // 3. passen (sentence_builder)
-    // 4. dünn (sentence_builder)
-    // 5. Bildgeschichte Szene 1
-    todayFive = [
-      createWordExercise(getWord('Kuss'), 'sentence_builder', 'wednesday', level),
-      createWordExercise(getWord('rennen'), 'sentence_builder', 'wednesday', level),
-      createWordExercise(getWord('passen'), 'sentence_builder', 'wednesday', level),
-      createWordExercise(getWord('dünn'), 'sentence_builder', 'wednesday', level),
-      createBildgeschichteDailyExercise(1, 'wednesday', level),
-    ];
-  } else if (day === 'thursday') {
-    // THURSDAY: Sentence Expansion & Connectors (5 tasks)
-    // 1. Zimmer (sentence_expand) -> 2nd task for Zimmer
-    // 2. schwimmen (sentence_expand) -> 2nd task for schwimmen
-    // 3. Messer (sentence_linking) -> 2nd task for Messer
-    // 4. brennen (sentence_expand) -> 2nd task for brennen
-    // 5. Schloss (plural_choice) -> 2nd task for Schloss
-    todayFive = [
-      createWordExercise(getWord('Zimmer'), 'sentence_expand', 'thursday', level),
-      createWordExercise(getWord('schwimmen'), 'sentence_expand', 'thursday', level),
-      createWordExercise(getWord('Messer'), 'sentence_linking', 'thursday', level),
-      createWordExercise(getWord('brennen'), 'sentence_expand', 'thursday', level),
-      createWordExercise(getWord('Schloss'), 'plural_choice', 'thursday', level),
-    ];
-  } else if (day === 'friday') {
-    // FRIDAY: Review & Narrative Climax (5 tasks)
-    // 1. kennen (sentence_linking) -> 2nd task for kennen
-    // 2. Nummer (missing_letters) -> 2nd task for Nummer
-    // 3. beginnen (sentence_expand) -> 2nd task for beginnen
-    // 4. schlimm (spelling_choice) -> 2nd task for schlimm
-    // 5. Bildgeschichte Szene 4
-    todayFive = [
-      createWordExercise(getWord('kennen'), 'sentence_linking', 'friday', level),
-      createWordExercise(getWord('Nummer'), 'missing_letters', 'friday', level),
-      createWordExercise(getWord('beginnen'), 'sentence_expand', 'friday', level),
-      createWordExercise(getWord('schlimm'), 'spelling_choice', 'friday', level),
-      createBildgeschichteDailyExercise(4, 'friday', level),
-    ];
-  } else {
-    // SATURDAY: Championship & Mastery Synthesis (5 tasks)
-    // 1. Kuss (plural_choice) -> 2nd task for Kuss
-    // 2. rennen (verb_conjugation) -> 2nd task for rennen
-    // 3. passen (sentence_linking) -> 2nd task for passen
-    // 4. dünn (spelling_choice) -> 2nd task for dünn
-    // 5. bissig (spelling_choice) -> 2nd task for bissig
-    const task1 = createWordExercise(getWord('Kuss'), 'plural_choice', 'saturday', level);
-    const task2 = createWordExercise(getWord('rennen'), 'verb_conjugation', 'saturday', level, 'er');
-    const task3 = createWordExercise(getWord('passen'), 'sentence_linking', 'saturday', level);
-    const task4 = createWordExercise(getWord('dünn'), 'spelling_choice', 'saturday', level);
-    const task5 = createWordExercise(getWord('bissig'), 'spelling_choice', 'saturday', level);
+  if (isDefaultWeek1) {
+    const getWord = (name: string): LernwortItem => {
+      const found = safeWords.find((w) => w.cleanWord.toLowerCase() === name.toLowerCase());
+      return found || safeWords[0];
+    };
 
-    if (skippedCount > 0) {
-      if (skippedCount === 1) {
-        todayFive = [task1, task2, task3, task5];
-      } else if (skippedCount === 2) {
-        todayFive = [task1, task2, task5];
-      } else {
-        todayFive = [task1, task5];
-      }
+    if (day === 'monday') {
+      todayFive = [
+        createWordExercise(getWord('Zimmer'), 'picture_match', 'monday', level),
+        createWordExercise(getWord('schwimmen'), 'missing_letters', 'monday', level),
+        createWordExercise(getWord('Messer'), 'spelling_choice', 'monday', level),
+        createWordExercise(getWord('brennen'), 'missing_letters', 'monday', level),
+        createWordExercise(getWord('Schloss'), 'article_choice', 'monday', level),
+      ];
+    } else if (day === 'tuesday') {
+      todayFive = [
+        createWordExercise(getWord('kennen'), 'verb_conjugation', 'tuesday', level, 'du'),
+        createWordExercise(getWord('Nummer'), 'plural_choice', 'tuesday', level),
+        createWordExercise(getWord('beginnen'), 'verb_conjugation', 'tuesday', level, 'er'),
+        createWordExercise(getWord('schlimm'), 'adjective_form', 'tuesday', level),
+        createWordExercise(getWord('bissig'), 'adjective_form', 'tuesday', level),
+      ];
+    } else if (day === 'wednesday') {
+      todayFive = [
+        createWordExercise(getWord('Kuss'), 'sentence_builder', 'wednesday', level),
+        createWordExercise(getWord('rennen'), 'sentence_builder', 'wednesday', level),
+        createWordExercise(getWord('passen'), 'sentence_builder', 'wednesday', level),
+        createWordExercise(getWord('dünn'), 'sentence_builder', 'wednesday', level),
+        createBildgeschichteDailyExercise(1, 'wednesday', level),
+      ];
+    } else if (day === 'thursday') {
+      todayFive = [
+        createWordExercise(getWord('Zimmer'), 'sentence_expand', 'thursday', level),
+        createWordExercise(getWord('schwimmen'), 'sentence_expand', 'thursday', level),
+        createWordExercise(getWord('Messer'), 'sentence_linking', 'thursday', level),
+        createWordExercise(getWord('brennen'), 'sentence_expand', 'thursday', level),
+        createWordExercise(getWord('Schloss'), 'plural_choice', 'thursday', level),
+      ];
+    } else if (day === 'friday') {
+      todayFive = [
+        createWordExercise(getWord('kennen'), 'sentence_linking', 'friday', level),
+        createWordExercise(getWord('Nummer'), 'missing_letters', 'friday', level),
+        createWordExercise(getWord('beginnen'), 'sentence_expand', 'friday', level),
+        createWordExercise(getWord('schlimm'), 'spelling_choice', 'friday', level),
+        createBildgeschichteDailyExercise(4, 'friday', level),
+      ];
     } else {
-      todayFive = [task1, task2, task3, task4, task5];
+      const task1 = createWordExercise(getWord('Kuss'), 'plural_choice', 'saturday', level);
+      const task2 = createWordExercise(getWord('rennen'), 'verb_conjugation', 'saturday', level, 'er');
+      const task3 = createWordExercise(getWord('passen'), 'sentence_linking', 'saturday', level);
+      const task4 = createWordExercise(getWord('dünn'), 'spelling_choice', 'saturday', level);
+      const task5 = createWordExercise(getWord('bissig'), 'spelling_choice', 'saturday', level);
+
+      if (skippedCount > 0) {
+        if (skippedCount === 1) todayFive = [task1, task2, task3, task5];
+        else if (skippedCount === 2) todayFive = [task1, task2, task5];
+        else todayFive = [task1, task5];
+      } else {
+        todayFive = [task1, task2, task3, task4, task5];
+      }
+    }
+  } else {
+    // DYNAMIC WORTART-AWARE GENERATOR FOR ANY WEEKLY LIST (Week 2, 3, etc.)
+    // Categorize words strictly by Wortart:
+    const nouns = safeWords.filter((w) => w.wortart === 'Nomen');
+    const verbs = safeWords.filter((w) => w.wortart === 'Verb');
+    const adjectives = safeWords.filter((w) => w.wortart === 'Adjektiv');
+
+    if (day === 'monday') {
+      // MONDAY: Rechtschreibung & Wortschatz
+      const tasks: GeneratedExercise[] = [];
+      safeWords.slice(0, 5).forEach((w, i) => {
+        if (w.wortart === 'Nomen') {
+          tasks.push(createWordExercise(w, i % 2 === 0 ? 'article_choice' : 'picture_match', 'monday', level));
+        } else if (w.wortart === 'Verb') {
+          tasks.push(createWordExercise(w, 'missing_letters', 'monday', level));
+        } else {
+          tasks.push(createWordExercise(w, 'spelling_choice', 'monday', level));
+        }
+      });
+      while (tasks.length < 5) {
+        const fallback = safeWords[tasks.length % safeWords.length];
+        tasks.push(createWordExercise(fallback, 'spelling_choice', 'monday', level));
+      }
+      todayFive = tasks.slice(0, 5);
+    } else if (day === 'tuesday') {
+      // TUESDAY: Grammatik & Formen (Verbs -> verb_conjugation, Nouns -> plural_choice, Adjectives -> adjective_form)
+      const tasks: GeneratedExercise[] = [];
+
+      // 1. Verbs get verb conjugation (du form)
+      if (verbs.length > 0) {
+        tasks.push(createWordExercise(verbs[0], 'verb_conjugation', 'tuesday', level, 'du'));
+      }
+      // 2. Nouns get plural choice
+      if (nouns.length > 0) {
+        tasks.push(createWordExercise(nouns[0], 'plural_choice', 'tuesday', level));
+      }
+      // 3. Second verb or second noun
+      if (verbs.length > 1) {
+        tasks.push(createWordExercise(verbs[1], 'verb_conjugation', 'tuesday', level, 'er'));
+      } else if (nouns.length > 1) {
+        tasks.push(createWordExercise(nouns[1], 'plural_choice', 'tuesday', level));
+      }
+      // 4. Adjectives get adjective_form (NEVER verb_conjugation!)
+      if (adjectives.length > 0) {
+        tasks.push(createWordExercise(adjectives[0], 'adjective_form', 'tuesday', level));
+      }
+      // 5. Second adjective or noun
+      if (adjectives.length > 1) {
+        tasks.push(createWordExercise(adjectives[1], 'adjective_form', 'tuesday', level));
+      } else if (nouns.length > 2) {
+        tasks.push(createWordExercise(nouns[2], 'plural_choice', 'tuesday', level));
+      }
+
+      // Ensure exactly 5 tasks respecting Wortart
+      let padIdx = 0;
+      while (tasks.length < 5) {
+        const nextWord = safeWords[padIdx % safeWords.length];
+        if (nextWord.wortart === 'Verb') {
+          tasks.push(createWordExercise(nextWord, 'verb_conjugation', 'tuesday', level, 'er'));
+        } else if (nextWord.wortart === 'Nomen') {
+          tasks.push(createWordExercise(nextWord, 'plural_choice', 'tuesday', level));
+        } else {
+          tasks.push(createWordExercise(nextWord, 'adjective_form', 'tuesday', level));
+        }
+        padIdx++;
+      }
+      todayFive = tasks.slice(0, 5);
+    } else if (day === 'wednesday') {
+      // WEDNESDAY: Syntax & Satzbau (sentence_builder for 4 words + Bildgeschichte Szene 1)
+      const tasks: GeneratedExercise[] = [];
+      const distinctWords = safeWords.slice(0, 4);
+      distinctWords.forEach((w) => {
+        tasks.push(createWordExercise(w, 'sentence_builder', 'wednesday', level));
+      });
+      while (tasks.length < 4) {
+        const fallback = safeWords[tasks.length % safeWords.length];
+        tasks.push(createWordExercise(fallback, 'sentence_builder', 'wednesday', level));
+      }
+      tasks.push(createBildgeschichteDailyExercise(1, 'wednesday', level));
+      todayFive = tasks;
+    } else if (day === 'thursday') {
+      // THURSDAY: Satz-Erweiterung & Satz-Verbindung (sentence_expand, sentence_linking, plural_choice)
+      const tasks: GeneratedExercise[] = [];
+      if (nouns.length > 0) {
+        tasks.push(createWordExercise(nouns[0], 'sentence_expand', 'thursday', level));
+      }
+      if (verbs.length > 0) {
+        tasks.push(createWordExercise(verbs[0], 'sentence_linking', 'thursday', level));
+      }
+      if (adjectives.length > 0) {
+        tasks.push(createWordExercise(adjectives[0], 'sentence_linking', 'thursday', level));
+      }
+      if (nouns.length > 1) {
+        tasks.push(createWordExercise(nouns[1], 'plural_choice', 'thursday', level));
+      }
+      if (verbs.length > 1) {
+        tasks.push(createWordExercise(verbs[1], 'sentence_expand', 'thursday', level));
+      }
+      let padIdx = 0;
+      while (tasks.length < 5) {
+        const nextWord = safeWords[padIdx % safeWords.length];
+        tasks.push(createWordExercise(nextWord, 'sentence_expand', 'thursday', level));
+        padIdx++;
+      }
+      todayFive = tasks.slice(0, 5);
+    } else if (day === 'friday') {
+      // FRIDAY: Vertiefung, Transfer & Bildgeschichte Szene 4
+      const tasks: GeneratedExercise[] = [];
+      safeWords.slice(2, 6).forEach((w, i) => {
+        tasks.push(createWordExercise(w, i % 2 === 0 ? 'spelling_choice' : 'missing_letters', 'friday', level));
+      });
+      while (tasks.length < 4) {
+        const fallback = safeWords[tasks.length % safeWords.length];
+        tasks.push(createWordExercise(fallback, 'spelling_choice', 'friday', level));
+      }
+      tasks.push(createBildgeschichteDailyExercise(4, 'friday', level));
+      todayFive = tasks;
+    } else {
+      // SATURDAY: Meisterschaft & Synthese (Wiederholung mit Saturday-Lightened-Modus)
+      const tasks: GeneratedExercise[] = [];
+      if (nouns.length > 0) {
+        tasks.push(createWordExercise(nouns[0], 'plural_choice', 'saturday', level));
+      }
+      if (verbs.length > 0) {
+        tasks.push(createWordExercise(verbs[0], 'verb_conjugation', 'saturday', level, 'er'));
+      }
+      if (adjectives.length > 0) {
+        tasks.push(createWordExercise(adjectives[0], 'adjective_form', 'saturday', level));
+      }
+      safeWords.slice(0, 5).forEach((w) => {
+        if (tasks.length < 5) {
+          tasks.push(createWordExercise(w, 'spelling_choice', 'saturday', level));
+        }
+      });
+      while (tasks.length < 5) {
+        const fallback = safeWords[tasks.length % safeWords.length];
+        tasks.push(createWordExercise(fallback, 'spelling_choice', 'saturday', level));
+      }
+
+      if (skippedCount > 0) {
+        if (skippedCount === 1) todayFive = [tasks[0], tasks[1], tasks[2], tasks[4]];
+        else if (skippedCount === 2) todayFive = [tasks[0], tasks[1], tasks[4]];
+        else todayFive = [tasks[0], tasks[4]];
+      } else {
+        todayFive = tasks.slice(0, 5);
+      }
     }
   }
 

@@ -5,6 +5,8 @@ import { queueProgressSync } from './progressSyncService';
 
 const MATH_STORAGE_KEY = 'jd_math_progress_v1';
 const MATH_QUESTION_HISTORY_KEY = 'jd_math_question_history_v1';
+export const MATH_COMPLETED_TASK_IDS_KEY = 'jd_math_completed_task_ids';
+export const MATH_COMPLETED_RECORDS_KEY = 'jd_math_completed_records_v1';
 
 export function getInitialMathProgressState(): MathProgressState {
   return {
@@ -51,10 +53,29 @@ export function loadMathProgressFromStorage(): MathProgressState {
     }
     const raw = localStorage.getItem(MATH_STORAGE_KEY);
     const storedSignatures = loadStoredQuestionSignatures();
+    const storedTaskIdsRaw = localStorage.getItem(MATH_COMPLETED_TASK_IDS_KEY);
+    let storedTaskIds: string[] = [];
+    if (storedTaskIdsRaw) {
+      try {
+        const parsedIds = JSON.parse(storedTaskIdsRaw);
+        if (Array.isArray(parsedIds)) storedTaskIds = parsedIds;
+      } catch {}
+    }
+
+    const storedRecordsRaw = localStorage.getItem(MATH_COMPLETED_RECORDS_KEY);
+    let storedRecords: CompletedMathRecord[] = [];
+    if (storedRecordsRaw) {
+      try {
+        const parsedRecs = JSON.parse(storedRecordsRaw);
+        if (Array.isArray(parsedRecs)) storedRecords = parsedRecs;
+      } catch {}
+    }
 
     if (!raw) {
       const init = getInitialMathProgressState();
       init.recentQuestionHistory = storedSignatures;
+      init.completedTaskIds = storedTaskIds;
+      init.completedRecords = storedRecords;
       return init;
     }
 
@@ -66,9 +87,25 @@ export function loadMathProgressFromStorage(): MathProgressState {
       ])
     );
 
+    const recordMap = new Map<string, CompletedMathRecord>();
+    const parsedRecords: CompletedMathRecord[] = Array.isArray(parsed.completedRecords) ? parsed.completedRecords : [];
+    [...parsedRecords, ...storedRecords].forEach((r) => {
+      const key = `${r.taskId || r.id}_${r.day}_${r.weekId || 1}`;
+      recordMap.set(key, r);
+    });
+    const mergedRecords = Array.from(recordMap.values());
+
+    const mergedTaskIds = Array.from(
+      new Set([
+        ...(Array.isArray(parsed.completedTaskIds) ? parsed.completedTaskIds : []),
+        ...storedTaskIds,
+        ...mergedRecords.map((r) => r.taskId || r.id),
+      ])
+    );
+
     return {
-      completedTaskIds: Array.isArray(parsed.completedTaskIds) ? parsed.completedTaskIds : [],
-      completedRecords: Array.isArray(parsed.completedRecords) ? parsed.completedRecords : [],
+      completedTaskIds: mergedTaskIds,
+      completedRecords: mergedRecords,
       skillsMastery: parsed.skillsMastery || {},
       strugglingSkills: Array.isArray(parsed.strugglingSkills) ? parsed.strugglingSkills : [],
       recentQuestionHistory: combinedHistory,
@@ -88,6 +125,8 @@ export function saveMathProgressToStorage(state: MathProgressState): void {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(MATH_STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(MATH_COMPLETED_TASK_IDS_KEY, JSON.stringify(state.completedTaskIds));
+      localStorage.setItem(MATH_COMPLETED_RECORDS_KEY, JSON.stringify(state.completedRecords));
       if (state.recentQuestionHistory) {
         saveStoredQuestionSignatures(state.recentQuestionHistory);
       }
@@ -113,14 +152,15 @@ export interface DayMathSummary {
 export function calculateDailyMathSummary(
   day: DayOfWeek,
   completedRecords: CompletedMathRecord[],
-  weekNumber: number = 1
+  weekNumber: number = 1,
+  completedTaskIds: string[] = []
 ): DayMathSummary {
   const plan = generateDailyMathPlan({ day, weekNumber });
   const dayCompletedIds = completedRecords
-    .filter((r) => r.day === day)
-    .map((r) => r.taskId);
+    .filter((r) => r.day === day && r.isCorrect !== false)
+    .map((r) => r.taskId || r.id);
 
-  const completedSet = new Set(dayCompletedIds);
+  const completedSet = new Set([...dayCompletedIds, ...completedTaskIds]);
   let completedCount = 0;
 
   plan.tasks.forEach((t) => {
@@ -141,13 +181,14 @@ export function calculateDailyMathSummary(
 
 export function calculateAllDaysMathProgress(
   completedRecords: CompletedMathRecord[],
-  weekNumber: number = 1
+  weekNumber: number = 1,
+  completedTaskIds: string[] = []
 ): Record<DayOfWeek, DayMathSummary> {
   const days: DayOfWeek[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const result = {} as Record<DayOfWeek, DayMathSummary>;
 
   days.forEach((d) => {
-    result[d] = calculateDailyMathSummary(d, completedRecords, weekNumber);
+    result[d] = calculateDailyMathSummary(d, completedRecords, weekNumber, completedTaskIds);
   });
 
   return result;
@@ -184,16 +225,21 @@ export function recordCompletedMathTask(params: {
 
   const signature = exercise.signature || getMathExerciseSignature(exercise);
 
+  const activeWeek = exercise.weekNumber || currentState.currentWeekNumber || 1;
+
   const newRecord: CompletedMathRecord = {
     id: exercise.id,
     taskId: exercise.id,
+    weekId: activeWeek,
     day: exercise.day,
     skillName: exercise.skillName,
+    skillType: exercise.type,
     pointsEarned: pointsAwarded,
     completedAt: Date.now(),
     inputMethod,
     wasCorrectFirstTry,
     attemptCount: wasCorrectFirstTry ? 1 : 2,
+    isCorrect: true,
     handwrittenStrokes,
     scratchpadStrokes,
   };

@@ -49,6 +49,13 @@ import {
 } from '../services/mathExerciseEngine';
 import { DayOfWeek } from '../types/lernwoerter';
 import { MathProgressState } from '../types/math';
+import {
+  analyzeLernwortInput,
+  validateLernwortProfile,
+  sanitizeAndHealLernwortItem,
+  sanitizeCurriculumWords,
+  isGenericSentence,
+} from '../services/vocabularyLinguisticService';
 
 interface ParentLernwoerterBackendProps {
   curriculum: WeeklyCurriculum;
@@ -107,6 +114,53 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   const [pinChangeError, setPinChangeError] = useState<string | null>(null);
   const [pinChangeSuccess, setPinChangeSuccess] = useState<string | null>(null);
 
+  const handleVerifyPin = () => {
+    if (pinInput.trim() === parentPin) {
+      playChime('success');
+      setIsAuthenticated(true);
+      setPinError(false);
+    } else {
+      playChime('error');
+      setPinError(true);
+    }
+  };
+
+  const handleResetDefaultPin = () => {
+    try {
+      localStorage.setItem('jd_parent_pin', '1234');
+      setParentPin('1234');
+      setPinChangeSuccess('Standard-PIN (1234) wurde wiederhergestellt!');
+      setPinChangeError(null);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleChangePin = () => {
+    if (!newPinInput.trim() || newPinInput.trim().length < 4) {
+      setPinChangeError('Der neue PIN muss mindestens 4 Zeichen lang sein.');
+      return;
+    }
+    if (newPinInput.trim() !== confirmPinInput.trim()) {
+      setPinChangeError('Die beiden PIN-Eingaben stimmen nicht überein.');
+      return;
+    }
+    try {
+      localStorage.setItem('jd_parent_pin', newPinInput.trim());
+      setParentPin(newPinInput.trim());
+      setPinChangeSuccess('PIN erfolgreich geändert!');
+      setPinChangeError(null);
+      setTimeout(() => {
+        setShowPinChangeModal(false);
+        setNewPinInput('');
+        setConfirmPinInput('');
+        setPinChangeSuccess(null);
+      }, 1200);
+    } catch {
+      setPinChangeError('Fehler beim Speichern des PINs.');
+    }
+  };
+
   const [activeTab, setActiveTab] = useState<'words' | 'mathe' | 'dashboard' | 'spaced_repetition'>('words');
   const [showPenTestModal, setShowPenTestModal] = useState<boolean>(false);
   const [selectedHandwritingView, setSelectedHandwritingView] = useState<{
@@ -118,7 +172,19 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
   // Edit curriculum state
   const [weekNumber, setWeekNumber] = useState<number>(curriculum.weekNumber);
   const [title, setTitle] = useState<string>(curriculum.title);
-  const [words, setWords] = useState<LernwortItem[]>(curriculum.words);
+  const [words, setWords] = useState<LernwortItem[]>(() =>
+    sanitizeCurriculumWords(curriculum.words)
+  );
+
+  // Editing single word state
+  const [editingWord, setEditingWord] = useState<LernwortItem | null>(null);
+
+  // Batch multi-word entry modal state
+  const [showBatchModal, setShowBatchModal] = useState<boolean>(false);
+  const [batchInputText, setBatchInputText] = useState<string>('');
+
+  // Word filter (all, needs_review, approved)
+  const [wordsFilter, setWordsFilter] = useState<'all' | 'needs_review' | 'approved'>('all');
 
   // New word draft state
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
@@ -144,88 +210,54 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
     exampleSentence: '',
   });
 
-  const handleVerifyPin = () => {
-    if (pinInput === parentPin) {
-      playChime('click');
-      setIsAuthenticated(true);
-      setPinError(false);
-    } else {
-      playChime('whistle');
-      setPinError(true);
-    }
-  };
-
-  const handleChangePin = () => {
-    if (!/^\d{4,6}$/.test(newPinInput)) {
-      setPinChangeError('Der PIN muss aus 4 bis 6 Ziffern bestehen.');
-      return;
-    }
-    if (newPinInput !== confirmPinInput) {
-      setPinChangeError('Die eingegebenen PINs stimmen nicht überein.');
-      return;
-    }
-    try {
-      localStorage.setItem('jd_parent_pin', newPinInput);
-      setParentPin(newPinInput);
-      setPinChangeSuccess('Neuer Eltern-PIN erfolgreich gespeichert!');
-      setPinChangeError(null);
-      setTimeout(() => {
-        setShowPinChangeModal(false);
-        setPinChangeSuccess(null);
-        setNewPinInput('');
-        setConfirmPinInput('');
-      }, 1400);
-    } catch {
-      setPinChangeError('Fehler beim Speichern des PINs.');
-    }
-  };
-
-  const handleResetDefaultPin = () => {
-    try {
-      localStorage.removeItem('jd_parent_pin');
-      setParentPin('1234');
-      setPinChangeSuccess('PIN auf Standard (1234) zurückgesetzt!');
-      setPinChangeError(null);
-      setTimeout(() => {
-        setShowPinChangeModal(false);
-        setPinChangeSuccess(null);
-        setNewPinInput('');
-        setConfirmPinInput('');
-      }, 1400);
-    } catch {}
+  const handleWordDraftChange = (inputVal: string) => {
+    const profile = analyzeLernwortInput(inputVal);
+    setNewWordDraft({
+      word: inputVal,
+      cleanWord: profile.cleanWord,
+      wortart: profile.wortart,
+      artikel: profile.artikel || 'der',
+      plural: profile.plural || '',
+      infinitive: profile.infinitive || '',
+      group: newWordDraft.group,
+      emoji: profile.emoji,
+      exampleSentence: profile.primaryExampleSentence,
+    });
   };
 
   const handleAddNewWord = () => {
     if (!newWordDraft.word.trim()) return;
 
     playChime('click');
-    const clean = newWordDraft.cleanWord || newWordDraft.word.replace(/^(der|die|das)\s+/i, '').trim();
-    const formattedWord = newWordDraft.wortart === 'Nomen' && newWordDraft.artikel
-      ? `${newWordDraft.artikel} ${clean}`
-      : newWordDraft.word;
+    const profile = analyzeLernwortInput(newWordDraft.word);
+    const clean = newWordDraft.cleanWord || profile.cleanWord;
+    const formattedWord =
+      newWordDraft.wortart === 'Nomen' && newWordDraft.artikel
+        ? `${newWordDraft.artikel} ${clean}`
+        : clean;
 
-    const newWordItem: LernwortItem = {
+    const exampleSentence =
+      newWordDraft.exampleSentence && !isGenericSentence(newWordDraft.exampleSentence, clean)
+        ? newWordDraft.exampleSentence
+        : profile.primaryExampleSentence;
+
+    const newWordItem = sanitizeAndHealLernwortItem({
       id: `custom_${Date.now()}`,
       word: formattedWord,
       cleanWord: clean,
       wortart: newWordDraft.wortart,
       artikel: newWordDraft.wortart === 'Nomen' ? newWordDraft.artikel : undefined,
-      plural: newWordDraft.plural || undefined,
+      plural: newWordDraft.wortart === 'Nomen' ? (newWordDraft.plural || profile.plural) : undefined,
       infinitive: newWordDraft.wortart === 'Verb' ? (newWordDraft.infinitive || clean) : undefined,
       group: newWordDraft.group,
-      emoji: newWordDraft.emoji || '📝',
-      distractors: [`${clean}e`, `${clean}s`],
+      emoji: newWordDraft.emoji || profile.emoji,
+      distractors: profile.distractors,
       missingLetterPattern: clean.replace(/[aeiouäöü]/gi, '_'),
-      sentences: [
-        { pronoun: 'ich', text: `Ich übe ${clean}.` },
-        { pronoun: 'du', text: `Du übst ${clean}.` },
-        { pronoun: 'er', text: `Er übt ${clean}.` },
-        { pronoun: 'wir', text: `Wir üben ${clean}.` },
-        { pronoun: 'ihr', text: `Ihr übt ${clean}.` },
-        { pronoun: 'sie', text: `Sie üben ${clean}.` },
-      ],
-      exampleSentence: newWordDraft.exampleSentence || `Das ist ${clean}.`,
-    };
+      sentences: profile.practiceSentences,
+      exampleSentence,
+      validationStatus: 'approved',
+      validationIssues: [],
+    });
 
     setWords([...words, newWordItem]);
     setShowAddModal(false);
@@ -243,6 +275,97 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
     });
   };
 
+  const handleBatchImportWords = () => {
+    if (!batchInputText.trim()) return;
+    playChime('success');
+    const tokens = batchInputText
+      .split(/[\n,;]+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    const newItems: LernwortItem[] = tokens.map((token, idx) => {
+      const profile = analyzeLernwortInput(token);
+      return sanitizeAndHealLernwortItem({
+        id: `batch_${Date.now()}_${idx}`,
+        word: profile.wordWithArticle,
+        cleanWord: profile.cleanWord,
+        wortart: profile.wortart,
+        artikel: profile.artikel,
+        plural: profile.plural,
+        infinitive: profile.infinitive,
+        group: ((idx % 2) + 1) as 1 | 2,
+        emoji: profile.emoji,
+        distractors: profile.distractors,
+        missingLetterPattern: profile.missingLetterPattern,
+        sentences: profile.practiceSentences,
+        exampleSentence: profile.primaryExampleSentence,
+        validationStatus: 'needs_review',
+        validationIssues: profile.validationIssues,
+      });
+    });
+
+    setWords([...words, ...newItems]);
+    setBatchInputText('');
+    setShowBatchModal(false);
+  };
+
+  const handleApproveWord = (id: string) => {
+    playChime('click');
+    setWords(
+      words.map((w) =>
+        w.id === id ? { ...w, validationStatus: 'approved', validationIssues: [] } : w
+      )
+    );
+  };
+
+  const handleApproveAllWords = () => {
+    playChime('success');
+    setWords(
+      words.map((w) => {
+        const healed = sanitizeAndHealLernwortItem(w);
+        return {
+          ...healed,
+          validationStatus: 'approved',
+          validationIssues: [],
+        };
+      })
+    );
+  };
+
+  const handleRegenerateWord = (id: string) => {
+    playChime('click');
+    setWords(
+      words.map((w) => {
+        if (w.id !== id) return w;
+        const profile = analyzeLernwortInput(w.word || w.cleanWord);
+        return sanitizeAndHealLernwortItem({
+          ...w,
+          word: profile.wordWithArticle,
+          cleanWord: profile.cleanWord,
+          wortart: profile.wortart,
+          artikel: profile.artikel,
+          plural: profile.plural,
+          infinitive: profile.infinitive,
+          emoji: profile.emoji,
+          exampleSentence: profile.primaryExampleSentence,
+          sentences: profile.practiceSentences,
+          validationStatus: 'needs_review',
+        });
+      })
+    );
+  };
+
+  const handleSaveEditWord = (updated: LernwortItem) => {
+    playChime('click');
+    const sanitized = sanitizeAndHealLernwortItem({
+      ...updated,
+      validationStatus: 'approved',
+      validationIssues: [],
+    });
+    setWords(words.map((w) => (w.id === sanitized.id ? sanitized : w)));
+    setEditingWord(null);
+  };
+
   const handleDeleteWord = (id: string) => {
     playChime('click');
     setWords(words.filter((w) => w.id !== id));
@@ -250,11 +373,12 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
 
   const handleSaveCurriculum = () => {
     playChime('success');
+    const sanitizedWords = sanitizeCurriculumWords(words);
     const updated: WeeklyCurriculum = {
       ...curriculum,
       weekNumber,
       title,
-      words,
+      words: sanitizedWords,
     };
     onSaveCurriculum(updated);
     alert('Woche & Lernwörter wurden erfolgreich gespeichert und die täglichen Übungen aktualisiert!');
@@ -451,52 +575,247 @@ export const ParentLernwoerterBackend: React.FC<ParentLernwoerterBackendProps> =
                 </div>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Neues Lernwort hinzufügen</span>
-                </button>
-
-                <button
-                  onClick={handleSaveCurriculum}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center gap-1.5 shadow-md"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Woche erstellen & Übungen generieren ✨</span>
-                </button>
-              </div>
-
-              {/* Table of current words */}
-              <div className="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100">
-                {words.map((w, idx) => (
-                  <div key={w.id} className="p-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{w.emoji}</span>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-black text-slate-900 text-sm">{w.word}</span>
-                          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700">
-                            {w.wortart}
-                          </span>
-                          <span className="text-xs text-slate-400">Gruppe {w.group}</span>
-                        </div>
-                        <div className="text-xs text-slate-500 line-clamp-1">{w.exampleSentence || w.sentences[0]?.text}</div>
-                      </div>
+              {/* QUALITY GATE: LERNWÖRTER PRÜFEN & FREIGEBEN */}
+              <div className="p-5 rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/70 via-white to-blue-50/70 space-y-4 shadow-xs">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">📋</span>
+                    <div>
+                      <h4 className="font-black text-indigo-950 text-base sm:text-lg flex items-center gap-2">
+                        <span>Lernwörter prüfen & freigeben</span>
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                          Qualitäts-Prüfung 4. Klasse
+                        </span>
+                      </h4>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        Jedes Wort wird linguistisch klassifiziert (Wortart, Begleiter, Plural) und erhält einen kindgerechten Beispielsatz.
+                      </p>
                     </div>
+                  </div>
 
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button
-                      onClick={() => handleDeleteWord(w.id)}
-                      className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                      title="Löschen"
+                      onClick={() => setShowBatchModal(true)}
+                      className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 font-bold text-xs border border-indigo-200 shadow-2xs flex items-center gap-1.5 transition-all"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Schnell-Eingabe (Mehrere Wörter)</span>
+                    </button>
+                    <button
+                      onClick={() => setShowAddModal(true)}
+                      className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Einzelwort anlegen</span>
+                    </button>
+                    <button
+                      onClick={handleSaveCurriculum}
+                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center gap-1.5 shadow-md transition-all"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>Woche speichern & Übungen generieren ✨</span>
                     </button>
                   </div>
-                ))}
+                </div>
+
+                {/* Filter and Overview Pills */}
+                {(() => {
+                  const needsReviewCount = words.filter((w) => w.validationStatus === 'needs_review').length;
+                  const approvedCount = words.filter((w) => w.validationStatus !== 'needs_review').length;
+
+                  return (
+                    <div className="flex items-center justify-between border-t border-indigo-100 pt-3 flex-wrap gap-2 text-xs">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => setWordsFilter('all')}
+                          className={`px-3 py-1 rounded-lg font-bold transition-all ${
+                            wordsFilter === 'all'
+                              ? 'bg-indigo-600 text-white shadow-xs'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          Alle Wörter ({words.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWordsFilter('needs_review')}
+                          className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                            wordsFilter === 'needs_review'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'bg-white text-amber-800 border border-amber-200 hover:bg-amber-50'
+                          }`}
+                        >
+                          <span>⚠️ Zu prüfen</span>
+                          <span>({needsReviewCount})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWordsFilter('approved')}
+                          className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1 ${
+                            wordsFilter === 'approved'
+                              ? 'bg-emerald-600 text-white shadow-xs'
+                              : 'bg-white text-emerald-800 border border-emerald-200 hover:bg-emerald-50'
+                          }`}
+                        >
+                          <span>✅ Freigegeben</span>
+                          <span>({approvedCount})</span>
+                        </button>
+
+                        {needsReviewCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={handleApproveAllWords}
+                            className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all flex items-center gap-1 shadow-xs ml-auto"
+                            title="Alle Wörter sprachlich freigeben"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Alle {needsReviewCount} freigeben</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {needsReviewCount > 0 ? (
+                        <span className="text-amber-700 font-bold flex items-center gap-1">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          <span>{needsReviewCount} {needsReviewCount === 1 ? 'Wort benötigt' : 'Wörter benötigen'} Eltern-Freigabe</span>
+                        </span>
+                      ) : (
+                        <span className="text-emerald-700 font-bold flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Alle {words.length} Lernwörter sprachlich geprüft & freigegeben!</span>
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Cards List for Words Review */}
+                <div className="space-y-2.5 pt-1">
+                  {words
+                    .filter((w) => {
+                      if (wordsFilter === 'needs_review') return w.validationStatus === 'needs_review';
+                      if (wordsFilter === 'approved') return w.validationStatus !== 'needs_review';
+                      return true;
+                    })
+                    .map((w) => {
+                      const isNeedsReview = w.validationStatus === 'needs_review';
+                      const exampleText = w.exampleSentence || w.sentences[0]?.text || '';
+                      const isGeneric = isGenericSentence(exampleText, w.cleanWord);
+
+                      return (
+                        <div
+                          key={w.id}
+                          className={`p-4 rounded-2xl border transition-all ${
+                            isNeedsReview || isGeneric
+                              ? 'bg-amber-50/80 border-amber-300 shadow-xs'
+                              : 'bg-white border-slate-200 hover:border-indigo-200 shadow-2xs'
+                          }`}
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="space-y-1.5 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-2xl">{w.emoji}</span>
+                                <span className="font-black text-slate-900 text-base">
+                                  {w.word}
+                                </span>
+
+                                {/* Wortart & Details Badge */}
+                                <span
+                                  className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${
+                                    w.wortart === 'Nomen'
+                                      ? 'bg-blue-100 text-blue-900 border-blue-200'
+                                      : w.wortart === 'Verb'
+                                      ? 'bg-purple-100 text-purple-900 border-purple-200'
+                                      : 'bg-emerald-100 text-emerald-900 border-emerald-200'
+                                  }`}
+                                >
+                                  {w.wortart} ✅
+                                </span>
+
+                                {w.wortart === 'Nomen' && w.plural && (
+                                  <span className="text-xs text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded-md">
+                                    Plural: {w.plural}
+                                  </span>
+                                )}
+
+                                {w.wortart === 'Verb' && w.infinitive && (
+                                  <span className="text-xs text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded-md">
+                                    Grundform: {w.infinitive}
+                                  </span>
+                                )}
+
+                                <span className="text-[11px] font-semibold text-slate-400">
+                                  Gruppe {w.group}
+                                </span>
+                              </div>
+
+                              {/* Natural Example Sentence */}
+                              <div className="text-xs sm:text-sm text-slate-700 pl-8">
+                                <span className="text-slate-400 font-medium mr-1.5">Beispielsatz:</span>
+                                <strong className="text-indigo-950 font-bold">
+                                  „{exampleText}“
+                                </strong>
+                              </div>
+
+                              {/* Validation Notice if needed */}
+                              {(isNeedsReview || isGeneric) && (
+                                <div className="text-xs text-amber-800 font-bold pl-8 flex items-center gap-1.5 pt-0.5">
+                                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                                  <span>
+                                    ⚠️ Lernwort muss noch geprüft werden (Generischer Satz oder unvollständige Grammatikdaten).
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Actions: Freigeben | Bearbeiten | Neu prüfen | Löschen */}
+                            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                              {(isNeedsReview || isGeneric) && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleApproveWord(w.id)}
+                                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center gap-1 shadow-2xs transition-all active:scale-95"
+                                  title="Lernwort freigeben"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Freigeben</span>
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => handleRegenerateWord(w.id)}
+                                className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                title="Vorschlag sprachlich neu berechnen"
+                              >
+                                <RefreshCw className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setEditingWord(w)}
+                                className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center gap-1 border border-indigo-200 transition-all active:scale-95"
+                                title="Bearbeiten"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                                <span>Bearbeiten</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteWord(w.id)}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                title="Wort entfernen"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
             </div>
           )}

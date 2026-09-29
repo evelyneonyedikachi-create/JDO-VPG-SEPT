@@ -701,6 +701,212 @@ export const CURATED_LERNWOERTER_BANKS: Record<string, CuratedWordEntry> = {
       },
     ],
   },
+  Schiff: {
+    cleanWord: 'Schiff',
+    wordWithArticle: 'das Schiff',
+    wordType: 'noun',
+    naturalSentences: [
+      'Das Schiff fährt über das Meer.',
+      'Im Hafen liegt ein großes Schiff vor Anker.',
+      'Das Schiff trotzt den hohen Wellen auf dem Wasser.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit „das Schiff“.',
+    connectorExercises: [
+      {
+        firstClause: 'Das Schiff fährt heute besonders langsam',
+        secondClause: 'der Nebel auf dem Wasser ist sehr dicht.',
+        correctConnector: 'weil',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Das Schiff fährt heute besonders langsam, weil der Nebel auf dem Wasser sehr dicht ist.',
+        connectorType: 'causal',
+        explanation: '„weil“ begründet die langsame Fahrt des Schiffes.',
+        hint: 'Warum fährt das Schiff langsam?',
+      },
+    ],
+  },
+  billig: {
+    cleanWord: 'billig',
+    wordWithArticle: 'billig',
+    wordType: 'adjective',
+    naturalSentences: [
+      'Das Heft ist billig.',
+      'Im Supermarkt sind die roten Äpfel heute billig.',
+      'Ein billiges Spielzeug geht manchmal schneller kaputt.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit dem Adjektiv „billig“.',
+    adjectiveBank: [
+      {
+        sentenceWithBlank: 'Das neue Schreibheft ist wirklich ___ .',
+        correctForm: 'billig',
+        options: ['billig', 'billige', 'billigen'],
+        explanation: 'Nach „ist“ steht das Adjektiv in der Grundform „billig“.',
+      },
+      {
+        sentenceWithBlank: 'Er kauft ein ___ Lineal für die Schule.',
+        correctForm: 'billiges',
+        options: ['billiges', 'billig', 'billiger'],
+        explanation: 'Vor einem sächlichen Nomen (das Lineal) heißt es: ein billiges Lineal.',
+      },
+    ],
+    connectorExercises: [
+      {
+        firstClause: 'Das neue Schreibheft war sehr billig',
+        secondClause: 'die Qualität des Papiers ist überraschend gut.',
+        correctConnector: 'aber',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Das neue Schreibheft war sehr billig, aber die Qualität des Papiers ist überraschend gut.',
+        connectorType: 'contrast',
+        explanation: '„aber“ drückt einen überraschenden Gegensatz aus.',
+        hint: 'Es war günstig, aber trotzdem gut.',
+      },
+    ],
+  },
+  Wetter: {
+    cleanWord: 'Wetter',
+    wordWithArticle: 'das Wetter',
+    wordType: 'noun',
+    naturalSentences: [
+      'Heute ist das Wetter schön.',
+      'Bei schlechtem Wetter bleiben wir gemütlich drinnen.',
+      'Der Wetterbericht verspricht viel Sonnenschein für das Wochenende.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit „das Wetter“.',
+    connectorExercises: [
+      {
+        firstClause: 'Wir spielen heute den ganzen Nachmittag draußen',
+        secondClause: 'das Wetter ist sonnig und warm.',
+        correctConnector: 'weil',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Wir spielen heute den ganzen Nachmittag draußen, weil das Wetter sonnig und warm ist.',
+        connectorType: 'causal',
+        explanation: '„weil“ begründet das Spielen im Freien.',
+        hint: 'Warum spielen die Kinder draußen?',
+      },
+    ],
+  },
+  still: {
+    cleanWord: 'still',
+    wordWithArticle: 'still',
+    wordType: 'adjective',
+    naturalSentences: [
+      'Im Klassenzimmer ist es ganz still.',
+      'Die Kinder lauschen ganz still der Geschichte.',
+      'Am späten Abend wird es draußen im Wald völlig still.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit dem Adjektiv „still“.',
+    adjectiveBank: [
+      {
+        sentenceWithBlank: 'Während der Klassenarbeit sind alle Schüler ___ .',
+        correctForm: 'still',
+        options: ['still', 'stille', 'stillen'],
+        explanation: 'Nach „sind“ steht das Adjektiv in der Grundform „still“.',
+      },
+    ],
+    connectorExercises: [
+      {
+        firstClause: 'Alle Kinder im Raum sind mucksmäuschenstill',
+        secondClause: 'die Lehrerin liest ein spannendes Buch vor.',
+        correctConnector: 'weil',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Alle Kinder im Raum sind mucksmäuschenstill, weil die Lehrerin ein spannendes Buch vorliest.',
+        connectorType: 'causal',
+        explanation: '„weil“ erklärt den Grund für die Ruhe.',
+        hint: 'Warum sind alle so still?',
+      },
+    ],
+  },
+  Unfall: {
+    cleanWord: 'Unfall',
+    wordWithArticle: 'der Unfall',
+    wordType: 'noun',
+    naturalSentences: [
+      'Auf der Straße ist ein Unfall passiert.',
+      'Zum Glück wurde bei dem Unfall niemand verletzt.',
+      'Die Polizei sichert die Stelle nach dem Unfall ab.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit „der Unfall“.',
+    connectorExercises: [
+      {
+        firstClause: 'Die Autos bremsen vorsichtig ab',
+        secondClause: 'vor ihnen ist ein kleiner Unfall passiert.',
+        correctConnector: 'weil',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Die Autos bremsen vorsichtig ab, weil vor ihnen ein kleiner Unfall passiert ist.',
+        connectorType: 'causal',
+        explanation: '„weil“ erklärt, warum die Autos bremsen.',
+        hint: 'Warum bremsen die Autos?',
+      },
+    ],
+  },
+  Mitte: {
+    cleanWord: 'Mitte',
+    wordWithArticle: 'die Mitte',
+    wordType: 'noun',
+    naturalSentences: [
+      'Der Ball liegt in der Mitte.',
+      'Wir setzen uns zusammen in die Mitte des Raumes.',
+      'Genau in der Mitte des Kreises steht eine Kerze.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit „die Mitte“.',
+    connectorExercises: [
+      {
+        firstClause: 'Wir legen den Ball genau in die Mitte',
+        secondClause: 'jeder Mitspieler soll die gleiche Chance haben.',
+        correctConnector: 'weil',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Wir legen den Ball genau in die Mitte, weil jeder Mitspieler die gleiche Chance haben soll.',
+        connectorType: 'causal',
+        explanation: '„weil“ begründet die Platzierung.',
+        hint: 'Warum in die Mitte legen?',
+      },
+    ],
+  },
+  retten: {
+    cleanWord: 'retten',
+    wordWithArticle: 'retten',
+    wordType: 'verb',
+    naturalSentences: [
+      'Die Feuerwehr rettet den Mann.',
+      'Die mutige Feuerwehr rettet den Hund.',
+      'Die Sanitäter retten Menschen in Not.',
+    ],
+    writingPrompt: 'Schreibe einen vollständigen Satz mit dem Verb „retten“.',
+    conjugationBank: [
+      {
+        pronounOrSubject: 'du',
+        sentenceWithBlank: 'Du ___ das kleine Kätzchen vom Baum.',
+        correctForm: 'rettest',
+        options: ['rettest', 'rettet', 'retten'],
+        explanation: 'Bei „du“ lautet die Endung bei Verben auf -t: -est (du rettest).',
+      },
+      {
+        pronounOrSubject: 'Die Feuerwehr',
+        sentenceWithBlank: 'Die Feuerwehr ___ den Hund aus dem tiefen Graben.',
+        correctForm: 'rettet',
+        options: ['rettet', 'rettest', 'retten'],
+        explanation: '„Die Feuerwehr“ steht in der 3. Person Einzahl: sie rettet.',
+      },
+      {
+        pronounOrSubject: 'er',
+        sentenceWithBlank: 'Er ___ das hilflose Vögelchen vor der Katze.',
+        correctForm: 'rettet',
+        options: ['rettet', 'rettest', 'rette'],
+        explanation: 'Bei „er“ lautet die Endung auf -et: er rettet.',
+      },
+    ],
+    connectorExercises: [
+      {
+        firstClause: 'Die Feuerwehrleute eilen schnell herbei',
+        secondClause: 'sie möchten die Bewohner aus dem Haus retten.',
+        correctConnector: 'weil',
+        options: ['weil', 'aber', 'und'],
+        combinedSentence: 'Die Feuerwehrleute eilen schnell herbei, weil sie die Bewohner aus dem Haus retten möchten.',
+        connectorType: 'causal',
+        explanation: '„weil“ begründet den Einsatz der Feuerwehr.',
+        hint: 'Warum eilt die Feuerwehr herbei?',
+      },
+    ],
+  },
 };
 
 /**
@@ -738,6 +944,14 @@ export function validateSentencePedagogically(sentence: string): {
     };
   }
 
+  // Reject "Das ist {word}." or "Das ist ein {word}."
+  if (/^das\s+ist\s+[^.!?]{1,25}\.?$/i.test(s)) {
+    return {
+      isValid: false,
+      rejectionReason: `Forbidden generic filler "Das ist ...": "${s}"`,
+    };
+  }
+
   // Sentences must have at least 3 words
   const words = s.split(/\s+/).filter(Boolean);
   if (words.length < 3) {
@@ -751,8 +965,44 @@ export function validateSentencePedagogically(sentence: string): {
 }
 
 /**
- * Retrieves the curated bank entry for a given clean word, or provides a safe fallback.
+ * Retrieves the curated bank entry for a given clean word, or dynamically generates
+ * a complete, validated CuratedWordEntry for ANY newly added word.
  */
-export function getCuratedWordEntry(cleanWord: string): CuratedWordEntry | undefined {
-  return CURATED_LERNWOERTER_BANKS[cleanWord];
+export function getCuratedWordEntry(cleanWord: string): CuratedWordEntry {
+  // 1. Direct match in curated bank
+  if (CURATED_LERNWOERTER_BANKS[cleanWord]) {
+    return CURATED_LERNWOERTER_BANKS[cleanWord];
+  }
+
+  // Check case variants (e.g. "schiff" -> "Schiff" or "Billig" -> "billig")
+  const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
+  const low = cleanWord.toLowerCase();
+  if (CURATED_LERNWOERTER_BANKS[cap]) return CURATED_LERNWOERTER_BANKS[cap];
+  if (CURATED_LERNWOERTER_BANKS[low]) return CURATED_LERNWOERTER_BANKS[low];
+
+  // 2. Dynamic generation for ANY new Lernwort entered by parents
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { analyzeLernwortInput } = require('../services/vocabularyLinguisticService');
+  const profile = analyzeLernwortInput(cleanWord);
+
+  const wordType: 'noun' | 'verb' | 'adjective' =
+    profile.wortart === 'Nomen' ? 'noun' : profile.wortart === 'Verb' ? 'verb' : 'adjective';
+
+  const entry: CuratedWordEntry = {
+    cleanWord: profile.cleanWord,
+    wordWithArticle: profile.wordWithArticle,
+    wordType,
+    naturalSentences: [
+      profile.primaryExampleSentence,
+      ...(profile.alternateExampleSentences || []),
+    ],
+    writingPrompt: `Schreibe einen vollständigen Satz mit „${profile.wordWithArticle}“.`,
+    conjugationBank: profile.conjugationBank,
+    adjectiveBank: profile.adjectiveBank,
+    connectorExercises: profile.connectorExercises || [],
+  };
+
+  // Cache dynamically generated entry for future requests
+  CURATED_LERNWOERTER_BANKS[cleanWord] = entry;
+  return entry;
 }

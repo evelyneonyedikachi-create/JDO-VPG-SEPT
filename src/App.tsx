@@ -56,6 +56,7 @@ import {
   loadStoredQuestionSignatures,
   calculateDailyMathSummary,
 } from './services/mathProgressService';
+import { sanitizeCurriculumWords } from './services/vocabularyLinguisticService';
 
 type MainView = 'heute' | 'woerter' | 'mathe' | 'ueben' | 'bildgeschichte' | 'sterne' | 'games';
 
@@ -94,6 +95,9 @@ export default function App() {
             ...s,
             imageSrc: getSceneImage(s.id),
           }));
+        }
+        if (parsed.words && Array.isArray(parsed.words)) {
+          parsed.words = sanitizeCurriculumWords(parsed.words);
         }
         return parsed;
       }
@@ -372,6 +376,9 @@ export default function App() {
               imageSrc: getSceneImage(s.id),
             }));
           }
+          if (cur.words && Array.isArray(cur.words)) {
+            cur.words = sanitizeCurriculumWords(cur.words);
+          }
           setCurriculum(cur);
         }
         if (typeof remote.starsCount === 'number') setStarsCount(remote.starsCount);
@@ -473,9 +480,13 @@ export default function App() {
   };
 
   const handleSaveCurriculum = (newCurriculum: WeeklyCurriculum) => {
-    setCurriculum(newCurriculum);
+    const sanitized = {
+      ...newCurriculum,
+      words: sanitizeCurriculumWords(newCurriculum.words),
+    };
+    setCurriculum(sanitized);
     try {
-      localStorage.setItem('jd_curriculum_v2', JSON.stringify(newCurriculum));
+      localStorage.setItem('jd_curriculum_v2', JSON.stringify(sanitized));
     } catch {}
   };
 
@@ -774,7 +785,12 @@ export default function App() {
                   daysProgress={daysProgress}
                   weeklyOverview={weeklyOverview}
                   nextTask={nextTask}
-                  mathSummary={calculateDailyMathSummary(activeDay, mathProgress.completedRecords)}
+                  mathSummary={calculateDailyMathSummary(
+                    activeDay,
+                    mathProgress.completedRecords,
+                    mathProgress.currentWeekNumber || 1,
+                    mathProgress.completedTaskIds
+                  )}
                   mathProgress={mathProgress}
                   onSelectDay={(day) => setActiveDay(day)}
                   onStartToday={() => setCurrentView('ueben')}

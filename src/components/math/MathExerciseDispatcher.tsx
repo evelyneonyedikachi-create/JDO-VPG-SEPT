@@ -17,48 +17,58 @@ import { StandardArithmeticView } from './StandardArithmeticView';
 
 interface MathExerciseDispatcherProps {
   exercise: MathExercise;
-  onSolve: (isCorrect: boolean) => void;
+  onSolve?: (isCorrect: boolean, solvedExercise?: MathExercise) => void;
+  onComplete?: (isCorrect: boolean, solvedExercise?: MathExercise) => void;
   disabled?: boolean;
 }
 
 export const MathExerciseDispatcher: React.FC<MathExerciseDispatcherProps> = ({
   exercise,
   onSolve,
+  onComplete,
   disabled = false,
 }) => {
+  const handleSolve = (isCorrect: boolean) => {
+    if (typeof onSolve === 'function') {
+      onSolve(isCorrect, exercise);
+    } else if (typeof onComplete === 'function') {
+      onComplete(isCorrect, exercise);
+    }
+  };
+
   switch (exercise.type) {
     case 'zahlenstrahl':
-      return <ZahlenstrahlView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <ZahlenstrahlView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'zahlenmauer':
-      return <ZahlenmauerView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <ZahlenmauerView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'rechenrad':
-      return <RechenradView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <RechenradView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'rechentabelle':
-      return <RechentabelleView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <RechentabelleView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'aufgabenfamilie':
-      return <AufgabenfamilieView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <AufgabenfamilieView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'stellenwert_hze':
-      return <StellenwertHZEView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <StellenwertHZEView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'nachbarzahlen':
-      return <NachbarzahlenView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <NachbarzahlenView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'verdoppeln_halbieren':
-      return <DoublingHalvingView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <DoublingHalvingView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'groessenvergleich':
-      return <GroessenvergleichView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <GroessenvergleichView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'zahlenfolgen':
-      return <ZahlenfolgenView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <ZahlenfolgenView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'halbschriftlich':
-      return <HalbschriftlichView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <HalbschriftlichView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'geldbetrag':
-      return <GeldbetragView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <GeldbetragView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'sachaufgabe':
-      return <SachaufgabeView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <SachaufgabeView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     case 'addition_1000':
     case 'subtraction_1000':
     case 'multiplication_facts':
     case 'division_facts':
     case 'fehlende_zehner_hunderter':
-      return <StandardArithmeticView key={exercise.id} exercise={exercise} onSolve={onSolve} disabled={disabled} />;
+      return <StandardArithmeticView key={exercise.id} exercise={exercise} onSolve={handleSolve} disabled={disabled} />;
     default:
       return <div>Unbekannter Aufgabentyp</div>;
   }

@@ -76,8 +76,14 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
   );
 
   const dailySummary = useMemo(
-    () => calculateDailyMathSummary(currentDay, mathProgress.completedRecords, activeWeekNumber),
-    [currentDay, mathProgress.completedRecords, activeWeekNumber]
+    () =>
+      calculateDailyMathSummary(
+        currentDay,
+        mathProgress.completedRecords,
+        activeWeekNumber,
+        mathProgress.completedTaskIds
+      ),
+    [currentDay, mathProgress.completedRecords, activeWeekNumber, mathProgress.completedTaskIds]
   );
 
   // Active task safely indexed
@@ -210,10 +216,18 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
             <span>{mathProgress.pointsToday} Pkt</span>
           </div>
 
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-sm font-black shadow-2xs">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <div
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border text-sm font-black shadow-2xs transition-all ${
+              dailySummary.isCompleted
+                ? 'bg-emerald-100 border-emerald-300 text-emerald-950 font-black scale-102 ring-2 ring-emerald-300/60'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-950'
+            }`}
+          >
+            <CheckCircle2 className={`w-4 h-4 ${dailySummary.isCompleted ? 'text-emerald-700' : 'text-emerald-600'}`} />
             <span>
-              {dailySummary.completedRequired} / {dailySummary.totalRequired} geschafft
+              {dailySummary.isCompleted
+                ? `🎉 ${dailySummary.completedRequired} / ${dailySummary.totalRequired} geschafft`
+                : `${dailySummary.completedRequired} / ${dailySummary.totalRequired} geschafft`}
             </span>
           </div>
 
@@ -237,7 +251,12 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         {(Object.keys(DAY_LABELS) as DayOfWeek[]).map((day) => {
           const isSelected = currentDay === day;
-          const sum = calculateDailyMathSummary(day, mathProgress.completedRecords, activeWeekNumber);
+          const sum = calculateDailyMathSummary(
+            day,
+            mathProgress.completedRecords,
+            activeWeekNumber,
+            mathProgress.completedTaskIds
+          );
 
           return (
             <button
@@ -259,9 +278,18 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
                   {DAY_LABELS[day].short}
                 </span>
                 {sum.isCompleted ? (
-                  <CheckCircle2
-                    className={`w-4 h-4 ${isSelected ? 'text-emerald-300' : 'text-emerald-600'}`}
-                  />
+                  <span
+                    className={`inline-flex items-center gap-1 text-[11px] font-black px-1.5 py-0.5 rounded-md ${
+                      isSelected
+                        ? 'bg-white/25 text-white'
+                        : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    }`}
+                  >
+                    <CheckCircle2
+                      className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-200' : 'text-emerald-600'}`}
+                    />
+                    <span>Geschafft</span>
+                  </span>
                 ) : (
                   <span
                     className={`text-[11px] font-black ${
@@ -360,6 +388,7 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
           <MathExerciseDispatcher
             key={activeTask.id}
             exercise={activeTask}
+            onSolve={handleTaskSolved}
             onComplete={handleTaskSolved}
           />
         </div>

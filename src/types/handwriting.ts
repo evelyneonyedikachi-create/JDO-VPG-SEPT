@@ -25,8 +25,34 @@ export interface HandwritingData {
   inputMethod?: 'handwriting' | 'keyboard';
 }
 
+export type HandwritingErrorCode =
+  | 'technical_error'
+  | 'empty_response'
+  | 'parse_error'
+  | 'low_confidence'
+  | 'unreadable';
+
 export interface HandwritingRecognitionResult {
   text: string;
   confidence: number;
   candidates?: string[];
+  errorCode?: HandwritingErrorCode;
+  errorMessage?: string;
+  diagnostics?: {
+    canvasImageCreated: boolean;
+    inkBounds?: {
+      minX: number;
+      maxX: number;
+      minY: number;
+      maxY: number;
+      width: number;
+      height: number;
+    };
+    totalPoints: number;
+    httpStatus?: number;
+    rawResponseText?: string;
+    parsedText?: string;
+    durationMs?: number;
+    errorDetail?: string;
+  };
 }
