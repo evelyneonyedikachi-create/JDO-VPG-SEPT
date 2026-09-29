@@ -263,6 +263,17 @@ export async function recognizeHandwritingStrokes(
       };
     }
 
+    // Structured diagnostic logging for every recognition request (Requirement 3)
+    console.log('[OCR Diagnostics Log]', {
+      canvasImageCreated: rendered.canvasImageCreated ? 'yes' : 'no',
+      inkBoundsDetected: rendered.bounds,
+      apiRequestSent: 'yes',
+      httpStatus,
+      responseText: rawResponseText,
+      parsedText: data?.text || '',
+      timeoutOrError: data?.error || (!response.ok ? `HTTP ${httpStatus}` : null),
+    });
+
     if (!response.ok) {
       console.warn('[OCR Diagnostics] HTTP Non-OK response:', httpStatus, data);
       return {

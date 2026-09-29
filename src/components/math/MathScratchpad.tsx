@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { HandwritingCanvas } from '../HandwritingCanvas';
 import { HandwritingRecognitionConfirmation } from '../HandwritingRecognitionConfirmation';
 import { recognizeHandwritingStrokes } from '../../services/handwritingRecognitionService';
-import { Stroke } from '../../types/handwriting';
-import { Eraser, PenTool, Sparkles, Check } from 'lucide-react';
+import { Stroke, HandwritingErrorCode } from '../../types/handwriting';
+import { Eraser, PenTool, Sparkles, Check, AlertCircle, RotateCcw } from 'lucide-react';
 import { playChime } from '../../utils/soundEffects';
 
 interface MathScratchpadProps {
@@ -22,10 +22,15 @@ export const MathScratchpad: React.FC<MathScratchpadProps> = ({
   const [strokes, setStrokes] = useState<Stroke[]>([]);
   const [isRecognizing, setIsRecognizing] = useState(false);
   const [recognizedCandidate, setRecognizedCandidate] = useState<string | null>(null);
+  const [scratchpadError, setScratchpadError] = useState<{
+    code: HandwritingErrorCode;
+    message: string;
+  } | null>(null);
 
   const handleRecognize = async (currentStrokes: Stroke[]) => {
     if (!currentStrokes || currentStrokes.length === 0) return;
     setIsRecognizing(true);
+    setScratchpadError(null);
     playChime('click');
     const result = await recognizeHandwritingStrokes(currentStrokes, {
       mode: 'math',
@@ -33,6 +38,18 @@ export const MathScratchpad: React.FC<MathScratchpadProps> = ({
     setIsRecognizing(false);
     if (result.text) {
       setRecognizedCandidate(result.text);
+      setScratchpadError(null);
+    } else {
+      const isTech =
+        result.errorCode === 'technical_error' ||
+        result.errorCode === 'empty_response' ||
+        result.errorCode === 'parse_error';
+      setScratchpadError({
+        code: result.errorCode || 'unreadable',
+        message: isTech
+          ? 'Die Schrifterkennung hat gerade nicht funktioniert. Versuch es bitte noch einmal.'
+          : 'Bitte schreibe etwas deutlicher.',
+      });
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { DayOfWeek } from '../../types/lernwoerter';
-import { MathExercise, MathProgressState } from '../../types/math';
+import { CompletedMathRecord, MathExercise, MathProgressState } from '../../types/math';
 import {
   generateDailyMathPlan,
   generateWeeklyMathTasks,
@@ -39,7 +39,24 @@ interface MatheTrainingWorkspaceProps {
   currentDay: DayOfWeek;
   onSelectDay: (day: DayOfWeek) => void;
   mathProgress: MathProgressState;
-  onUpdateMathProgress: (newState: MathProgressState) => void;
+  mathCompletedTaskIds: string[];
+  mathCompletedRecords: CompletedMathRecord[];
+  onRecordCompletedMathTask: (params: {
+    taskId: string;
+    weekId?: number;
+    day: DayOfWeek;
+    skillType: string;
+    skillName?: string;
+    completedAt?: number;
+    isCorrect?: boolean;
+    pointsEarned?: number;
+    inputMethod?: 'keyboard' | 'handwriting';
+    wasCorrectFirstTry?: boolean;
+    handwrittenStrokes?: any[];
+    scratchpadStrokes?: any[];
+    exercise?: MathExercise;
+  }) => void;
+  onUpdateMathProgress?: (newState: MathProgressState) => void;
 }
 
 const DAY_LABELS: Record<DayOfWeek, { name: string; short: string; theme: string }> = {
@@ -55,6 +72,9 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
   currentDay,
   onSelectDay,
   mathProgress,
+  mathCompletedTaskIds,
+  mathCompletedRecords,
+  onRecordCompletedMathTask,
   onUpdateMathProgress,
 }) => {
   const [activeWeekNumber, setActiveWeekNumber] = useState<number>(
@@ -79,34 +99,38 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
     () =>
       calculateDailyMathSummary(
         currentDay,
-        mathProgress.completedRecords,
+        mathCompletedRecords,
         activeWeekNumber,
-        mathProgress.completedTaskIds
+        mathCompletedTaskIds
       ),
-    [currentDay, mathProgress.completedRecords, activeWeekNumber, mathProgress.completedTaskIds]
+    [currentDay, mathCompletedRecords, activeWeekNumber, mathCompletedTaskIds]
   );
 
   // Active task safely indexed
   const activeTask = dailyPlan.tasks[selectedTaskIndex] || dailyPlan.tasks[0];
   const isCurrentTaskCompleted =
-    activeTask && mathProgress.completedTaskIds.includes(activeTask.id);
+    Boolean(activeTask && mathCompletedTaskIds.includes(activeTask.id));
 
-  const handleTaskSolved = (isCorrect: boolean) => {
-    if (!isCorrect || !activeTask) return;
+  const handleTaskSolved = (isCorrect: boolean, solvedExercise?: MathExercise) => {
+    if (!isCorrect) return;
+    const targetExercise = solvedExercise || activeTask;
+    if (!targetExercise) return;
 
-    const alreadyDone = mathProgress.completedTaskIds.includes(activeTask.id);
+    const alreadyDone = mathCompletedTaskIds.includes(targetExercise.id);
 
-    const updated = recordCompletedMathTask({
-      exercise: activeTask,
+    onRecordCompletedMathTask({
+      taskId: targetExercise.id,
+      weekId: activeWeekNumber,
+      day: targetExercise.day,
+      skillType: targetExercise.type,
+      skillName: targetExercise.skillName,
+      completedAt: Date.now(),
+      isCorrect: true,
+      pointsEarned: targetExercise.points || 4,
       inputMethod: 'keyboard',
       wasCorrectFirstTry: true,
-      currentState: {
-        ...mathProgress,
-        currentWeekNumber: activeWeekNumber,
-      },
+      exercise: targetExercise,
     });
-
-    onUpdateMathProgress(updated);
 
     if (!alreadyDone) {
       confetti({
@@ -118,7 +142,7 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
 
     // Auto-advance to next unsolved task if available
     const nextUnsolved = dailyPlan.tasks.findIndex(
-      (t, idx) => idx > selectedTaskIndex && !updated.completedTaskIds.includes(t.id)
+      (t, idx) => idx > selectedTaskIndex && !mathCompletedTaskIds.includes(t.id) && t.id !== targetExercise.id
     );
     if (nextUnsolved !== -1) {
       setTimeout(() => {
@@ -253,9 +277,9 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
           const isSelected = currentDay === day;
           const sum = calculateDailyMathSummary(
             day,
-            mathProgress.completedRecords,
+            mathCompletedRecords,
             activeWeekNumber,
-            mathProgress.completedTaskIds
+            mathCompletedTaskIds
           );
 
           return (
@@ -313,7 +337,7 @@ export const MatheTrainingWorkspace: React.FC<MatheTrainingWorkspaceProps> = ({
         <div className="flex items-center gap-2 overflow-x-auto">
           {dailyPlan.tasks.map((task, idx) => {
             const isSelected = selectedTaskIndex === idx;
-            const isCompleted = mathProgress.completedTaskIds.includes(task.id);
+            const isCompleted = mathCompletedTaskIds.includes(task.id);
 
             return (
               <button

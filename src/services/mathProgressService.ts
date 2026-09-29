@@ -123,10 +123,17 @@ export function loadMathProgressFromStorage(): MathProgressState {
 
 export function saveMathProgressToStorage(state: MathProgressState): void {
   try {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(MATH_STORAGE_KEY, JSON.stringify(state));
-      localStorage.setItem(MATH_COMPLETED_TASK_IDS_KEY, JSON.stringify(state.completedTaskIds));
-      localStorage.setItem(MATH_COMPLETED_RECORDS_KEY, JSON.stringify(state.completedRecords));
+    const storage =
+      typeof window !== 'undefined' && window.localStorage
+        ? window.localStorage
+        : typeof (globalThis as any).localStorage !== 'undefined'
+        ? (globalThis as any).localStorage
+        : null;
+
+    if (storage) {
+      storage.setItem(MATH_STORAGE_KEY, JSON.stringify(state));
+      storage.setItem(MATH_COMPLETED_TASK_IDS_KEY, JSON.stringify(state.completedTaskIds));
+      storage.setItem(MATH_COMPLETED_RECORDS_KEY, JSON.stringify(state.completedRecords));
       if (state.recentQuestionHistory) {
         saveStoredQuestionSignatures(state.recentQuestionHistory);
       }
@@ -151,16 +158,16 @@ export interface DayMathSummary {
 
 export function calculateDailyMathSummary(
   day: DayOfWeek,
-  completedRecords: CompletedMathRecord[],
+  completedRecords: CompletedMathRecord[] = [],
   weekNumber: number = 1,
   completedTaskIds: string[] = []
 ): DayMathSummary {
   const plan = generateDailyMathPlan({ day, weekNumber });
-  const dayCompletedIds = completedRecords
-    .filter((r) => r.day === day && r.isCorrect !== false)
+  const dayCompletedIds = (completedRecords || [])
+    .filter((r) => r.day === day && r.isCorrect !== false && (!r.weekId || r.weekId === weekNumber))
     .map((r) => r.taskId || r.id);
 
-  const completedSet = new Set([...dayCompletedIds, ...completedTaskIds]);
+  const completedSet = new Set([...dayCompletedIds, ...(completedTaskIds || [])]);
   let completedCount = 0;
 
   plan.tasks.forEach((t) => {
@@ -173,7 +180,7 @@ export function calculateDailyMathSummary(
     day,
     totalRequired: plan.tasks.length,
     completedRequired: completedCount,
-    isCompleted: completedCount >= plan.tasks.length,
+    isCompleted: completedCount >= plan.tasks.length && plan.tasks.length > 0,
     tasks: plan.tasks,
     completedTaskIds: Array.from(completedSet),
   };

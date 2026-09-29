@@ -50,11 +50,15 @@ import {
   determineNextRecommendedTask,
 } from './services/progressService';
 import { MatheTrainingWorkspace } from './components/math/MatheTrainingWorkspace';
-import { MathProgressState } from './types/math';
+import { CompletedMathRecord, MathExercise, MathProgressState } from './types/math';
 import {
   loadMathProgressFromStorage,
+  saveMathProgressToStorage,
   loadStoredQuestionSignatures,
   calculateDailyMathSummary,
+  recordCompletedMathTask,
+  MATH_COMPLETED_TASK_IDS_KEY,
+  MATH_COMPLETED_RECORDS_KEY,
 } from './services/mathProgressService';
 import { sanitizeCurriculumWords } from './services/vocabularyLinguisticService';
 
@@ -264,6 +268,114 @@ export default function App() {
     loadMathProgressFromStorage()
   );
 
+  // CRITICAL REQUIREMENT 1: Persistent Maths Completion (Source of Truth matching Deutsch)
+  const [mathCompletedTaskIds, setMathCompletedTaskIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(MATH_COMPLETED_TASK_IDS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+
+  const [mathCompletedRecords, setMathCompletedRecords] = useState<CompletedMathRecord[]>(() => {
+    try {
+      const saved = localStorage.getItem(MATH_COMPLETED_RECORDS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+
+  const handleRecordCompletedMathTask = (params: {
+    taskId: string;
+    weekId?: number;
+    day: DayOfWeek;
+    skillType: string;
+    skillName?: string;
+    completedAt?: number;
+    isCorrect?: boolean;
+    pointsEarned?: number;
+    inputMethod?: 'keyboard' | 'handwriting';
+    wasCorrectFirstTry?: boolean;
+    handwrittenStrokes?: any[];
+    scratchpadStrokes?: any[];
+    exercise?: MathExercise;
+  }) => {
+    const activeWeek = params.weekId || params.exercise?.weekNumber || mathProgress.currentWeekNumber || 1;
+    const canonicalRecord: CompletedMathRecord = {
+      id: params.taskId,
+      taskId: params.taskId,
+      weekId: activeWeek,
+      day: params.day,
+      skillType: params.skillType,
+      skillName: params.skillName || params.exercise?.skillName || params.skillType,
+      pointsEarned: params.pointsEarned ?? (params.exercise?.points || 4),
+      completedAt: params.completedAt || Date.now(),
+      isCorrect: true,
+      inputMethod: params.inputMethod || 'keyboard',
+      wasCorrectFirstTry: params.wasCorrectFirstTry ?? true,
+      attemptCount: (params.wasCorrectFirstTry ?? true) ? 1 : 2,
+      handwrittenStrokes: params.handwrittenStrokes,
+      scratchpadStrokes: params.scratchpadStrokes,
+    };
+
+    // 1. Immediately persist mathCompletedTaskIds (source of truth)
+    setMathCompletedTaskIds((prev) => {
+      if (prev.includes(canonicalRecord.taskId)) return prev;
+      const updated = [...prev, canonicalRecord.taskId];
+      try {
+        localStorage.setItem(MATH_COMPLETED_TASK_IDS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    // 2. Immediately persist mathCompletedRecords (source of truth)
+    setMathCompletedRecords((prev) => {
+      const exists = prev.some(
+        (r) =>
+          (r.taskId === canonicalRecord.taskId || r.id === canonicalRecord.taskId) &&
+          r.day === canonicalRecord.day &&
+          (r.weekId || 1) === activeWeek
+      );
+      if (exists) return prev;
+      const updated = [...prev, canonicalRecord];
+      try {
+        localStorage.setItem(MATH_COMPLETED_RECORDS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    // 3. Update full math progress (skills mastery, points, question history)
+    setMathProgress((prev) => {
+      if (params.exercise) {
+        return recordCompletedMathTask({
+          exercise: params.exercise,
+          inputMethod: params.inputMethod || 'keyboard',
+          wasCorrectFirstTry: params.wasCorrectFirstTry ?? true,
+          currentState: prev,
+          handwrittenStrokes: params.handwrittenStrokes,
+          scratchpadStrokes: params.scratchpadStrokes,
+        });
+      } else {
+        const alreadyDone = prev.completedTaskIds.includes(canonicalRecord.taskId);
+        const updatedTaskIds = alreadyDone ? prev.completedTaskIds : [...prev.completedTaskIds, canonicalRecord.taskId];
+        const updatedRecords = alreadyDone ? prev.completedRecords : [...prev.completedRecords, canonicalRecord];
+        const updatedState = {
+          ...prev,
+          completedTaskIds: updatedTaskIds,
+          completedRecords: updatedRecords,
+        };
+        saveMathProgressToStorage(updatedState);
+        return updatedState;
+      }
+    });
+  };
+
   const handleSavePauseSession = (state: PausedSessionState | null) => {
     setPausedSession(state);
     try {
@@ -390,14 +502,54 @@ export default function App() {
         if (Array.isArray(remote.claimedRewards)) setClaimedRewards(remote.claimedRewards);
         if (Array.isArray(remote.completedExerciseRecords)) setCompletedRecords(remote.completedExerciseRecords);
         if (remote.mathProgress && typeof remote.mathProgress === 'object') {
+          const remoteTaskIds = Array.isArray(remote.mathProgress.completedTaskIds)
+            ? remote.mathProgress.completedTaskIds
+            : [];
+          const remoteRecords: CompletedMathRecord[] = Array.isArray(remote.mathProgress.completedRecords)
+            ? remote.mathProgress.completedRecords
+            : [];
+
+          setMathCompletedTaskIds((prev) => {
+            const merged = Array.from(new Set([...prev, ...remoteTaskIds]));
+            try {
+              localStorage.setItem(MATH_COMPLETED_TASK_IDS_KEY, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+
+          setMathCompletedRecords((prev) => {
+            const map = new Map<string, CompletedMathRecord>();
+            [...prev, ...remoteRecords].forEach((r) => {
+              const key = `${r.taskId || r.id}_${r.day}_${r.weekId || 1}`;
+              map.set(key, { ...r, taskId: r.taskId || r.id, isCorrect: r.isCorrect !== false });
+            });
+            const merged = Array.from(map.values());
+            try {
+              localStorage.setItem(MATH_COMPLETED_RECORDS_KEY, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+
           const localSignatures = loadStoredQuestionSignatures();
           const remoteHistory = Array.isArray(remote.mathProgress.recentQuestionHistory)
             ? remote.mathProgress.recentQuestionHistory
             : [];
           const mergedSignatures = Array.from(new Set([...remoteHistory, ...localSignatures]));
-          setMathProgress({
-            ...remote.mathProgress,
-            recentQuestionHistory: mergedSignatures,
+          setMathProgress((prev) => {
+            const recordMap = new Map<string, CompletedMathRecord>();
+            [...prev.completedRecords, ...remoteRecords].forEach((r) => {
+              const key = `${r.taskId || r.id}_${r.day}_${r.weekId || 1}`;
+              recordMap.set(key, { ...r, taskId: r.taskId || r.id, isCorrect: r.isCorrect !== false });
+            });
+            const deduplicatedMathRecords = Array.from(recordMap.values());
+
+            return {
+              ...prev,
+              ...remote.mathProgress,
+              completedTaskIds: Array.from(new Set([...prev.completedTaskIds, ...remoteTaskIds])),
+              completedRecords: deduplicatedMathRecords,
+              recentQuestionHistory: mergedSignatures,
+            };
           });
         }
       }
@@ -787,9 +939,9 @@ export default function App() {
                   nextTask={nextTask}
                   mathSummary={calculateDailyMathSummary(
                     activeDay,
-                    mathProgress.completedRecords,
+                    mathCompletedRecords,
                     mathProgress.currentWeekNumber || 1,
-                    mathProgress.completedTaskIds
+                    mathCompletedTaskIds
                   )}
                   mathProgress={mathProgress}
                   onSelectDay={(day) => setActiveDay(day)}
@@ -810,6 +962,9 @@ export default function App() {
                   currentDay={activeDay}
                   onSelectDay={(day) => setActiveDay(day)}
                   mathProgress={mathProgress}
+                  mathCompletedTaskIds={mathCompletedTaskIds}
+                  mathCompletedRecords={mathCompletedRecords}
+                  onRecordCompletedMathTask={handleRecordCompletedMathTask}
                   onUpdateMathProgress={(updated) => setMathProgress(updated)}
                 />
               )}

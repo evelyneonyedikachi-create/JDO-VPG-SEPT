@@ -42,6 +42,7 @@ import {
   Check,
   Keyboard,
   PenTool,
+  AlertCircle,
 } from 'lucide-react';
 import { getModelSolutionUnlockStatus } from '../utils/textValidation';
 import { getNextRewardMilestone, formatPoints } from '../data/rewardLadder';
@@ -49,7 +50,7 @@ import { CompletedExerciseRecord, DayProgressSummary } from '../types/progress';
 import { RepeatTaskModal } from './RepeatTaskModal';
 import { HandwritingCanvas } from './HandwritingCanvas';
 import { HandwritingRecognitionConfirmation } from './HandwritingRecognitionConfirmation';
-import { Stroke } from '../types/handwriting';
+import { Stroke, HandwritingErrorCode } from '../types/handwriting';
 import { recognizeHandwritingStrokes } from '../services/handwritingRecognitionService';
 import { getSceneImage } from '../data/sceneIllustrations';
 import {
@@ -183,6 +184,52 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const [isRecognizing, setIsRecognizing] = useState<boolean>(false);
   const [recognizedCandidate, setRecognizedCandidate] = useState<string | null>(null);
   const [rawRecognizedText, setRawRecognizedText] = useState<string | null>(null);
+  const [recognitionError, setRecognitionError] = useState<{
+    code: HandwritingErrorCode;
+    message: string;
+    strokes: Stroke[];
+  } | null>(null);
+
+  // Centralized robust recognition handler with constrained vocabulary & error distinction (Requirements 3, 4, 5, 6)
+  const handlePerformRecognition = async (
+    strokesToRecognize: Stroke[],
+    options?: { allowedWords?: string[] }
+  ) => {
+    if (!strokesToRecognize || strokesToRecognize.length === 0) return;
+    setIsRecognizing(true);
+    setRecognitionError(null);
+
+    // Provide complete weekly vocabulary as candidate vocabulary for single word & spelling tasks (Requirement 4)
+    const weeklyVocab = words.map((w) => w.cleanWord);
+
+    const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
+      vocabularyContext: weeklyVocab,
+      allowedWords: options?.allowedWords,
+    });
+
+    setIsRecognizing(false);
+
+    if (rec.text) {
+      setRecognizedCandidate(rec.text);
+      setRawRecognizedText(rec.text);
+      setRecognitionError(null);
+      setHintMessage(null);
+    } else {
+      const isTech =
+        rec.errorCode === 'technical_error' ||
+        rec.errorCode === 'empty_response' ||
+        rec.errorCode === 'parse_error';
+      const msg = isTech
+        ? 'Die Schrifterkennung hat gerade nicht funktioniert. Versuch es bitte noch einmal.'
+        : 'Bitte schreibe etwas deutlicher.';
+      setRecognitionError({
+        code: rec.errorCode || (isTech ? 'technical_error' : 'unreadable'),
+        message: msg,
+        strokes: strokesToRecognize,
+      });
+      setHintMessage(msg);
+    }
+  };
 
   // Sentence evaluation states (Stages C & D)
   const [sentenceEvalResult, setSentenceEvalResult] = useState<SentenceEvaluationResult | null>(null);
@@ -413,6 +460,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     setHandwritingStrokes([]);
     setRecognizedCandidate(null);
     setRawRecognizedText(null);
+    setRecognitionError(null);
     setSentenceEvalResult(null);
     setIsEvaluatingSentence(false);
     setIsRecognizing(false);
@@ -675,15 +723,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
       } else if (sentenceBuilderMode === 'handwriting') {
         // Auto-recognition safety: if strokes exist but child hasn't confirmed text
         if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
-          setIsRecognizing(true);
-          const rec = await recognizeHandwritingStrokes(handwritingStrokes);
-          setIsRecognizing(false);
-          if (rec.text) {
-            setRecognizedCandidate(rec.text);
-            setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
-          } else {
-            setHintMessage('Bitte schreibe deinen Satz noch einmal deutlicher oder tippe ihn.');
-          }
+          await handlePerformRecognition(handwritingStrokes);
           return;
         }
         if (recognizedCandidate) {
@@ -715,17 +755,9 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     else if (isChoiceTask) {
       if (choiceExerciseMode === 'handwriting') {
         if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
-          setIsRecognizing(true);
-          const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
+          await handlePerformRecognition(handwritingStrokes, {
             allowedWords: currentEx.options,
           });
-          setIsRecognizing(false);
-          if (rec.text) {
-            setRecognizedCandidate(rec.text);
-            setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
-          } else {
-            setHintMessage('Bitte schreibe deine Antwort noch einmal deutlicher oder wähle eine Option.');
-          }
           return;
         }
         if (recognizedCandidate) {
@@ -756,18 +788,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
     else {
       if (inputMethod === 'handwriting') {
         if (!textInput.trim() && handwritingStrokes.length > 0 && !recognizedCandidate) {
-          setIsRecognizing(true);
-          const isSingleWord = currentEx.type === 'missing_letters' || currentEx.type === 'type_word';
-          const rec = await recognizeHandwritingStrokes(handwritingStrokes, {
-            vocabularyContext: isSingleWord ? words.map((w) => w.cleanWord) : undefined,
-          });
-          setIsRecognizing(false);
-          if (rec.text) {
-            setRecognizedCandidate(rec.text);
-            setHintMessage('Bitte überprüfe kurz den erkannten Text und klicke auf "✓ Ja, das stimmt"!');
-          } else {
-            setHintMessage('Bitte schreibe dein Wort noch einmal deutlicher oder tippe es.');
-          }
+          await handlePerformRecognition(handwritingStrokes);
           return;
         }
 
@@ -2039,20 +2060,30 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                           }}
                           isRecognizing={isRecognizing}
                           onRecognizeRequest={async (strokesToRecognize) => {
-                            setIsRecognizing(true);
-                            const isSingleWord = currentEx.type === 'missing_letters' || currentEx.type === 'type_word';
-                            const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
-                              vocabularyContext: isSingleWord ? words.map((w) => w.cleanWord) : undefined,
-                            });
-                            setIsRecognizing(false);
-                            if (rec.text) {
-                              setRecognizedCandidate(rec.text);
-                              setRawRecognizedText(rec.text);
-                            } else {
-                              setHintMessage('Die Schrift konnte nicht erkannt werden. Bitte schreibe etwas deutlicher oder tippe deinen Text.');
-                            }
+                            await handlePerformRecognition(strokesToRecognize);
                           }}
                         />
+
+                        {/* Technical Failure Retry Banner (Requirement 6: Retry without forcing rewrite) */}
+                        {recognitionError && (
+                          <div className="bg-amber-50 border-2 border-amber-300 p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm animate-fade-in shadow-2xs">
+                            <div className="flex items-center gap-2 text-amber-950 font-bold">
+                              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                              <span>{recognitionError.message}</span>
+                            </div>
+                            {recognitionError.code !== 'unreadable' && (
+                              <button
+                                type="button"
+                                onClick={() => handlePerformRecognition(recognitionError.strokes)}
+                                disabled={isRecognizing}
+                                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 transition-all cursor-pointer"
+                              >
+                                <RotateCcw className="w-4 h-4" />
+                                <span>🔄 Erkennung erneut versuchen</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
 
                         {/* RECOGNITION CONFIRMATION DIALOG (Stage B - Confirms OCR only) */}
                         {recognizedCandidate && (
@@ -2149,18 +2180,36 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                           }}
                           isRecognizing={isRecognizing}
                           onRecognizeRequest={async (strokesToRecognize) => {
-                            setIsRecognizing(true);
-                            const rec = await recognizeHandwritingStrokes(strokesToRecognize, {
+                            await handlePerformRecognition(strokesToRecognize, {
                               allowedWords: currentEx.options,
                             });
-                            setIsRecognizing(false);
-                            if (rec.text) {
-                              setRecognizedCandidate(rec.text);
-                            } else {
-                              setHintMessage('Die Schrift konnte nicht erkannt werden. Bitte wähle eine Option oder schreibe deutlicher.');
-                            }
                           }}
                         />
+
+                        {/* Technical Failure Retry Banner (Requirement 6) */}
+                        {recognitionError && (
+                          <div className="bg-amber-50 border-2 border-amber-300 p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm animate-fade-in shadow-2xs">
+                            <div className="flex items-center gap-2 text-amber-950 font-bold">
+                              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+                              <span>{recognitionError.message}</span>
+                            </div>
+                            {recognitionError.code !== 'unreadable' && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handlePerformRecognition(recognitionError.strokes, {
+                                    allowedWords: currentEx.options,
+                                  })
+                                }
+                                disabled={isRecognizing}
+                                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shrink-0 shadow-sm active:scale-95 transition-all cursor-pointer"
+                              >
+                                <RotateCcw className="w-4 h-4" />
+                                <span>🔄 Erkennung erneut versuchen</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
 
                         {/* RECOGNITION CONFIRMATION DIALOG */}
                         {recognizedCandidate && (

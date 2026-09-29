@@ -840,7 +840,7 @@ app.post('/api/recognize-handwriting', async (req, res) => {
           'Do NOT correct grammar. Do NOT fix typos. Do NOT autocomplete. Do NOT expand. Do NOT paraphrase. ' +
           'Return ONLY the raw transcribed text. Do not wrap in quotes or add notes. If genuinely unreadable scribbles, return [unleserlich].';
 
-    const modelsToTry = [PRIMARY_MODEL, FALLBACK_MODEL, 'gemini-2.5-flash'];
+    const modelsToTry = [PRIMARY_MODEL, 'gemini-3.8-flash', 'gemini-flash-latest'];
     let lastError: any = null;
     let rawText = '';
 
@@ -874,13 +874,14 @@ app.post('/api/recognize-handwriting', async (req, res) => {
 
         rawText = response.text || '';
         if (rawText !== undefined) {
-          console.log(`[OCR Server] Model ${modelName} succeeded, transcribed length: ${rawText.length}`);
+          console.log(`[OCR Server] Model ${modelName} succeeded, transcribed: "${rawText.trim()}"`);
           break;
         }
       } catch (err: any) {
         lastError = err;
         console.warn(`[OCR Server] Model ${modelName} failed:`, err?.message || err);
-        // Continue to try next fallback model
+        // Brief pause before trying next fallback model to avoid transient rate limits
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
     }
 
