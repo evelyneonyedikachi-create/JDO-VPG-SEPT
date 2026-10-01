@@ -3,17 +3,17 @@
     "starsCount": 28,
     "streakDays": 5,
     "pointsState": {
-      "pointsToday": 0,
+      "pointsToday": 16,
       "pointsWeek": 94,
       "cumulativePoints": 494,
-      "lastDate": "2026-09-27"
+      "lastDate": "2026-10-01"
     },
-    "lastSavedAt": 1790541038080,
+    "lastSavedAt": 1790885154994,
     "curriculum": {
       "id": "woche_1",
       "weekNumber": 1,
       "title": "Woche 1 – Meine Lernwörter & Eine spannende Woche",
-      "subtitle": "Lernwörter 1 & 2 für die 4. Klasse (Doppelkonsonanten mm, ss, nn)",
+      "subtitle": "Lernwörter 1, 2 & 3 für die 4. Klasse (Doppelkonsonanten mm, ss, nn, tt, ff)",
       "createdAt": "2026-09-22",
       "words": [
         {
@@ -605,6 +605,309 @@
             }
           ],
           "exampleSentence": "Der kleine Hund ist gar nicht bissig."
+        },
+        {
+          "id": "w3_schiff",
+          "word": "das Schiff",
+          "cleanWord": "Schiff",
+          "wortart": "Nomen",
+          "artikel": "das",
+          "plural": "die Schiffe",
+          "group": 3,
+          "emoji": "🚢",
+          "distractors": [
+            "das Schif",
+            "der Schiff",
+            "die Schiff"
+          ],
+          "missingLetterPattern": "das Sch_ff",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich beobachte das weiße Schiff im Hafen."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du fährst gern mit dem großen Schiff."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er winkt den Passagieren auf dem Schiff zu."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir reisen mit dem Schiff über das Meer."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr seht das Schiff am Horizont fahren."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie steuert das Schiff sicher durch die Wellen."
+            }
+          ],
+          "exampleSentence": "Das Schiff fährt über das Meer.",
+          "validationStatus": "approved"
+        },
+        {
+          "id": "w3_billig",
+          "word": "billig",
+          "cleanWord": "billig",
+          "wortart": "Adjektiv",
+          "group": 3,
+          "emoji": "🏷️",
+          "distractors": [
+            "bilig",
+            "billich",
+            "billige"
+          ],
+          "missingLetterPattern": "b_ll_g",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich kaufe ein billiges Heft für die Schule."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du findest diesen Stift besonders billig."
+            },
+            {
+              "pronoun": "er",
+              "text": "Das Heft ist billig."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir freuen uns über das billige Spielzeug."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr sucht nach billigen Büchern auf dem Flohmarkt."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie findet die roten Äpfel heute sehr billig."
+            }
+          ],
+          "exampleSentence": "Das Heft ist billig.",
+          "validationStatus": "approved"
+        },
+        {
+          "id": "w3_wetter",
+          "word": "das Wetter",
+          "cleanWord": "Wetter",
+          "wortart": "Nomen",
+          "artikel": "das",
+          "plural": "das Wetter",
+          "group": 3,
+          "emoji": "☀️",
+          "distractors": [
+            "das Weter",
+            "der Wetter",
+            "die Wetter"
+          ],
+          "missingLetterPattern": "das W_tt_r",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich freue mich über das sonnige Wetter."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du gehst auch bei regnerischem Wetter spazieren."
+            },
+            {
+              "pronoun": "er",
+              "text": "Er schaut aus dem Fenster und prüft das Wetter."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir genießen das warme Frühlingswetter."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr zieht euch dem kühlen Wetter passend an."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Heute ist das Wetter schön."
+            }
+          ],
+          "exampleSentence": "Heute ist das Wetter schön.",
+          "validationStatus": "approved"
+        },
+        {
+          "id": "w3_still",
+          "word": "still",
+          "cleanWord": "still",
+          "wortart": "Adjektiv",
+          "group": 3,
+          "emoji": "🤫",
+          "distractors": [
+            "stil",
+            "stille",
+            "stiel"
+          ],
+          "missingLetterPattern": "st_ll",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich bin beim Lesen im Zimmer ganz still."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du verhältst dich in der Bücherei sehr still."
+            },
+            {
+              "pronoun": "er",
+              "text": "Im Klassenzimmer ist es ganz still."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir hören ganz still der Musik zu."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr seid während der Geschichte mucksmäuschenstill."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie schleicht ganz still durch das Zimmer."
+            }
+          ],
+          "exampleSentence": "Im Klassenzimmer ist es ganz still.",
+          "validationStatus": "approved"
+        },
+        {
+          "id": "w3_unfall",
+          "word": "der Unfall",
+          "cleanWord": "Unfall",
+          "wortart": "Nomen",
+          "artikel": "der",
+          "plural": "die Unfälle",
+          "group": 3,
+          "emoji": "🚑",
+          "distractors": [
+            "der Unfal",
+            "das Unfall",
+            "die Unfall"
+          ],
+          "missingLetterPattern": "der _nf_ll",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich passe im Straßenverkehr gut auf, um keinen Unfall zu haben."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du trägst einen Helm zum Schutz vor einem Unfall."
+            },
+            {
+              "pronoun": "er",
+              "text": "Auf der Straße ist ein Unfall passiert."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir lernen Verkehrsregeln zur Vermeidung von Unfällen."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr fahrt vorsichtig mit dem Fahrrad nach dem Unfall."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie hilft der Polizei bei der Klärung des Unfalls."
+            }
+          ],
+          "exampleSentence": "Auf der Straße ist ein Unfall passiert.",
+          "validationStatus": "approved"
+        },
+        {
+          "id": "w3_mitte",
+          "word": "die Mitte",
+          "cleanWord": "Mitte",
+          "wortart": "Nomen",
+          "artikel": "die",
+          "plural": "die Mitten",
+          "group": 3,
+          "emoji": "🎯",
+          "distractors": [
+            "die Mite",
+            "das Mitte",
+            "der Mitte"
+          ],
+          "missingLetterPattern": "die M_tt_",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich treffe mit dem Pfeil genau die Mitte der Scheibe."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du stellst dich in die Mitte des Sportfeldes."
+            },
+            {
+              "pronoun": "er",
+              "text": "Der Ball liegt in der Mitte."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir versammeln uns alle in der Mitte der Turnhalle."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr teilt den Apfel genau in der Mitte durch."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie legt das Buch in die Mitte des Tisches."
+            }
+          ],
+          "exampleSentence": "Der Ball liegt in der Mitte.",
+          "validationStatus": "approved"
+        },
+        {
+          "id": "w3_retten",
+          "word": "retten",
+          "cleanWord": "retten",
+          "wortart": "Verb",
+          "infinitive": "retten",
+          "group": 3,
+          "emoji": "🚒",
+          "distractors": [
+            "reten",
+            "rettten",
+            "rette"
+          ],
+          "missingLetterPattern": "r_tt_n",
+          "sentences": [
+            {
+              "pronoun": "ich",
+              "text": "Ich rette das kleine Kätzchen vor dem Regen."
+            },
+            {
+              "pronoun": "du",
+              "text": "Du rettest das Vögelchen vor der Katze."
+            },
+            {
+              "pronoun": "er",
+              "text": "Die Feuerwehr rettet den Mann."
+            },
+            {
+              "pronoun": "wir",
+              "text": "Wir retten den verletzten Igel im Garten."
+            },
+            {
+              "pronoun": "ihr",
+              "text": "Ihr rettet die Tiere aus dem kalten Wasser."
+            },
+            {
+              "pronoun": "sie",
+              "text": "Sie rettet ihren kleinen Bruder vor der Gefahr."
+            }
+          ],
+          "exampleSentence": "Die Feuerwehr rettet den Mann.",
+          "validationStatus": "approved"
         }
       ],
       "bildgeschichteTitle": "Bild-Geschichte – Eine spannende Woche",
@@ -27257,7 +27560,8 @@
           "completedAt": 1790540560616,
           "inputMethod": "keyboard",
           "wasCorrectFirstTry": true,
-          "attemptCount": 1
+          "attemptCount": 1,
+          "isCorrect": true
         },
         {
           "id": "mon_math_2_nachbarzehner",
@@ -27268,7 +27572,8 @@
           "completedAt": 1790540602384,
           "inputMethod": "keyboard",
           "wasCorrectFirstTry": true,
-          "attemptCount": 1
+          "attemptCount": 1,
+          "isCorrect": true
         },
         {
           "id": "mon_math_3_verdoppeln",
@@ -27279,7 +27584,8 @@
           "completedAt": 1790540644879,
           "inputMethod": "keyboard",
           "wasCorrectFirstTry": true,
-          "attemptCount": 1
+          "attemptCount": 1,
+          "isCorrect": true
         },
         {
           "id": "tue_math_1_multiplikation",
@@ -27290,7 +27596,8 @@
           "completedAt": 1790540686807,
           "inputMethod": "keyboard",
           "wasCorrectFirstTry": true,
-          "attemptCount": 1
+          "attemptCount": 1,
+          "isCorrect": true
         },
         {
           "id": "tue_math_3_zahlenmauer",
@@ -27301,7 +27608,8 @@
           "completedAt": 1790540867330,
           "inputMethod": "keyboard",
           "wasCorrectFirstTry": true,
-          "attemptCount": 1
+          "attemptCount": 1,
+          "isCorrect": true
         },
         {
           "id": "tue_math_2_division",
@@ -27312,7 +27620,8 @@
           "completedAt": 1790540879207,
           "inputMethod": "keyboard",
           "wasCorrectFirstTry": true,
-          "attemptCount": 1
+          "attemptCount": 1,
+          "isCorrect": true
         }
       ],
       "skillsMastery": {
@@ -27360,6 +27669,9 @@
         }
       },
       "strugglingSkills": [],
+      "recentQuestionHistory": [],
+      "questionHistoryEntries": [],
+      "currentWeekNumber": 1,
       "pointsToday": 24,
       "pointsWeek": 24,
       "streakDays": 1,

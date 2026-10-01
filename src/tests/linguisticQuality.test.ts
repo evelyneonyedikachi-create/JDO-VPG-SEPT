@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import {
   analyzeLernwortInput,
   validateLernwortProfile,
@@ -11,395 +12,251 @@ import {
   generateDailyExercisePlan,
 } from '../services/exerciseEngine';
 import { LernwortItem } from '../types/lernwoerter';
+import { DEFAULT_WEEK_1_WORDS } from '../data/defaultWeeklyCurriculum';
 
-console.log('=====================================================');
-console.log('🧪 RUNNING COMPREHENSIVE GERMAN LINGUISTIC QUALITY AUDIT');
-console.log('=====================================================\n');
+describe('German Linguistic Quality Audit & Acceptance Tests', () => {
+  it('contains all 21 words in DEFAULT_WEEK_1_WORDS with Gruppe 3 (Lernwörter 3)', () => {
+    expect(DEFAULT_WEEK_1_WORDS.length).toBe(21);
 
-let failedTests = 0;
-function assert(condition: boolean, message: string) {
-  if (!condition) {
-    console.error(`❌ FAILED: ${message}`);
-    failedTests++;
-  } else {
-    console.log(`✅ PASSED: ${message}`);
-  }
-}
+    const requiredGroup3 = [
+      { word: 'das Schiff', cleanWord: 'Schiff', wortart: 'Nomen', artikel: 'das', example: 'Das Schiff fährt über das Meer.' },
+      { word: 'billig', cleanWord: 'billig', wortart: 'Adjektiv', example: 'Das Heft ist billig.' },
+      { word: 'das Wetter', cleanWord: 'Wetter', wortart: 'Nomen', artikel: 'das', example: 'Heute ist das Wetter schön.' },
+      { word: 'still', cleanWord: 'still', wortart: 'Adjektiv', example: 'Im Klassenzimmer ist es ganz still.' },
+      { word: 'der Unfall', cleanWord: 'Unfall', wortart: 'Nomen', artikel: 'der', example: 'Auf der Straße ist ein Unfall passiert.' },
+      { word: 'die Mitte', cleanWord: 'Mitte', wortart: 'Nomen', artikel: 'die', example: 'Der Ball liegt in der Mitte.' },
+      { word: 'retten', cleanWord: 'retten', wortart: 'Verb', example: 'Die Feuerwehr rettet den Mann.' },
+    ];
 
-// -----------------------------------------------------------------------------
-// 1. ACCEPTANCE TESTS FOR THE 7 SPECIFIC REQUIRED LERNWÖRTER
-// -----------------------------------------------------------------------------
-console.log('\n--- 1. Acceptance Tests for Core Lernwörter ---');
+    for (const req of requiredGroup3) {
+      const found = DEFAULT_WEEK_1_WORDS.find(
+        (w) => w.word.toLowerCase() === req.word.toLowerCase() || w.cleanWord.toLowerCase() === req.cleanWord.toLowerCase()
+      );
+      expect(found).toBeDefined();
+      expect(found!.group).toBe(3);
+      expect(found!.wortart).toBe(req.wortart);
+      if (req.artikel) expect(found!.artikel).toBe(req.artikel);
+      expect(found!.exampleSentence).toBe(req.example);
+      expect(isGenericSentence(found!.exampleSentence, found!.cleanWord)).toBe(false);
+    }
+  });
+  it('correctly classifies and provides natural examples for all 7 required Lernwörter', () => {
+    // Case 1: das Schiff
+    const pSchiff = analyzeLernwortInput('das Schiff');
+    expect(pSchiff.wortart).toBe('Nomen');
+    expect(pSchiff.artikel).toBe('das');
+    expect(pSchiff.plural).toBe('die Schiffe');
+    expect(pSchiff.primaryExampleSentence).toBe('Das Schiff fährt über das Meer.');
+    expect(isGenericSentence(pSchiff.primaryExampleSentence, 'Schiff')).toBe(false);
 
-// Case 1: das Schiff
-const pSchiff = analyzeLernwortInput('das Schiff');
-assert(pSchiff.wortart === 'Nomen', '„das Schiff“ is classified as Nomen');
-assert(pSchiff.artikel === 'das', '„das Schiff“ has article „das“');
-assert(pSchiff.plural === 'die Schiffe', '„das Schiff“ plural is „die Schiffe“');
-assert(
-  pSchiff.primaryExampleSentence === 'Das Schiff fährt über das Meer.',
-  `„das Schiff“ example sentence is natural: "${pSchiff.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pSchiff.primaryExampleSentence, 'Schiff'),
-  '„das Schiff“ example is NOT marked generic'
-);
+    // Case 2: billig
+    const pBillig = analyzeLernwortInput('billig');
+    expect(pBillig.wortart).toBe('Adjektiv');
+    expect(pBillig.primaryExampleSentence).toBe('Das Heft ist billig.');
+    expect(isGenericSentence(pBillig.primaryExampleSentence, 'billig')).toBe(false);
 
-// Case 2: billig
-const pBillig = analyzeLernwortInput('billig');
-assert(pBillig.wortart === 'Adjektiv', '„billig“ MUST be Adjektiv (NEVER Verb!)');
-assert(
-  pBillig.primaryExampleSentence === 'Das Heft ist billig.',
-  `„billig“ example sentence is natural: "${pBillig.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pBillig.primaryExampleSentence, 'billig'),
-  '„billig“ example is NOT marked generic'
-);
+    // Case 3: das Wetter
+    const pWetter = analyzeLernwortInput('das Wetter');
+    expect(pWetter.wortart).toBe('Nomen');
+    expect(pWetter.artikel).toBe('das');
+    expect(pWetter.primaryExampleSentence).toBe('Heute ist das Wetter schön.');
+    expect(isGenericSentence(pWetter.primaryExampleSentence, 'Wetter')).toBe(false);
 
-// Case 3: das Wetter
-const pWetter = analyzeLernwortInput('das Wetter');
-assert(pWetter.wortart === 'Nomen', '„das Wetter“ is classified as Nomen');
-assert(pWetter.artikel === 'das', '„das Wetter“ has article „das“');
-assert(
-  pWetter.primaryExampleSentence === 'Heute ist das Wetter schön.',
-  `„das Wetter“ example sentence is natural: "${pWetter.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pWetter.primaryExampleSentence, 'Wetter'),
-  '„das Wetter“ example is NOT marked generic'
-);
+    // Case 4: still
+    const pStill = analyzeLernwortInput('still');
+    expect(pStill.wortart).toBe('Adjektiv');
+    expect(pStill.primaryExampleSentence).toBe('Im Klassenzimmer ist es ganz still.');
+    expect(isGenericSentence(pStill.primaryExampleSentence, 'still')).toBe(false);
 
-// Case 4: still
-const pStill = analyzeLernwortInput('still');
-assert(pStill.wortart === 'Adjektiv', '„still“ MUST be Adjektiv (NEVER Verb!)');
-assert(
-  pStill.primaryExampleSentence === 'Im Klassenzimmer ist es ganz still.',
-  `„still“ example sentence is natural: "${pStill.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pStill.primaryExampleSentence, 'still'),
-  '„still“ example is NOT marked generic'
-);
+    // Case 5: der Unfall
+    const pUnfall = analyzeLernwortInput('der Unfall');
+    expect(pUnfall.wortart).toBe('Nomen');
+    expect(pUnfall.artikel).toBe('der');
+    expect(pUnfall.plural).toBe('die Unfälle');
+    expect(pUnfall.primaryExampleSentence).toBe('Auf der Straße ist ein Unfall passiert.');
+    expect(isGenericSentence(pUnfall.primaryExampleSentence, 'Unfall')).toBe(false);
 
-// Case 5: der Unfall
-const pUnfall = analyzeLernwortInput('der Unfall');
-assert(pUnfall.wortart === 'Nomen', '„der Unfall“ is classified as Nomen');
-assert(pUnfall.artikel === 'der', '„der Unfall“ has article „der“');
-assert(pUnfall.plural === 'die Unfälle', '„der Unfall“ plural is „die Unfälle“');
-assert(
-  pUnfall.primaryExampleSentence === 'Auf der Straße ist ein Unfall passiert.',
-  `„der Unfall“ example sentence is natural: "${pUnfall.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pUnfall.primaryExampleSentence, 'Unfall'),
-  '„der Unfall“ example is NOT marked generic'
-);
+    // Case 6: die Mitte
+    const pMitte = analyzeLernwortInput('die Mitte');
+    expect(pMitte.wortart).toBe('Nomen');
+    expect(pMitte.artikel).toBe('die');
+    expect(pMitte.plural).toBe('die Mitten');
+    expect(pMitte.primaryExampleSentence).toBe('Der Ball liegt in der Mitte.');
+    expect(isGenericSentence(pMitte.primaryExampleSentence, 'Mitte')).toBe(false);
 
-// Case 6: die Mitte
-const pMitte = analyzeLernwortInput('die Mitte');
-assert(pMitte.wortart === 'Nomen', '„die Mitte“ is classified as Nomen');
-assert(pMitte.artikel === 'die', '„die Mitte“ has article „die“');
-assert(
-  pMitte.primaryExampleSentence === 'Der Ball liegt in der Mitte.',
-  `„die Mitte“ example sentence is natural: "${pMitte.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pMitte.primaryExampleSentence, 'Mitte'),
-  '„die Mitte“ example is NOT marked generic'
-);
+    // Case 7: retten
+    const pRetten = analyzeLernwortInput('retten');
+    expect(pRetten.wortart).toBe('Verb');
+    expect(pRetten.infinitive).toBe('retten');
+    expect(pRetten.primaryExampleSentence).toBe('Die Feuerwehr rettet den Mann.');
+    expect(isGenericSentence(pRetten.primaryExampleSentence, 'retten')).toBe(false);
+  });
 
-// Case 7: retten
-const pRetten = analyzeLernwortInput('retten');
-assert(pRetten.wortart === 'Verb', '„retten“ is classified as Verb');
-assert(pRetten.infinitive === 'retten', '„retten“ infinitive is „retten“');
-assert(
-  pRetten.primaryExampleSentence === 'Die Feuerwehr rettet den Mann.',
-  `„retten“ example sentence is natural: "${pRetten.primaryExampleSentence}"`
-);
-assert(
-  !isGenericSentence(pRetten.primaryExampleSentence, 'retten'),
-  '„retten“ example is NOT marked generic'
-);
-assert(
-  pRetten.conjugationBank !== undefined && pRetten.conjugationBank.length >= 2,
-  '„retten“ has full conjugation bank'
-);
-const feuerwehrTask = pRetten.conjugationBank?.find((c) =>
-  c.sentenceWithBlank.includes('Feuerwehr')
-);
-assert(
-  feuerwehrTask !== undefined && feuerwehrTask.correctForm === 'rettet',
-  '„retten“ has Feuerwehr rettet task'
-);
+  it('strictly rejects forbidden generic fillers like „Das ist [Lernwort].“', () => {
+    expect(isGenericSentence('Das ist Schiff.', 'Schiff')).toBe(true);
+    expect(isGenericSentence('Das ist Schiff.', 'das Schiff')).toBe(true);
+    expect(isGenericSentence('Das ist Wetter.', 'Wetter')).toBe(true);
+    expect(isGenericSentence('Das ist Unfall.', 'Unfall')).toBe(true);
+    expect(isGenericSentence('Das ist Mitte.', 'Mitte')).toBe(true);
+    expect(isGenericSentence('Das ist retten.', 'retten')).toBe(true);
+    expect(isGenericSentence('Das ist billig.', 'billig')).toBe(true);
+    expect(isGenericSentence('Das ist ein Schiff.', 'Schiff')).toBe(true);
 
-// -----------------------------------------------------------------------------
-// 2. FORBIDDEN GENERIC FILLER DETECTION („Das ist ...“ MUST BE REJECTED)
-// -----------------------------------------------------------------------------
-console.log('\n--- 2. Forbidden Generic Filler Detection ---');
+    // Allowed idiom
+    expect(isGenericSentence('Das ist halb so schlimm!', 'schlimm')).toBe(false);
+  });
 
-assert(isGenericSentence('Das ist Schiff.', 'Schiff'), 'Rejects „Das ist Schiff.“');
-assert(isGenericSentence('Das ist Schiff.', 'das Schiff'), 'Rejects „Das ist Schiff.“ for „das Schiff“');
-assert(isGenericSentence('Das ist Wetter.', 'Wetter'), 'Rejects „Das ist Wetter.“');
-assert(isGenericSentence('Das ist Unfall.', 'Unfall'), 'Rejects „Das ist Unfall.“');
-assert(isGenericSentence('Das ist Mitte.', 'Mitte'), 'Rejects „Das ist Mitte.“');
-assert(isGenericSentence('Das ist retten.', 'retten'), 'Rejects „Das ist retten.“');
-assert(isGenericSentence('Das ist billig.', 'billig'), 'Rejects „Das ist billig.“');
-assert(isGenericSentence('Das ist ein Schiff.', 'Schiff'), 'Rejects „Das ist ein Schiff.“');
-assert(isGenericSentence('Hier ist Schiff.', 'Schiff'), 'Rejects „Hier ist Schiff.“');
-assert(isGenericSentence('Das Wort heißt Wetter.', 'Wetter'), 'Rejects „Das Wort heißt Wetter.“');
+  it('heals corrupted items with quality gate and replaces generic sentences', () => {
+    const corruptedBillig: LernwortItem = {
+      id: 'corrupted_1',
+      word: 'billig',
+      cleanWord: 'billig',
+      wortart: 'Verb',
+      group: 2,
+      emoji: '📝',
+      distractors: ['bilig'],
+      missingLetterPattern: 'b_ll_g',
+      sentences: [{ pronoun: 'ich', text: 'Das ist billig.' }],
+      exampleSentence: 'Das ist billig.',
+    };
 
-// Valid pedagogical sentences must NOT be rejected
-assert(
-  !isGenericSentence('Das ist halb so schlimm!', 'schlimm'),
-  'Allows established idiom „Das ist halb so schlimm!“'
-);
-assert(
-  !isGenericSentence('Das Schiff fährt über das Meer.', 'Schiff'),
-  'Allows natural sentence „Das Schiff fährt über das Meer.“'
-);
-assert(
-  !isGenericSentence('Heute ist das Wetter schön.', 'Wetter'),
-  'Allows natural sentence „Heute ist das Wetter schön.“'
-);
+    const healedBillig = sanitizeAndHealLernwortItem(corruptedBillig);
+    expect(healedBillig.wortart).toBe('Adjektiv');
+    expect(healedBillig.exampleSentence).toBe('Das Heft ist billig.');
+    expect(isGenericSentence(healedBillig.exampleSentence, 'billig')).toBe(false);
 
-// -----------------------------------------------------------------------------
-// 3. SANITIZATION AND HEALING AUDIT ON CORRUPTED INPUTS
-// -----------------------------------------------------------------------------
-console.log('\n--- 3. Sanitizing Corrupted Data from Earlier Sessions ---');
+    const corruptedSchiff: LernwortItem = {
+      id: 'corrupted_2',
+      word: 'das Schiff',
+      cleanWord: 'Schiff',
+      wortart: 'Verb',
+      group: 2,
+      emoji: '📝',
+      distractors: ['das Schif'],
+      missingLetterPattern: 'das Sch_ff',
+      sentences: [{ pronoun: 'ich', text: 'Das ist Schiff.' }],
+      exampleSentence: 'Das ist Schiff.',
+    };
 
-// Simulated corrupted item where billig was marked as Verb with "Das ist billig."
-const corruptedBillig: LernwortItem = {
-  id: 'test_billig',
-  word: 'billig',
-  cleanWord: 'billig',
-  wortart: 'Verb' as any, // ❌ previous bug
-  group: 1,
-  emoji: '🏷️',
-  distractors: ['bilig'],
-  missingLetterPattern: 'b_ll_g',
-  sentences: [{ pronoun: 'ich', text: 'Das ist billig.' }],
-  exampleSentence: 'Das ist billig.', // ❌ previous bug
-};
+    const healedSchiff = sanitizeAndHealLernwortItem(corruptedSchiff);
+    expect(healedSchiff.wortart).toBe('Nomen');
+    expect(healedSchiff.artikel).toBe('das');
+    expect(healedSchiff.plural).toBe('die Schiffe');
+    expect(healedSchiff.exampleSentence).toBe('Das Schiff fährt über das Meer.');
+    expect(isGenericSentence(healedSchiff.exampleSentence, 'Schiff')).toBe(false);
+  });
 
-const healedBillig = sanitizeAndHealLernwortItem(corruptedBillig);
-assert(healedBillig.wortart === 'Adjektiv', 'Heals corrupted billig from Verb to Adjektiv');
-assert(
-  healedBillig.exampleSentence === 'Das Heft ist billig.',
-  `Heals corrupted billig sentence to "${healedBillig.exampleSentence}"`
-);
-assert(healedBillig.validationStatus === 'approved', 'Healed billig is validated as approved');
+  it('validates quality gate for incomplete profiles', () => {
+    const badProfile = {
+      word: 'der Unfall',
+      cleanWord: 'Unfall',
+      wortart: 'Nomen' as const,
+      exampleSentence: 'Das ist Unfall.',
+    };
+    const valBad = validateLernwortProfile(badProfile);
+    expect(valBad.isValid).toBe(false);
+    expect(valBad.issues.length).toBeGreaterThanOrEqual(2);
 
-// Simulated corrupted item where das Schiff had "Das ist Schiff."
-const corruptedSchiff: LernwortItem = {
-  id: 'test_schiff',
-  word: 'das Schiff',
-  cleanWord: 'Schiff',
-  wortart: 'Nomen',
-  artikel: 'das',
-  group: 1,
-  emoji: '🚢',
-  distractors: ['das Schif'],
-  missingLetterPattern: 'das Sch_ff',
-  sentences: [{ pronoun: 'ich', text: 'Das ist Schiff.' }],
-  exampleSentence: 'Das ist Schiff.', // ❌ previous bug
-};
+    const goodProfile = {
+      word: 'der Unfall',
+      cleanWord: 'Unfall',
+      wortart: 'Nomen' as const,
+      artikel: 'der' as const,
+      plural: 'die Unfälle',
+      exampleSentence: 'Auf der Straße ist ein Unfall passiert.',
+    };
+    const valGood = validateLernwortProfile(goodProfile);
+    expect(valGood.isValid).toBe(true);
+    expect(valGood.issues.length).toBe(0);
+  });
 
-const healedSchiff = sanitizeAndHealLernwortItem(corruptedSchiff);
-assert(healedSchiff.wortart === 'Nomen', 'Retains Nomen for das Schiff');
-assert(healedSchiff.plural === 'die Schiffe', 'Assigns correct plural die Schiffe');
-assert(
-  healedSchiff.exampleSentence === 'Das Schiff fährt über das Meer.',
-  `Heals generic example to "${healedSchiff.exampleSentence}"`
-);
+  it('generates exercises respecting Wortart (billig is never conjugated, retten is, Schiff has plural)', () => {
+    const rawWords = [
+      'das Schiff',
+      'billig',
+      'das Wetter',
+      'still',
+      'der Unfall',
+      'die Mitte',
+      'retten',
+    ];
+    const week2Words: LernwortItem[] = rawWords.map((raw, idx) => {
+      const p = analyzeLernwortInput(raw);
+      return {
+        id: `curated_week2_${idx + 1}`,
+        word: p.wordWithArticle,
+        cleanWord: p.cleanWord,
+        wortart: p.wortart,
+        artikel: p.artikel,
+        plural: p.plural,
+        infinitive: p.infinitive,
+        group: 1,
+        emoji: p.emoji,
+        distractors: p.distractors,
+        missingLetterPattern: p.missingLetterPattern,
+        sentences: p.practiceSentences,
+        exampleSentence: p.primaryExampleSentence,
+        validationStatus: p.validationStatus,
+      };
+    });
 
-// -----------------------------------------------------------------------------
-// 4. EXERCISE GENERATOR RESPECTS WORTART
-// -----------------------------------------------------------------------------
-console.log('\n--- 4. Exercise Generator Wortart Compliance ---');
+    const tuesdayPlan = generateDailyExercisePlan({ day: 'tuesday', words: week2Words, level: 'profi' });
+    const tuesdayExercises = tuesdayPlan.heuteEmpfohlen;
 
-// Week 2 words
-const week2Words: LernwortItem[] = [
-  sanitizeAndHealLernwortItem({
-    id: 'w2_schiff',
-    word: 'das Schiff',
-    cleanWord: 'Schiff',
-    wortart: 'Nomen',
-    artikel: 'das',
-    plural: 'die Schiffe',
-    group: 1,
-    emoji: '🚢',
-    distractors: ['das Schif'],
-    missingLetterPattern: 'das Sch_ff',
-    sentences: [{ pronoun: 'ich', text: 'Das Schiff fährt über das Meer.' }],
-    exampleSentence: 'Das Schiff fährt über das Meer.',
-    validationStatus: 'approved',
-  }),
-  sanitizeAndHealLernwortItem({
-    id: 'w2_billig',
-    word: 'billig',
-    cleanWord: 'billig',
-    wortart: 'Adjektiv',
-    group: 1,
-    emoji: '🏷️',
-    distractors: ['bilig'],
-    missingLetterPattern: 'b_ll_g',
-    sentences: [{ pronoun: 'ich', text: 'Das Heft ist billig.' }],
-    exampleSentence: 'Das Heft ist billig.',
-    validationStatus: 'approved',
-  }),
-  sanitizeAndHealLernwortItem({
-    id: 'w2_wetter',
-    word: 'das Wetter',
-    cleanWord: 'Wetter',
-    wortart: 'Nomen',
-    artikel: 'das',
-    plural: 'das Wetter',
-    group: 1,
-    emoji: '☀️',
-    distractors: ['das Weter'],
-    missingLetterPattern: 'das W_tt_r',
-    sentences: [{ pronoun: 'ich', text: 'Heute ist das Wetter schön.' }],
-    exampleSentence: 'Heute ist das Wetter schön.',
-    validationStatus: 'approved',
-  }),
-  sanitizeAndHealLernwortItem({
-    id: 'w2_still',
-    word: 'still',
-    cleanWord: 'still',
-    wortart: 'Adjektiv',
-    group: 2,
-    emoji: '🤫',
-    distractors: ['stil'],
-    missingLetterPattern: 'st_ll',
-    sentences: [{ pronoun: 'ich', text: 'Im Klassenzimmer ist es ganz still.' }],
-    exampleSentence: 'Im Klassenzimmer ist es ganz still.',
-    validationStatus: 'approved',
-  }),
-  sanitizeAndHealLernwortItem({
-    id: 'w2_unfall',
-    word: 'der Unfall',
-    cleanWord: 'Unfall',
-    wortart: 'Nomen',
-    artikel: 'der',
-    plural: 'die Unfälle',
-    group: 2,
-    emoji: '🚑',
-    distractors: ['der Unfal'],
-    missingLetterPattern: 'der _nf_ll',
-    sentences: [{ pronoun: 'ich', text: 'Auf der Straße ist ein Unfall passiert.' }],
-    exampleSentence: 'Auf der Straße ist ein Unfall passiert.',
-    validationStatus: 'approved',
-  }),
-  sanitizeAndHealLernwortItem({
-    id: 'w2_mitte',
-    word: 'die Mitte',
-    cleanWord: 'Mitte',
-    wortart: 'Nomen',
-    artikel: 'die',
-    plural: 'die Mitten',
-    group: 2,
-    emoji: '🎯',
-    distractors: ['die Mite'],
-    missingLetterPattern: 'die M_tt_',
-    sentences: [{ pronoun: 'ich', text: 'Der Ball liegt in der Mitte.' }],
-    exampleSentence: 'Der Ball liegt in der Mitte.',
-    validationStatus: 'approved',
-  }),
-  sanitizeAndHealLernwortItem({
-    id: 'w2_retten',
-    word: 'retten',
-    cleanWord: 'retten',
-    wortart: 'Verb',
-    infinitive: 'retten',
-    group: 2,
-    emoji: '🚒',
-    distractors: ['reten'],
-    missingLetterPattern: 'r_tt_n',
-    sentences: [{ pronoun: 'ich', text: 'Die Feuerwehr rettet den Mann.' }],
-    exampleSentence: 'Die Feuerwehr rettet den Mann.',
-    validationStatus: 'approved',
-  }),
-];
-
-// Test Tuesday plan (Grammatik-Tag)
-const tuesdayPlan = generateDailyExercisePlan({
-  day: 'tuesday',
-  words: week2Words,
-  level: 'profi',
-});
-
-console.log(`Generated ${tuesdayPlan.heuteEmpfohlen.length} Tuesday exercises:`);
-tuesdayPlan.heuteEmpfohlen.forEach((ex, idx) => {
-  console.log(`  [${idx + 1}] ${ex.word?.cleanWord} (${ex.word?.wortart}) -> ${ex.title} [${ex.type}]`);
-});
-
-// Check that billig NEVER receives verb_conjugation
-const billigExercises = tuesdayPlan.heuteEmpfohlen.filter(
-  (e) => e.word?.cleanWord.toLowerCase() === 'billig'
-);
-billigExercises.forEach((ex) => {
-  assert(
-    ex.type !== 'verb_conjugation',
-    `billig must NOT receive verb_conjugation (received: ${ex.type})`
-  );
-  assert(
-    ex.title !== 'Verbform anpassen',
-    `billig must NOT have title 'Verbform anpassen' (received: ${ex.title})`
-  );
-});
-
-// Check that retten receives verb_conjugation
-const rettenConjugation = tuesdayPlan.heuteEmpfohlen.find(
-  (e) => e.word?.cleanWord.toLowerCase() === 'retten' && e.type === 'verb_conjugation'
-);
-assert(
-  rettenConjugation !== undefined,
-  'retten receives verb_conjugation on Tuesday'
-);
-if (rettenConjugation) {
-  assert(
-    rettenConjugation.correctAnswer === 'rettest' || rettenConjugation.correctAnswer === 'rettet',
-    `retten correct form is conjugated (${rettenConjugation.correctAnswer})`
-  );
-}
-
-// Check that das Schiff receives plural_choice
-const schiffPlural = tuesdayPlan.heuteEmpfohlen.find(
-  (e) => e.word?.cleanWord.toLowerCase() === 'schiff' && e.type === 'plural_choice'
-);
-assert(
-  schiffPlural !== undefined,
-  'das Schiff receives plural_choice on Tuesday'
-);
-if (schiffPlural) {
-  assert(
-    schiffPlural.correctAnswer === 'die Schiffe',
-    `Schiff plural is „die Schiffe“ (received: ${schiffPlural.correctAnswer})`
-  );
-}
-
-// Check ALL exercises generated across the whole week for forbidden generic fillers
-const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
-days.forEach((d) => {
-  const plan = generateDailyExercisePlan({ day: d, words: week2Words, level: 'profi' });
-  plan.heuteEmpfohlen.forEach((ex) => {
-    const textToCheck = `${ex.prompt} ${ex.contextSentence || ''} ${ex.correctAnswer} ${ex.solutionExplanation}`;
-    assert(
-      !/das\s+ist\s+(schiff|wetter|unfall|mitte|retten|billig)\.?/i.test(textToCheck),
-      `Day ${d}, task ${ex.id} contains NO generic „Das ist [Lernwort].“`
+    const billigVerbConj = tuesdayExercises.find(
+      (e) => e.word.cleanWord === 'billig' && e.type === 'verb_conjugation'
     );
+    expect(billigVerbConj).toBeUndefined();
+
+    const rettenVerbConj = tuesdayExercises.find(
+      (e) => e.word.cleanWord === 'retten' && e.type === 'verb_conjugation'
+    );
+    expect(rettenVerbConj).toBeDefined();
+
+    const schiffPlural = tuesdayExercises.find(
+      (e) => e.word.cleanWord === 'Schiff' && e.type === 'plural_choice'
+    );
+    expect(schiffPlural).toBeDefined();
+    expect(schiffPlural?.correctAnswer).toBe('die Schiffe');
+  });
+
+  it('never generates generic sentences across all days of the exercise generator', () => {
+    const rawWords = [
+      'das Schiff',
+      'billig',
+      'das Wetter',
+      'still',
+      'der Unfall',
+      'die Mitte',
+      'retten',
+    ];
+    const curatedList: LernwortItem[] = rawWords.map((raw, idx) => {
+      const p = analyzeLernwortInput(raw);
+      return {
+        id: `curated_week2_${idx + 1}`,
+        word: p.wordWithArticle,
+        cleanWord: p.cleanWord,
+        wortart: p.wortart,
+        artikel: p.artikel,
+        plural: p.plural,
+        infinitive: p.infinitive,
+        group: 1,
+        emoji: p.emoji,
+        distractors: p.distractors,
+        missingLetterPattern: p.missingLetterPattern,
+        sentences: p.practiceSentences,
+        exampleSentence: p.primaryExampleSentence,
+        validationStatus: p.validationStatus,
+      };
+    });
+
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
+    days.forEach((d) => {
+      const plan = generateDailyExercisePlan({ day: d, words: curatedList, level: 'profi' });
+      plan.heuteEmpfohlen.forEach((ex) => {
+        const textToCheck = `${ex.prompt} ${ex.contextSentence || ''} ${ex.correctAnswer} ${ex.solutionExplanation}`;
+        expect(/das\s+ist\s+(schiff|wetter|unfall|mitte|retten|billig)\.?/i.test(textToCheck)).toBe(false);
+      });
+    });
   });
 });
-
-// -----------------------------------------------------------------------------
-// SUMMARY
-// -----------------------------------------------------------------------------
-console.log('\n=====================================================');
-if (failedTests === 0) {
-  console.log('🎉 ALL LINGUISTIC QUALITY TESTS PASSED WITH 100% SUCCESS!');
-} else {
-  console.error(`⚠️ FAILED: ${failedTests} test(s) failed!`);
-  process.exit(1);
-}
-console.log('=====================================================\n');

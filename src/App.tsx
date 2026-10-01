@@ -9,8 +9,15 @@ import {
   SkippedExerciseItem,
   WeeklyCurriculum,
 } from './types/lernwoerter';
-import { INITIAL_CURRICULUM } from './data/defaultWeeklyCurriculum';
+import { INITIAL_CURRICULUM, DEFAULT_WEEK_1_WORDS } from './data/defaultWeeklyCurriculum';
 import { HeuteScreen } from './components/HeuteScreen';
+
+export function normalizeWeekId(weekId?: string | number | null): string {
+  if (!weekId) return 'week_1';
+  const str = String(weekId).toLowerCase().trim();
+  const match = str.match(/\d+/);
+  return match ? `week_${match[0]}` : str;
+}
 import { LernwoerterWordExplorer } from './components/LernwoerterWordExplorer';
 import { DailyPracticeWorkspace } from './components/DailyPracticeWorkspace';
 import { BildgeschichteWorkshop } from './components/BildgeschichteWorkshop';
@@ -103,6 +110,19 @@ export default function App() {
         if (parsed.words && Array.isArray(parsed.words)) {
           parsed.words = sanitizeCurriculumWords(parsed.words);
         }
+        // Ensure all DEFAULT_WEEK_1_WORDS (including the 7 new Lernwörter 3) are present
+        const existingWords = new Set(
+          (parsed.words || []).map((w: any) => (w.cleanWord || w.word || '').toLowerCase())
+        );
+        const missingDefaults = DEFAULT_WEEK_1_WORDS.filter(
+          (dw) => !existingWords.has(dw.cleanWord.toLowerCase()) && !existingWords.has(dw.word.toLowerCase())
+        );
+        if (missingDefaults.length > 0) {
+          parsed.words = [...(parsed.words || []), ...missingDefaults];
+          try {
+            localStorage.setItem('jd_curriculum_v2', JSON.stringify(parsed));
+          } catch {}
+        }
         return parsed;
       }
       return INITIAL_CURRICULUM;
@@ -134,6 +154,21 @@ export default function App() {
   // Points tracking (per day, capped per week at 100 max, and cumulative for long-term reward ladder)
   const todayKey = new Date().toISOString().slice(0, 10);
   const currentWeekId = curriculum.id || 'week_1';
+
+  // Persisted points state baseline (survives refresh even before/between exercise syncs)
+  const [persistedPointsState, setPersistedPointsState] = useState<{
+    pointsToday: number;
+    pointsWeek: number;
+    cumulativePoints: number;
+    lastDate: string;
+  } | null>(() => {
+    try {
+      const saved = localStorage.getItem('jd_points_state');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // Claimed / received rewards tracker (level numbers, e.g. [1, 2])
   // Claiming a reward NEVER deducts points. Points accumulate permanently as lifetime points.
@@ -168,26 +203,46 @@ export default function App() {
     }
   });
 
-  // Dynamically derived score from persisted completed task records (Bug 3: Never resets after refresh!)
+  // Dynamically derived score from persisted completed task records (NEVER resets after refresh!)
   const pointsState = useMemo(() => {
+    const curNorm = normalizeWeekId(currentWeekId);
     const weekRecords = completedRecords.filter(
-      (r) => !r.weekId || r.weekId === currentWeekId
+      (r) => !r.weekId || normalizeWeekId(r.weekId) === curNorm
     );
-    const pointsWeek = Math.min(100, weekRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0));
+    const calculatedPointsWeek = Math.min(100, weekRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0));
 
     const todayRecords = completedRecords.filter((r) => r.day === activeDay);
-    const pointsToday = todayRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
+    const calculatedPointsToday = todayRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
 
     const allRecordsPoints = completedRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
-    const cumulativePoints = 400 + allRecordsPoints;
+    const calculatedCumulativePoints = 400 + allRecordsPoints;
 
-    return {
+    const pointsWeek = Math.min(
+      100,
+      Math.max(calculatedPointsWeek, persistedPointsState?.pointsWeek || 0)
+    );
+    const pointsToday = Math.max(
+      calculatedPointsToday,
+      persistedPointsState?.lastDate === todayKey ? (persistedPointsState?.pointsToday || 0) : 0
+    );
+    const cumulativePoints = Math.max(
+      calculatedCumulativePoints,
+      persistedPointsState?.cumulativePoints || 0
+    );
+
+    const computed = {
       pointsToday,
       pointsWeek,
       cumulativePoints,
       lastDate: todayKey,
     };
-  }, [completedRecords, currentWeekId, activeDay, todayKey]);
+
+    try {
+      localStorage.setItem('jd_points_state', JSON.stringify(computed));
+    } catch {}
+
+    return computed;
+  }, [completedRecords, currentWeekId, activeDay, todayKey, persistedPointsState]);
 
   const handleRecordCompletedExercise = (record: CompletedExerciseRecord) => {
     const canonicalRecord: CompletedExerciseRecord = {
@@ -350,6 +405,16 @@ export default function App() {
       return updated;
     });
 
+    // Also record into completedExerciseRecords so math tasks immediately count towards weekly points
+    handleRecordCompletedExercise({
+      id: canonicalRecord.taskId,
+      taskId: canonicalRecord.taskId,
+      day: params.day,
+      weekId: currentWeekId,
+      pointsEarned: canonicalRecord.pointsEarned,
+      completedAt: canonicalRecord.completedAt,
+    });
+
     // 3. Update full math progress (skills mastery, points, question history)
     setMathProgress((prev) => {
       if (params.exercise) {
@@ -491,6 +556,16 @@ export default function App() {
           if (cur.words && Array.isArray(cur.words)) {
             cur.words = sanitizeCurriculumWords(cur.words);
           }
+          // Ensure missing defaults (including new Lernwörter 3) are merged in
+          const existingWords = new Set(
+            (cur.words || []).map((w: any) => (w.cleanWord || w.word || '').toLowerCase())
+          );
+          const missingDefaults = DEFAULT_WEEK_1_WORDS.filter(
+            (dw) => !existingWords.has(dw.cleanWord.toLowerCase()) && !existingWords.has(dw.word.toLowerCase())
+          );
+          if (missingDefaults.length > 0) {
+            cur.words = [...(cur.words || []), ...missingDefaults];
+          }
           setCurriculum(cur);
         }
         if (typeof remote.starsCount === 'number') setStarsCount(remote.starsCount);
@@ -500,7 +575,34 @@ export default function App() {
         if (Array.isArray(remote.miniExamHistory)) setMiniExamHistory(remote.miniExamHistory);
         if (Array.isArray(remote.mistakes)) setMistakes(remote.mistakes);
         if (Array.isArray(remote.claimedRewards)) setClaimedRewards(remote.claimedRewards);
-        if (Array.isArray(remote.completedExerciseRecords)) setCompletedRecords(remote.completedExerciseRecords);
+        if (remote.pointsState && typeof remote.pointsState === 'object') {
+          setPersistedPointsState((prev) => {
+            const merged = {
+              pointsToday: Math.max(prev?.pointsToday || 0, remote.pointsState.pointsToday || 0),
+              pointsWeek: Math.max(prev?.pointsWeek || 0, remote.pointsState.pointsWeek || 0),
+              cumulativePoints: Math.max(prev?.cumulativePoints || 0, remote.pointsState.cumulativePoints || 0),
+              lastDate: remote.pointsState.lastDate || todayKey,
+            };
+            try {
+              localStorage.setItem('jd_points_state', JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+        if (Array.isArray(remote.completedExerciseRecords)) {
+          setCompletedRecords((prev) => {
+            const map = new Map<string, CompletedExerciseRecord>();
+            [...prev, ...remote.completedExerciseRecords].forEach((r) => {
+              const key = `${r.taskId || r.id}_${r.day}_${normalizeWeekId(r.weekId)}`;
+              map.set(key, { ...r, taskId: r.taskId || r.id, weekId: r.weekId || currentWeekId });
+            });
+            const merged = Array.from(map.values());
+            try {
+              localStorage.setItem('jd_completed_records', JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
         if (remote.mathProgress && typeof remote.mathProgress === 'object') {
           const remoteTaskIds = Array.isArray(remote.mathProgress.completedTaskIds)
             ? remote.mathProgress.completedTaskIds
