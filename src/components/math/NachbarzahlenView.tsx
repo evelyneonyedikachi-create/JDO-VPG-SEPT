@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NachbarzahlenExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface NachbarzahlenViewProps {
   exercise: NachbarzahlenExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -159,11 +157,6 @@ export const NachbarzahlenView: React.FC<NachbarzahlenViewProps> = ({
       )}
 
       {/* Scratchpad */}
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Stift-Rechenweg (HUION H1161)"
-        placeholder="Notizen oder Zahlenstrahl aufzeichnen..."
-      />
-    </div>
+</div>
   );
 };
