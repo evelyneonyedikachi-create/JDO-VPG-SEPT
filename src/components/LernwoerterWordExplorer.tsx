@@ -13,7 +13,7 @@ export const LernwoerterWordExplorer: React.FC<LernwoerterWordExplorerProps> = (
   words,
   onOpenWorksheet,
 }) => {
-  const [activeGroup, setActiveGroup] = useState<1 | 2>(1);
+  const [activeGroup, setActiveGroup] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [expandedWordId, setExpandedWordId] = useState<string | null>(null);
   const [flashcardMode, setFlashcardMode] = useState<boolean>(false);
   const [flashcardIndex, setFlashcardIndex] = useState<number>(0);
@@ -76,38 +76,29 @@ export const LernwoerterWordExplorer: React.FC<LernwoerterWordExplorerProps> = (
           </div>
         </div>
 
-        {/* Group Tabs 1 & 2 */}
-        <div className="flex items-center gap-3 mt-6">
-          <button
-            onClick={() => {
-              playChime('click');
-              setActiveGroup(1);
-              setFlashcardIndex(0);
-              setFlashcardFlipped(false);
-            }}
-            className={`px-5 py-2 rounded-2xl font-black text-sm sm:text-base transition-all ${
-              activeGroup === 1
-                ? 'bg-white text-indigo-900 shadow-lg scale-105'
-                : 'bg-white/15 text-white/80 hover:bg-white/25'
-            }`}
-          >
-            Lernwörter 1 (7 Wörter)
-          </button>
-          <button
-            onClick={() => {
-              playChime('click');
-              setActiveGroup(2);
-              setFlashcardIndex(0);
-              setFlashcardFlipped(false);
-            }}
-            className={`px-5 py-2 rounded-2xl font-black text-sm sm:text-base transition-all ${
-              activeGroup === 2
-                ? 'bg-white text-indigo-900 shadow-lg scale-105'
-                : 'bg-white/15 text-white/80 hover:bg-white/25'
-            }`}
-          >
-            Lernwörter 2 (7 Wörter)
-          </button>
+        {/* Lernwörter groups 1–5 */}
+        <div className="flex flex-wrap items-center gap-2 mt-6">
+          {([1, 2, 3, 4, 5] as const).map((groupNo) => {
+            const count = words.filter((w) => w.group === groupNo).length;
+            return (
+              <button
+                key={groupNo}
+                onClick={() => {
+                  playChime('click');
+                  setActiveGroup(groupNo);
+                  setFlashcardIndex(0);
+                  setFlashcardFlipped(false);
+                }}
+                className={`px-4 py-2 rounded-2xl font-black text-sm sm:text-base transition-all ${
+                  activeGroup === groupNo
+                    ? 'bg-white text-indigo-900 shadow-lg scale-105'
+                    : 'bg-white/15 text-white/80 hover:bg-white/25'
+                }`}
+              >
+                Lernwörter {groupNo} ({count} Wörter)
+              </button>
+            );
+          })}
         </div>
       </div>
 
