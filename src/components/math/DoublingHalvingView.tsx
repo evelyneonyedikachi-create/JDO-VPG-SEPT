@@ -4,8 +4,6 @@ import { validateUserMathAnswer } from '../../services/deterministicMathEngine';
 import { getTaskDraft, saveTaskDraft, clearTaskDraft } from '../../services/mathDraftService';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface DoublingHalvingViewProps {
   exercise: DoublingHalvingExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -103,20 +101,7 @@ export const DoublingHalvingView: React.FC<DoublingHalvingViewProps> = ({
           <span>{hasChecked && isCorrect === true ? 'Ergebnis stimmt! 🎉' : 'Ergebnis prüfen'}</span>
         </button>
       </div>
-
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Stift-Rechenweg (HUION H1161)"
-        placeholder="Rechne z. B.: 300 verdoppeln = 600, 20 verdoppeln = 40..."
-        onApplyRecognizedText={(text) => {
-          const match = text.match(/\b\d+\b/);
-          if (match) {
-            handleAnswerChange(match[0]);
-          }
-        }}
-      />
-
-      {hasChecked && isCorrect === false && (
+{hasChecked && isCorrect === false && (
         <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center animate-shake">
           {feedback || exercise.hint || '❌ Tipp: Zerlege die Zahl erst in Hunderter und Zehner und berechne beide Teile einzeln!'}
         </div>
