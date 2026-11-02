@@ -216,7 +216,7 @@ export default function App() {
 
     const allRecordsPoints = completedRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
     const LIFETIME_POINTS_MIGRATION_FLOOR = 688;
-    const calculatedCumulativePoints = LIFETIME_POINTS_MIGRATION_FLOOR + allRecordsPoints;
+    const calculatedCumulativePoints = Math.max(LIFETIME_POINTS_MIGRATION_FLOOR, 400 + allRecordsPoints);
 
     const pointsWeek = Math.min(
       100,
