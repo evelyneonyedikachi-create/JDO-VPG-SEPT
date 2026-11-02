@@ -16,7 +16,7 @@ export interface LernwortItem {
   artikel?: Artikel;
   plural?: string; // e.g. "die Zimmer"
   infinitive?: string; // e.g. "schwimmen"
-  group: 1 | 2;
+  group: 1 | 2 | 3 | 4 | 5;
   emoji: string;
   distractors: string[]; // e.g. ["das Zimer", "der Zimmer"]
   missingLetterPattern: string; // e.g. "das Z_mm_r"
