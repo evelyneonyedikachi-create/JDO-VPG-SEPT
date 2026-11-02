@@ -876,13 +876,20 @@ export function generateWeeklyMathTasks(
     }),
   ];
 
+  const stampWeekIds = (tasks: MathExercise[]): MathExercise[] =>
+    tasks.map((task) => ({
+      ...task,
+      id: `w${weekNumber}_${task.id}`,
+      weekNumber,
+    }));
+
   return {
-    monday: mondayTasks,
-    tuesday: tuesdayTasks,
-    wednesday: wednesdayTasks,
-    thursday: thursdayTasks,
-    friday: fridayTasks,
-    saturday: saturdayTasks,
+    monday: stampWeekIds(mondayTasks),
+    tuesday: stampWeekIds(tuesdayTasks),
+    wednesday: stampWeekIds(wednesdayTasks),
+    thursday: stampWeekIds(thursdayTasks),
+    friday: stampWeekIds(fridayTasks),
+    saturday: stampWeekIds(saturdayTasks),
   };
 }
 
