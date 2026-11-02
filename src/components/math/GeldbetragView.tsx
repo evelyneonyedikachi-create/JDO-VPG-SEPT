@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { GeldbetragExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check, Coins } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface GeldbetragViewProps {
   exercise: GeldbetragExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -124,18 +122,7 @@ export const GeldbetragView: React.FC<GeldbetragViewProps> = ({
       </div>
 
       {/* Scratchpad */}
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Rechenweg für die Preise"
-        placeholder="Rechne z. B.: 19,50 + 2,60 = 22,10 ..."
-        onApplyRecognizedText={(text) => {
-          if (!typedAmount) {
-            handleAmountChange(text);
-          }
-        }}
-      />
-
-      {hasChecked && !isCorrect && (
+{hasChecked && !isCorrect && (
         <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center">
           ❌ Rechne schrittweise: Rucksack (19,50 €) + 1. Heft (2,60 €) = 22,10 €. Jetzt noch das 2. Heft dazuzählen!
         </div>
