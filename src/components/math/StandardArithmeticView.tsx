@@ -4,8 +4,6 @@ import { validateUserMathAnswer } from '../../services/deterministicMathEngine';
 import { getTaskDraft, saveTaskDraft, clearTaskDraft } from '../../services/mathDraftService';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface StandardArithmeticViewProps {
   exercise: StandardArithmeticExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -168,19 +166,7 @@ export const StandardArithmeticView: React.FC<StandardArithmeticViewProps> = ({
       </div>
 
       {/* Handwriting Scratchpad - separated by unique key per exercise */}
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Stift-Rechenweg (HUION H1161)"
-        placeholder="Schreibe hier mit dem Stift deine Zwischenschritte oder das Ergebnis..."
-        onApplyRecognizedText={(text) => {
-          const match = text.match(/\b\d+\b/);
-          if (match) {
-            handleAnswerChange(match[0]);
-          }
-        }}
-      />
-
-      {/* Incorrect Feedback Banner */}
+{/* Incorrect Feedback Banner */}
       {hasChecked && isCorrect === false && (
         <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center animate-shake">
           {feedback || exercise.hint || '❌ Das Ergebnis stimmt noch nicht. Versuche es noch einmal in Einzelschritten!'}
