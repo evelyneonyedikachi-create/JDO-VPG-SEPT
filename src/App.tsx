@@ -651,6 +651,12 @@ export default function App() {
               completedTaskIds: Array.from(new Set([...prev.completedTaskIds, ...remoteTaskIds])),
               completedRecords: deduplicatedMathRecords,
               recentQuestionHistory: mergedSignatures,
+              currentWeekNumber: Math.max(
+                prev.currentWeekNumber || 1,
+                typeof remote.mathProgress.currentWeekNumber === 'number'
+                  ? remote.mathProgress.currentWeekNumber
+                  : 1
+              ),
             };
           });
         }
