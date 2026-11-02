@@ -5,8 +5,67 @@ import { queueProgressSync } from './progressSyncService';
 
 const MATH_STORAGE_KEY = 'jd_math_progress_v1';
 const MATH_QUESTION_HISTORY_KEY = 'jd_math_question_history_v1';
+const MATH_CALENDAR_WEEK_KEY = 'jd_math_calendar_week_key_v1';
 export const MATH_COMPLETED_TASK_IDS_KEY = 'jd_math_completed_task_ids';
 export const MATH_COMPLETED_RECORDS_KEY = 'jd_math_completed_records_v1';
+
+function getMondayWeekKey(date: Date = new Date()): string {
+  const local = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const day = local.getDay();
+  const distanceToMonday = day === 0 ? -6 : 1 - day;
+  local.setDate(local.getDate() + distanceToMonday);
+  const y = local.getFullYear();
+  const m = String(local.getMonth() + 1).padStart(2, '0');
+  const d = String(local.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function reconcileAutomaticMathWeek(state: MathProgressState): MathProgressState {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return state;
+
+    const currentWeekKey = getMondayWeekKey();
+    const storedWeekKey = localStorage.getItem(MATH_CALENDAR_WEEK_KEY);
+    let currentWeekNumber = Math.max(1, state.currentWeekNumber || 1);
+
+    if (!storedWeekKey) {
+      // One-time migration: if JD already has maths history but was permanently
+      // stuck on the old Week 1 generator, start the refreshed curriculum at Week 2.
+      if (currentWeekNumber === 1 && (state.completedRecords?.length || 0) > 0) {
+        currentWeekNumber = 2;
+      }
+      localStorage.setItem(MATH_CALENDAR_WEEK_KEY, currentWeekKey);
+      return {
+        ...state,
+        currentWeekNumber,
+        pointsToday: 0,
+        pointsWeek: 0,
+      };
+    }
+
+    const previousMonday = new Date(`${storedWeekKey}T00:00:00`);
+    const currentMonday = new Date(`${currentWeekKey}T00:00:00`);
+    const elapsedWeeks = Math.max(
+      0,
+      Math.floor((currentMonday.getTime() - previousMonday.getTime()) / (7 * 24 * 60 * 60 * 1000))
+    );
+
+    if (elapsedWeeks > 0) {
+      currentWeekNumber += elapsedWeeks;
+      localStorage.setItem(MATH_CALENDAR_WEEK_KEY, currentWeekKey);
+      return {
+        ...state,
+        currentWeekNumber,
+        pointsToday: 0,
+        pointsWeek: 0,
+      };
+    }
+
+    return { ...state, currentWeekNumber };
+  } catch {
+    return state;
+  }
+}
 
 export function getInitialMathProgressState(): MathProgressState {
   return {
@@ -76,7 +135,7 @@ export function loadMathProgressFromStorage(): MathProgressState {
       init.recentQuestionHistory = storedSignatures;
       init.completedTaskIds = storedTaskIds;
       init.completedRecords = storedRecords;
-      return init;
+      return reconcileAutomaticMathWeek(init);
     }
 
     const parsed = JSON.parse(raw);
@@ -103,7 +162,7 @@ export function loadMathProgressFromStorage(): MathProgressState {
       ])
     );
 
-    return {
+    return reconcileAutomaticMathWeek({
       completedTaskIds: mergedTaskIds,
       completedRecords: mergedRecords,
       skillsMastery: parsed.skillsMastery || {},
@@ -115,7 +174,7 @@ export function loadMathProgressFromStorage(): MathProgressState {
       pointsWeek: typeof parsed.pointsWeek === 'number' ? parsed.pointsWeek : 0,
       streakDays: typeof parsed.streakDays === 'number' ? parsed.streakDays : 1,
       lastActiveDate: parsed.lastActiveDate,
-    };
+    });
   } catch {
     return getInitialMathProgressState();
   }
