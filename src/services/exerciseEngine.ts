@@ -1040,13 +1040,82 @@ export function generateDailyExercisePlan(params: {
       ? approvedWords
       : words.filter((w) => !isGenericSentence(w.exampleSentence || '', w.cleanWord));
 
-  const safeWords = activeWords.length > 0 ? activeWords : words;
+  const allSafeWords = activeWords.length > 0 ? activeWords : words;
 
-  // Check if safeWords matches the default Week 1 curriculum exactly
-  const isDefaultWeek1 =
-    safeWords.some((w) => w.cleanWord.toLowerCase() === 'zimmer') &&
-    safeWords.some((w) => w.cleanWord.toLowerCase() === 'kennen') &&
-    safeWords.some((w) => w.cleanWord.toLowerCase() === 'messer');
+  // PROGRESSIVE LERNWÖRTER ROTATION
+  // The newest available group defines the rolling five-day window.
+  // Example with groups 1–5: Mo=1, Di=2, Mi=3, Do=4, Fr=5.
+  // When group 6 is added: Mo=2, Di=3, Mi=4, Do=5, Fr=6.
+  // Saturday is a mixed review and also brings back the most recent older group
+  // that has fallen out of the Monday–Friday window.
+  const availableGroups = Array.from(
+    new Set(
+      allSafeWords
+        .map((w) => Number(w.group))
+        .filter((g) => Number.isFinite(g) && g > 0)
+    )
+  ).sort((a, b) => a - b);
+
+  const latestGroup = availableGroups.length > 0 ? availableGroups[availableGroups.length - 1] : 1;
+  const firstActiveGroup = Math.max(availableGroups[0] || 1, latestGroup - 4);
+  const weekdayOffset: Partial<Record<DayOfWeek, number>> = {
+    monday: 0,
+    tuesday: 1,
+    wednesday: 2,
+    thursday: 3,
+    friday: 4,
+  };
+
+  const buildSaturdayReviewWords = (): LernwortItem[] => {
+    const currentGroups = availableGroups.filter(
+      (g) => g >= firstActiveGroup && g <= latestGroup
+    );
+    const olderGroup = [...availableGroups].filter((g) => g < firstActiveGroup).pop();
+
+    // Always include the newest group, then the older carry-over group (if any),
+    // then rotate through the remaining active groups.
+    const reviewGroups = Array.from(
+      new Set([
+        latestGroup,
+        ...(olderGroup ? [olderGroup] : []),
+        ...currentGroups,
+      ])
+    );
+
+    const selected: LernwortItem[] = [];
+    reviewGroups.forEach((groupNumber, index) => {
+      const groupWords = allSafeWords.filter((w) => Number(w.group) === groupNumber);
+      if (groupWords.length === 0) return;
+      const pick = groupWords[(latestGroup + index) % groupWords.length];
+      if (pick && !selected.some((w) => w.id === pick.id)) selected.push(pick);
+    });
+
+    // Fill any remaining slots with distinct words from the rolling review window.
+    const allowedGroups = new Set([
+      ...currentGroups,
+      ...(olderGroup ? [olderGroup] : []),
+    ]);
+    for (const word of allSafeWords) {
+      if (selected.length >= 7) break;
+      if (!allowedGroups.has(Number(word.group))) continue;
+      if (!selected.some((w) => w.id === word.id)) selected.push(word);
+    }
+
+    return selected.length > 0 ? selected : allSafeWords;
+  };
+
+  let safeWords: LernwortItem[];
+  if (day === 'saturday') {
+    safeWords = buildSaturdayReviewWords();
+  } else {
+    const targetGroup = firstActiveGroup + (weekdayOffset[day] ?? 0);
+    const groupWords = allSafeWords.filter((w) => Number(w.group) === targetGroup);
+    safeWords = groupWords.length > 0 ? groupWords : allSafeWords;
+  }
+
+  // The original static Week-1 schedule is intentionally disabled.
+  // All days now use the rolling, Wortart-aware generator below.
+  const isDefaultWeek1 = false;
 
   let todayFive: GeneratedExercise[] = [];
 
