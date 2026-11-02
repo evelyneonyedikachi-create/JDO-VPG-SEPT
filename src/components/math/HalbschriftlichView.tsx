@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { HalbschriftlichExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface HalbschriftlichViewProps {
   exercise: HalbschriftlichExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -138,19 +136,7 @@ export const HalbschriftlichView: React.FC<HalbschriftlichViewProps> = ({
       </div>
 
       {/* Handwriting Scratchpad */}
-      <MathScratchpad
-        label="✍️ Dein handschriftlicher Rechenweg (optional)"
-        placeholder="Schreibe hier mit dem Stift deine Zwischenschritte auf..."
-        onApplyRecognizedText={(text) => {
-          // If child wrote single number, auto-fill final result
-          const matchNum = text.match(/\b\d+\b/);
-          if (matchNum && !finalVal) {
-            setFinalVal(matchNum[0]);
-          }
-        }}
-      />
-
-      <div className="flex justify-center pt-2">
+<div className="flex justify-center pt-2">
         <button
           type="button"
           onClick={handleCheck}
