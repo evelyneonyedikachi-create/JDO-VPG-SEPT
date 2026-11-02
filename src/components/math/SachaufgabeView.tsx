@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { SachaufgabeExercise } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check, HelpCircle, AlertCircle } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface SachaufgabeViewProps {
   exercise: SachaufgabeExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -139,13 +137,7 @@ export const SachaufgabeView: React.FC<SachaufgabeViewProps> = ({
       )}
 
       {/* Scratchpad */}
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Rechenweg & Überlegungen"
-        placeholder="Schreibe deine Überlegungen oder Notizen hier mit dem Stift auf..."
-      />
-
-      <div className="flex justify-center pt-2">
+<div className="flex justify-center pt-2">
         <button
           type="button"
           onClick={handleCheck}
