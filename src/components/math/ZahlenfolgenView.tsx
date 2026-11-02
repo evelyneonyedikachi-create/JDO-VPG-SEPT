@@ -4,8 +4,6 @@ import { validateUserMathAnswer } from '../../services/deterministicMathEngine';
 import { getTaskDraft, saveTaskDraft, clearTaskDraft } from '../../services/mathDraftService';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface ZahlenfolgenViewProps {
   exercise: ZahlenfolgenExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -103,20 +101,7 @@ export const ZahlenfolgenView: React.FC<ZahlenfolgenViewProps> = ({
           <span>{hasChecked && isCorrect === true ? 'Zahlenfolge gelöst! 🎉' : 'Ergebnis prüfen'}</span>
         </button>
       </div>
-
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Stift-Rechenweg (HUION H1161)"
-        placeholder="Schreibe hier die Abstände auf (z. B. immer +7 oder immer -12)..."
-        onApplyRecognizedText={(text) => {
-          const match = text.match(/\b\d+\b/);
-          if (match) {
-            handleAnswerChange(match[0]);
-          }
-        }}
-      />
-
-      {hasChecked && isCorrect === false && (
+{hasChecked && isCorrect === false && (
         <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-bold text-rose-900 text-center animate-shake">
           {feedback || exercise.hint || '❌ Schau dir den Abstand zwischen den Zahlen genau an!'}
         </div>
