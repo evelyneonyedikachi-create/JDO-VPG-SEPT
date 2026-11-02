@@ -153,20 +153,13 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
   const [isCurrentVoluntaryRepeat, setIsCurrentVoluntaryRepeat] = useState<boolean>(false);
 
   // Input mode: Keyboard (Tippen) vs Handwriting (Schreiben) (Requirement 1)
-  const [inputMethod, setInputMethod] = useState<'keyboard' | 'handwriting'>(() => {
-    try {
-      const saved = localStorage.getItem('jd_preferred_input_method');
-      return (saved as 'keyboard' | 'handwriting') || 'handwriting';
-    } catch {
-      return 'handwriting';
-    }
-  });
+  const [inputMethod, setInputMethod] = useState<'keyboard' | 'handwriting'>('keyboard');
 
-  const handleSetInputMethod = (method: 'keyboard' | 'handwriting') => {
+  const handleSetInputMethod = (_method: 'keyboard' | 'handwriting') => {
     playChime('click');
-    setInputMethod(method);
+    setInputMethod('keyboard');
     try {
-      localStorage.setItem('jd_preferred_input_method', method);
+      localStorage.setItem('jd_preferred_input_method', 'keyboard');
     } catch {}
   };
 
@@ -731,7 +724,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           return;
         }
         if (!textInput.trim() && handwritingStrokes.length === 0) {
-          setHintMessage('Bitte schreibe deinen Satz mit dem H1161 Stift auf die Linien oder wechsle zu 🔤 Wort-Blöcke.');
+          setHintMessage('Bitte tippe deinen Satz oder wechsle zu 🔤 Wort-Blöcke.');
           return;
         }
         studentAnswer = textInput.trim();
@@ -765,7 +758,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           return;
         }
         if (!textInput.trim() && handwritingStrokes.length === 0) {
-          setHintMessage('Bitte schreibe deine Antwort mit dem H1161 Stift oder wechsle zu 🔘 Auswählen.');
+          setHintMessage('Bitte wähle eine Antwort aus.');
           return;
         }
         studentAnswer = textInput.trim();
@@ -797,7 +790,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
           return;
         }
         if (!textInput.trim() && handwritingStrokes.length === 0) {
-          setHintMessage('Bitte schreibe zuerst mit deinem H1161 Stift auf die Linien oder tippe deine Antwort.');
+          setHintMessage('Bitte tippe zuerst deine Antwort.');
           return;
         }
         studentAnswer = textInput.trim();
