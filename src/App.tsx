@@ -25,7 +25,6 @@ import { SterneRewardsScreen } from './components/SterneRewardsScreen';
 import { ParentLernwoerterBackend } from './components/ParentLernwoerterBackend';
 import { PrintWorksheetModal } from './components/PrintWorksheetModal';
 import { MiniExamModal } from './components/MiniExamModal';
-import { PenInputTestModal } from './components/PenInputTestModal';
 import { VoiceGamesHub } from './components/VoiceGames/VoiceGamesHub';
 import { PLAYMATES } from './data/characters';
 import { playChime } from './utils/soundEffects';
@@ -33,7 +32,6 @@ import {
   Sparkles,
   BookOpen,
   Calendar,
-  PenTool,
   Trophy,
   Star,
   Settings,
@@ -699,7 +697,6 @@ export default function App() {
   // Modals
   const [showParentBackend, setShowParentBackend] = useState<boolean>(false);
   const [showPrintModal, setShowPrintModal] = useState<boolean>(false);
-  const [showPenTestModal, setShowPenTestModal] = useState<boolean>(false);
   const [printModalDay, setPrintModalDay] = useState<DayOfWeek>('monday');
 
   // Reward handler
@@ -881,19 +878,6 @@ export default function App() {
               <span className="text-amber-300">|</span>
               <Star className="w-4 h-4 text-amber-500 fill-amber-400" />
               <span>{starsCount} ⭐</span>
-            </button>
-
-            {/* HUION H1161 Tablet Pen Test Shortcut */}
-            <button
-              onClick={() => {
-                playChime('click');
-                setShowPenTestModal(true);
-              }}
-              className="px-3.5 py-2 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border-2 border-indigo-200 shadow-2xs text-sm sm:text-base font-black flex items-center gap-1.5 transition-all active:scale-95"
-              title="HUION Inspiroy H1161 Stift-Eingabetest"
-            >
-              <PenTool className="w-4 h-4 text-indigo-600" />
-              <span className="hidden sm:inline">Stift-Test</span>
             </button>
 
             {/* Print Worksheet Shortcut */}
@@ -1221,11 +1205,6 @@ export default function App() {
           onClose={() => setShowMiniExam(false)}
           onFinishExam={handleFinishExam}
         />
-      )}
-
-      {/* MODAL 4: HUION H1161 STIFT-TEST MODAL */}
-      {showPenTestModal && (
-        <PenInputTestModal onClose={() => setShowPenTestModal(false)} />
       )}
     </div>
   );
