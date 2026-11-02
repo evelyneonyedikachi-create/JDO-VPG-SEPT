@@ -215,7 +215,8 @@ export default function App() {
     const calculatedPointsToday = todayRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
 
     const allRecordsPoints = completedRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
-    const calculatedCumulativePoints = 400 + allRecordsPoints;
+    const LIFETIME_POINTS_MIGRATION_FLOOR = 688;
+    const calculatedCumulativePoints = LIFETIME_POINTS_MIGRATION_FLOOR + allRecordsPoints;
 
     const pointsWeek = Math.min(
       100,
@@ -226,6 +227,7 @@ export default function App() {
       persistedPointsState?.lastDate === todayKey ? (persistedPointsState?.pointsToday || 0) : 0
     );
     const cumulativePoints = Math.max(
+      688,
       calculatedCumulativePoints,
       persistedPointsState?.cumulativePoints || 0
     );
