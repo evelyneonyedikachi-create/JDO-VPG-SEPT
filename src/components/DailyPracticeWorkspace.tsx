@@ -1947,6 +1947,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
 
                       <button
                         type="button"
+                        style={{ display: 'none' }}
                         onClick={() => handleSetInputMethod('handwriting')}
                         className={`px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all ${
                           inputMethod === 'handwriting'
@@ -2143,6 +2144,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
 
                       <button
                         type="button"
+                        style={{ display: 'none' }}
                         onClick={() => {
                           playChime('click');
                           setChoiceExerciseMode('handwriting');
@@ -2334,7 +2336,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                         playChime('click');
                         setSentenceEvalResult(null);
                         setFeedbackStatus('idle');
-                        setHintMessage('Schreibe deinen Satz noch einmal auf die Linien oder passe ihn an.');
+                        setHintMessage('Tippe deinen Satz noch einmal oder passe ihn an.');
                         setTextInput('');
                         setRecognizedCandidate(null);
                         setRawRecognizedText(null);
@@ -2344,7 +2346,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                       className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 shadow-xs transition-transform active:scale-95"
                     >
                       <PenTool className="w-3.5 h-3.5" />
-                      <span>✍️ Noch einmal schreiben</span>
+                      <span>⌨️ Noch einmal tippen</span>
                     </button>
 
                     {sentenceEvalResult.evaluationStatus === 'needs_correction' && sentenceEvalResult.correctedText && (
