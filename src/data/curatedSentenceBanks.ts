@@ -1,3 +1,5 @@
+import { analyzeLernwortInput } from '../services/vocabularyLinguisticService';
+
 export interface CuratedConjugationTask {
   pronounOrSubject: string;
   sentenceWithBlank: string;
@@ -980,9 +982,9 @@ export function getCuratedWordEntry(cleanWord: string): CuratedWordEntry {
   if (CURATED_LERNWOERTER_BANKS[cap]) return CURATED_LERNWOERTER_BANKS[cap];
   if (CURATED_LERNWOERTER_BANKS[low]) return CURATED_LERNWOERTER_BANKS[low];
 
-  // 2. Dynamic generation for ANY new Lernwort entered by parents
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { analyzeLernwortInput } = require('../services/vocabularyLinguisticService');
+  // 2. Browser-safe dynamic generation for any new Lernwort entered by parents.
+  // vocabularyLinguisticService imports CuratedWordEntry as a TYPE ONLY, so this
+  // ESM import does not create a runtime circular dependency.
   const profile = analyzeLernwortInput(cleanWord);
 
   const wordType: 'noun' | 'verb' | 'adjective' =
