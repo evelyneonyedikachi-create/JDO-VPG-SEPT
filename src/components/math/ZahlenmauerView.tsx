@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NumberPyramidExercise, PyramidBrick } from '../../types/math';
 import { playChime } from '../../utils/soundEffects';
 import { Check } from 'lucide-react';
-import { MathScratchpad } from './MathScratchpad';
-
 interface ZahlenmauerViewProps {
   exercise: NumberPyramidExercise;
   onSolve: (isCorrect: boolean) => void;
@@ -195,11 +193,6 @@ export const ZahlenmauerView: React.FC<ZahlenmauerViewProps> = ({
       )}
 
       {/* Scratchpad */}
-      <MathScratchpad
-        key={`scratchpad-${exercise.id}`}
-        label="✍️ Stift-Rechenweg (HUION H1161)"
-        placeholder="Rechne hier deine Zwischenschritte für die Mauer aus..."
-      />
-    </div>
+</div>
   );
 };
