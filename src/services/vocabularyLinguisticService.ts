@@ -1,5 +1,5 @@
 import { Artikel, LernwortItem, PracticeSentence, Wortart } from '../types/lernwoerter';
-import { CuratedWordEntry } from '../data/curatedSentenceBanks';
+import type { CuratedWordEntry } from '../data/curatedSentenceBanks';
 
 export interface LinguisticProfile {
   cleanWord: string;
