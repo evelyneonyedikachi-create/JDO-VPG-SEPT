@@ -213,7 +213,7 @@ export default function App() {
     const calculatedPointsToday = todayRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
 
     const allRecordsPoints = completedRecords.reduce((sum, r) => sum + (r.pointsEarned ?? 4), 0);
-    const LIFETIME_POINTS_MIGRATION_FLOOR = 688;
+    const LIFETIME_POINTS_MIGRATION_FLOOR = 788;
     const calculatedCumulativePoints = Math.max(LIFETIME_POINTS_MIGRATION_FLOOR, 400 + allRecordsPoints);
 
     const pointsWeek = Math.min(
@@ -225,7 +225,7 @@ export default function App() {
       persistedPointsState?.lastDate === todayKey ? (persistedPointsState?.pointsToday || 0) : 0
     );
     const cumulativePoints = Math.max(
-      688,
+      788,
       calculatedCumulativePoints,
       persistedPointsState?.cumulativePoints || 0
     );
@@ -580,7 +580,7 @@ export default function App() {
             const merged = {
               pointsToday: Math.max(prev?.pointsToday || 0, remote.pointsState.pointsToday || 0),
               pointsWeek: Math.max(prev?.pointsWeek || 0, remote.pointsState.pointsWeek || 0),
-              cumulativePoints: Math.max(prev?.cumulativePoints || 0, remote.pointsState.cumulativePoints || 0),
+              cumulativePoints: Math.max(788, prev?.cumulativePoints || 0, remote.pointsState.cumulativePoints || 0),
               lastDate: remote.pointsState.lastDate || todayKey,
             };
             try {
