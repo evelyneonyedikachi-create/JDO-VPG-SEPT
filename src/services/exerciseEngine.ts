@@ -68,6 +68,145 @@ export interface DailyExercisePlan {
   skippedCount?: number;
 }
 
+const SCHOOL_COMPOUND_ADJECTIVE_TASKS = [
+  {
+    label: 'Adjektiv + Adjektiv',
+    sentence: 'Der Himmel ist am Abend ___.',
+    answer: 'dunkelblau',
+    options: ['dunkelblau', 'dunkel blau', 'blaudunkel'],
+    explanation: '„dunkel“ + „blau“ wird zusammengeschrieben: dunkelblau.',
+  },
+  {
+    label: 'Adjektiv + Adjektiv',
+    sentence: 'Draußen ist es heute ___.',
+    answer: 'bitterkalt',
+    options: ['bitterkalt', 'bitter kalt', 'kaltbitter'],
+    explanation: '„bitter“ + „kalt“ wird zusammengeschrieben: bitterkalt.',
+  },
+  {
+    label: 'Adjektiv + Adjektiv',
+    sentence: 'Nach dem Mittagsschlaf ist Mia wieder ___.',
+    answer: 'hellwach',
+    options: ['hellwach', 'hell wach', 'wachhell'],
+    explanation: '„hell“ + „wach“ wird zusammengeschrieben: hellwach.',
+  },
+  {
+    label: 'Adjektiv + Adjektiv',
+    sentence: 'Die Soße schmeckt angenehm ___.',
+    answer: 'süßsauer',
+    options: ['süßsauer', 'süß sauer', 'sauersüß'],
+    explanation: '„süß“ + „sauer“ wird zusammengeschrieben: süßsauer.',
+  },
+  {
+    label: 'Nomen + Adjektiv',
+    sentence: 'Das Wasser im Winter ist ___.',
+    answer: 'eiskalt',
+    options: ['eiskalt', 'Eis kalt', 'eis kalt'],
+    explanation: '„Eis“ + „kalt“ wird zum Adjektiv „eiskalt“.',
+  },
+  {
+    label: 'Nomen + Adjektiv',
+    sentence: 'Das frisch gewaschene Hemd ist ___.',
+    answer: 'schneeweiß',
+    options: ['schneeweiß', 'Schnee weiß', 'schnee weiß'],
+    explanation: '„Schnee“ + „weiß“ wird zum Adjektiv „schneeweiß“.',
+  },
+  {
+    label: 'Nomen + Adjektiv',
+    sentence: 'Der Superheld ist ___.',
+    answer: 'bärenstark',
+    options: ['bärenstark', 'Bären stark', 'bären stark'],
+    explanation: '„Bär“ + „stark“ wird zum Adjektiv „bärenstark“.',
+  },
+  {
+    label: 'Nomen + Adjektiv',
+    sentence: 'Der Teig ist nach dem Kneten ___.',
+    answer: 'butterweich',
+    options: ['butterweich', 'Butter weich', 'butter weich'],
+    explanation: '„Butter“ + „weich“ wird zum Adjektiv „butterweich“.',
+  },
+] as const;
+
+const SCHOOL_SEPARABLE_VERB_TASKS = [
+  {
+    verb: 'vorlesen',
+    sentence: 'Ich ___ meiner Schwester heute eine Geschichte ___.',
+    answer: 'lese … vor',
+    options: ['lese … vor', 'vorlese', 'lese … auf'],
+    explanation: '„vorlesen“ ist trennbar: Ich lese meiner Schwester eine Geschichte vor.',
+  },
+  {
+    verb: 'ablesen',
+    sentence: 'Du ___ die Zahl genau von der Tafel ___.',
+    answer: 'liest … ab',
+    options: ['liest … ab', 'ablesest', 'liest … auf'],
+    explanation: '„ablesen“ ist trennbar: Du liest die Zahl von der Tafel ab.',
+  },
+  {
+    verb: 'abschreiben',
+    sentence: 'Wir ___ den Satz sorgfältig von der Tafel ___.',
+    answer: 'schreiben … ab',
+    options: ['schreiben … ab', 'abschreiben', 'schreiben … auf'],
+    explanation: '„abschreiben“ ist trennbar: Wir schreiben den Satz von der Tafel ab.',
+  },
+] as const;
+
+function createSchoolGrammarFocusExercise(
+  day: DayOfWeek,
+  level: DifficultyLevel,
+  rotationSeed: number
+): GeneratedExercise {
+  const dayIndex: Record<DayOfWeek, number> = {
+    monday: 0,
+    tuesday: 1,
+    wednesday: 2,
+    thursday: 3,
+    friday: 4,
+    saturday: 5,
+  };
+  const idx = dayIndex[day];
+
+  if (day === 'tuesday' || day === 'thursday' || day === 'saturday') {
+    const task = SCHOOL_SEPARABLE_VERB_TASKS[(rotationSeed + idx) % SCHOOL_SEPARABLE_VERB_TASKS.length];
+    return {
+      id: `school_focus_${rotationSeed}_${day}_trennbar_${task.verb}`,
+      day,
+      level,
+      type: 'verb_conjugation',
+      title: 'Schulstoff · Trennbare Verben',
+      prompt: `Setze „${task.verb}“ in der richtigen getrennten Form ein.`,
+      contextSentence: task.sentence,
+      avatarId: 'ben',
+      options: [...task.options],
+      correctAnswer: task.answer,
+      solutionExplanation: task.explanation,
+      userHint1: 'Bei trennbaren Verben steht der erste Teil beim Verb und die Vorsilbe meist am Satzende.',
+      userHint2: `Sprich den Satz laut: Wo landet die Vorsilbe von „${task.verb}“?`,
+      grammarCategory: 'Grammatik',
+    };
+  }
+
+  const task = SCHOOL_COMPOUND_ADJECTIVE_TASKS[
+    (rotationSeed * 3 + idx) % SCHOOL_COMPOUND_ADJECTIVE_TASKS.length
+  ];
+  return {
+    id: `school_focus_${rotationSeed}_${day}_compound_${task.answer}`,
+    day,
+    level,
+    type: 'spelling_choice',
+    title: `Schulstoff · ${task.label}`,
+    prompt: 'Welches zusammengesetzte Adjektiv passt richtig in den Satz?',
+    contextSentence: task.sentence,
+    avatarId: 'mia',
+    options: [...task.options],
+    correctAnswer: task.answer,
+    solutionExplanation: task.explanation,
+    userHint1: 'Zwei Wörter können zusammen ein neues Adjektiv bilden. Das neue Wort wird zusammengeschrieben.',
+    userHint2: `Achte darauf, welche zwei Wörter in „${task.answer}“ stecken.`,
+    grammarCategory: 'Grammatik',
+  };
+}
+
 /**
  * Non-answer conceptual hint for Einzahl und Mehrzahl.
  * Helps the child understand the rule through an analogy with a DIFFERENT word,
@@ -1327,6 +1466,14 @@ export function generateDailyExercisePlan(params: {
         todayFive = tasks.slice(0, 5);
       }
     }
+  }
+
+  // Add one current school-grammar focus task without increasing the daily workload.
+  // It replaces only the fifth slot, so JD still gets exactly five required German tasks.
+  // The task rotates by newest Lernwörter group and weekday to avoid a static weekly repeat.
+  if (todayFive.length > 0) {
+    const schoolFocus = createSchoolGrammarFocusExercise(day, level, latestGroup);
+    todayFive = [...todayFive.slice(0, 4), schoolFocus];
   }
 
   // Ensure strict cap: exactly 5 required daily tasks
