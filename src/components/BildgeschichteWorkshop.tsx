@@ -493,7 +493,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                       ) : (
                         <>
                           <img
-                            src={scene.imageSrc || getSceneImage(scene.id)}
+                            src={getSceneImage(scene.id)}
                             alt={scene.title}
                             className="w-full h-full object-contain rounded-2xl"
                             onLoad={() => setFailedImages((prev) => ({ ...prev, [scene.id]: false }))}
