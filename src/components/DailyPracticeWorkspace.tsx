@@ -17,6 +17,7 @@ import {
 import { PLAYMATES } from '../data/characters';
 import { speakGerman } from '../services/speechSynthesisService';
 import { playChime } from '../utils/soundEffects';
+import LernwortVisual from './LernwortVisual';
 import {
   Volume2,
   Sparkles,
@@ -1817,9 +1818,7 @@ export const DailyPracticeWorkspace: React.FC<DailyPracticeWorkspaceProps> = ({
                   {currentEx.word && (
                     <div className="flex items-center justify-center p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-50 to-indigo-50/50 border border-slate-200">
                       <div className="text-center space-y-2">
-                        <div className="text-7xl sm:text-8xl select-none filter drop-shadow-md animate-bounce-subtle">
-                          {currentEx.word.emoji}
-                        </div>
+                        <LernwortVisual word={currentEx.word} />
                         {/* Recall tasks hide word context until answered */}
                         {!isRecallTask && (
                           <div className="text-xs font-black tracking-wider uppercase text-slate-500">
