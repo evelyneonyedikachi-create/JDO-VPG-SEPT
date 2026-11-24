@@ -9,7 +9,7 @@ import {
   SkippedExerciseItem,
   WeeklyCurriculum,
 } from './types/lernwoerter';
-import { INITIAL_CURRICULUM, DEFAULT_WEEK_1_WORDS } from './data/defaultWeeklyCurriculum';
+import { INITIAL_CURRICULUM, DEFAULT_WEEK_1_WORDS, DEFAULT_BILDGESCHICHTE_SCENES } from './data/defaultWeeklyCurriculum';
 import { HeuteScreen } from './components/HeuteScreen';
 
 export function normalizeWeekId(weekId?: string | number | null): string {
@@ -1105,7 +1105,7 @@ export default function App() {
         {/* VIEW 4: BILDGESCHICHTE (Freitag 9 Szenen & Samstag Wochen-Challenge) */}
         {currentView === 'bildgeschichte' && (
           <BildgeschichteWorkshop
-            scenes={curriculum.scenes}
+            scenes={DEFAULT_BILDGESCHICHTE_SCENES}
             words={curriculum.words}
             pointsToday={pointsState.pointsToday}
             pointsWeek={pointsState.pointsWeek}
