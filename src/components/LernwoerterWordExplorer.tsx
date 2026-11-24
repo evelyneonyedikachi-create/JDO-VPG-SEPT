@@ -3,6 +3,7 @@ import { LernwortItem } from '../types/lernwoerter';
 import { Volume2, Sparkles, BookOpen, Layers, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { speakGerman } from '../services/speechSynthesisService';
 import { playChime } from '../utils/soundEffects';
+import LernwortVisual from './LernwortVisual';
 
 interface LernwoerterWordExplorerProps {
   words: LernwortItem[];
@@ -115,7 +116,7 @@ export const LernwoerterWordExplorer: React.FC<LernwoerterWordExplorerProps> = (
           >
             {!flashcardFlipped ? (
               <div className="space-y-4">
-                <div className="text-6xl sm:text-7xl animate-bounce-subtle">{currentFlashcard.emoji}</div>
+                <div className="w-full flex justify-center"><LernwortVisual word={currentFlashcard} /></div>
                 <div className="text-3xl sm:text-4xl font-black text-slate-900">
                   {currentFlashcard.word}
                 </div>
@@ -212,8 +213,8 @@ export const LernwoerterWordExplorer: React.FC<LernwoerterWordExplorerProps> = (
                     className="p-4 sm:p-5 flex items-center justify-between cursor-pointer gap-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center text-4xl sm:text-5xl shadow-xs shrink-0">
-                        {item.emoji}
+                      <div className="shrink-0">
+                        <LernwortVisual word={item} compact />
                       </div>
 
                       <div>
