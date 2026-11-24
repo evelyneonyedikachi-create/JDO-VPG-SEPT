@@ -132,24 +132,16 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
   const [completedSaved, setCompletedSaved] = useState<boolean>(false);
   const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
 
-  // Input preference (keyboard vs handwriting with H1161 stylus)
-  const [preferredInputMethod, setPreferredInputMethod] = useState<'keyboard' | 'handwriting'>(() => {
-    try {
-      const saved = localStorage.getItem('jd_preferred_input_method');
-      return (saved as 'keyboard' | 'handwriting') || 'handwriting';
-    } catch {
-      return 'handwriting';
-    }
-  });
-
-  const handleSetInputMethod = (method: 'keyboard' | 'handwriting') => {
+  // JD now completes Bildgeschichte by typing only.
+  const preferredInputMethod: 'keyboard' = 'keyboard';
+  const handleSetInputMethod = (_method: 'keyboard' | 'handwriting') => {
     playChime('click');
-    setPreferredInputMethod(method);
     try {
-      localStorage.setItem('jd_preferred_input_method', method);
+      localStorage.setItem('jd_preferred_input_method', 'keyboard');
     } catch {}
   };
 
+  // Legacy handwriting state is retained only for previously archived records.
   // Scene handwriting strokes
   const [sceneStrokes, setSceneStrokes] = useState<Record<number, Stroke[]>>(() => {
     try {
@@ -523,8 +515,13 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                         Was passiert auf diesem Bild?
                       </h4>
                       <p className="text-sm font-semibold text-slate-500 mt-0.5">
-                        Schau dir das Bild genau an und schreibe 1–2 Sätze dazu.
+                        Schau dir das Bild genau an und schreibe 1–2 Sätze dazu. Beschreibe auch, wo die Dinge sind.
                       </p>
+                      <div className="mt-3 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2">
+                        <span className="text-xs sm:text-sm font-black text-sky-900">
+                          📍 Lagewörter: auf · unter · neben · vor · hinter · in
+                        </span>
+                      </div>
                     </div>
 
                     {/* Clickable Sentence Starters for this scene */}
@@ -576,7 +573,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                     </div>
                   </div>
 
-                  {/* Student Sentence Input: ⌨️ Tippen | ✍️ Schreiben (Requirement 4 & 11) */}
+                  {/* Student Sentence Input: ⌨️ Tippen */}
                   <div className="space-y-3 pt-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-3">
@@ -611,7 +608,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                         </div>
                       </div>
 
-                      {/* Input Mode Toggle per Scene / Session */}
+                      {/* Typing mode */}
                       <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
                         <button
                           type="button"
@@ -624,18 +621,6 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                         >
                           <Keyboard className="w-3 h-3" />
                           <span>Tippen</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleSetInputMethod('handwriting')}
-                          className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
-                            preferredInputMethod === 'handwriting'
-                              ? 'bg-indigo-600 text-white shadow-xs'
-                              : 'text-slate-600 hover:text-slate-900'
-                          }`}
-                        >
-                          <PenTool className="w-3 h-3" />
-                          <span>✍️ Stift (H1161)</span>
                         </button>
                       </div>
                     </div>
@@ -823,7 +808,7 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                       <span>Aus Freitags-Sätzen laden</span>
                     </button>
 
-                    {/* Mode selector */}
+                    {/* Typing mode */}
                     <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
                       <button
                         type="button"
@@ -836,18 +821,6 @@ export const BildgeschichteWorkshop: React.FC<BildgeschichteWorkshopProps> = ({
                       >
                         <Keyboard className="w-3 h-3" />
                         <span>Tippen</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSetInputMethod('handwriting')}
-                        className={`px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all ${
-                          preferredInputMethod === 'handwriting'
-                            ? 'bg-indigo-600 text-white shadow-xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        <PenTool className="w-3 h-3" />
-                        <span>✍️ Stift (H1161)</span>
                       </button>
                     </div>
                   </div>
